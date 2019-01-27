@@ -3,4 +3,62 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+
+    <string name="dialog_title_confirmation">Confirmation</string>
+    <string name="dialog_positive_execute">OK</string>
+    <string name="dialog_negative_cancel">Cancel</string>
+
+    <string name="action_refresh">Refresh</string>
+    <string name="finish_refresh">Finished Refresh</string>
+
+    <string name="dialog_confirm_title_output_log">Share debug log</string>
+    <string name="dialog_confirm_message_output_log">Share the debug log, OK?</string>
+
+    <string name="dialog_message_power_off">Power Off</string>
+    <string name="camera_not_found">Not Found&#8230;</string>
+    <string name="connect_connected">connected</string>
+    <string name="network_connection_timeout">Connection time out</string>
+    <string name="connect_check_wifi">check WIFI</string>
+
+    <string name="camera_disconnected">Disconnected</string>
+    <string name="only_opc_feature">This feature is only available for a OPC Camera.</string>
+
+    <string name="pref_cat_application_control">App. Control</string>
+    <string name="pref_exit_power_off">Exit Application(and Camera OFF)</string>
+    <string name="pref_connection_method">Connection Method (Needs restart)</string>
+
+    <string name="pref_cat_camera">Camera</string>
+
+    <string name="pref_capture_both_camera_and_live_view">Capture both camera and Live View</string>
+
+    <string name="pref_cat_initialize">App. Startup</string>
+    <string name="pref_auto_connect_camera">Auto Connect To Camera</string>
+    <string name="pref_summary_auto_connect_camera">Normally to keep ON.</string>
+
+    <string name="pref_gr2_display_mode">Display Mode</string>
+    <string name="pref_gr2_display_camera_view">Mirror Camera Screen</string>
+    <string name="pref_gr2_display_camera_view_summary">Use same camera screen.</string>
+    <string name="pref_gr2_lcd_sleep">Screen off during connected</string>
+
+    <string name="pref_cat_others">Others</string>
+    <string name="pref_call_share_after_save">Share after Save</string>
+    <string name="pref_use_playback_menu">Use playback screen menu</string>
+
+    <string name="pref_use_gr2_special_command">Use GR2 Special Command</string>
+    <string name="summary_use_gr2_special_command">Use some GR2 special command.</string>
+
+    <string name="pref_pentax_capture_after_auto_focus">Capture after AF(PENTAX)</string>
+    <string name="summary_pentax_capture_after_auto_focus">Capture after AF.(for PENTAX DSLR, need restart)</string>
+
+    <string name="pref_cat_gokigen">GOKIGEN</string>
+    <string name="pref_instruction_manual">Instructions</string>
+    <string name="pref_privacy_policy">Privacy Policy</string>
+
+    <string name="pref_degug_info">Debug Information</string>
+    <string name="pref_summary_debug_info">LogCat Information</string>
+
+    <string name="dialog_title_connect_failed">Connect failed</string>
+    <string name="dialog_title_button_retry">Retry</string>
+    <string name="dialog_title_button_network_settings">WiFi Settings</string>
+
 </resources>
