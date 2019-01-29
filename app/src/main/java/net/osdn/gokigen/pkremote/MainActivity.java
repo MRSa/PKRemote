@@ -23,11 +23,17 @@ public class MainActivity extends AppCompatActivity
                 case R.id.navigation_home:
                     mTextMessage.setText(R.string.title_home);
                     return true;
+                case R.id.navigation_photo_library:
+                    mTextMessage.setText(R.string.title_photo_library);
+                    return true;
                 case R.id.navigation_dashboard:
                     mTextMessage.setText(R.string.title_dashboard);
                     return true;
                 case R.id.navigation_notifications:
                     mTextMessage.setText(R.string.title_notifications);
+                    return true;
+                case R.id.navigation_settings:
+                    mTextMessage.setText(R.string.title_settings);
                     return true;
             }
             return false;
@@ -39,8 +45,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        mTextMessage = findViewById(R.id.message);
+        BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
