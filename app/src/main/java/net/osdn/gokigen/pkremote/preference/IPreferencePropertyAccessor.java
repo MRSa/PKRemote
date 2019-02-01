@@ -30,7 +30,7 @@ public interface IPreferencePropertyAccessor
     String CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW = "capture_both_camera_and_live_view";
 
     String CONNECTION_METHOD = "connection_method";
-    String CONNECTION_METHOD_DEFAULT_VALUE = "RICOH_GR2";
+    String CONNECTION_METHOD_DEFAULT_VALUE = "RICOH";
 
     String GR2_DISPLAY_CAMERA_VIEW = "gr2_display_camera_view";
 

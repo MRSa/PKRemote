@@ -1,6 +1,8 @@
 package net.osdn.gokigen.pkremote.camera;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
+
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ILiveViewListener;
@@ -17,9 +19,13 @@ import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ILiveViewControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.IZoomLensControl;
+import net.osdn.gokigen.pkremote.camera.vendor.olympus.IOlympusInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.vendor.olympus.wrapper.OlympusInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ricoh.wrapper.RicohGr2InterfaceProvider;
+import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
 
 /**
  *
@@ -27,10 +33,10 @@ import androidx.annotation.NonNull;
  */
 public class CameraInterfaceProvider implements IInterfaceProvider
 {
-    //private final Activity context;
     //private final SonyCameraWrapper sony;
+    private final OlympusInterfaceProvider olympus;
     private final RicohGr2InterfaceProvider ricohGr2;
-    //private final Activity context;
+    private final Activity context;
     private ICameraConnection.CameraConnectionMethod connectionMethod = ICameraConnection.CameraConnectionMethod.UNKNOWN;
 
     public static IInterfaceProvider newInstance(@NonNull Activity context, @NonNull ICameraStatusReceiver provider)
@@ -44,32 +50,17 @@ public class CameraInterfaceProvider implements IInterfaceProvider
      */
     private CameraInterfaceProvider(@NonNull Activity context, @NonNull ICameraStatusReceiver provider)
     {
-        //this.context = context;
+        this.context = context;
+        olympus = new OlympusInterfaceProvider(context, provider);
         ricohGr2 = new RicohGr2InterfaceProvider(context, provider);
         //sony = new SonyCameraWrapper(context, provider);
     }
 
-/*
     @Override
-    public IOlympusLiveViewListener getOlympusLiveViewListener()
+    public IOlympusInterfaceProvider getOlympusInterfaceProvider()
     {
-        return (olympus.getLiveViewListener());
+        return (olympus);
     }
-
-    @Override
-    public ISonyInterfaceProvider getSonyInterface()
-    {
-        return (sony);
-    }
-*/
-
-/*
-    @Override
-    public IRicohGr2InterfaceProvider getRicohGr2Infterface()
-    {
-        return (ricohGr2);
-    }
-*/
 
     /**
      *
@@ -80,18 +71,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getOlyCameraConnection());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getRicohGr2CameraConnection());
             }
-*/
-            return (ricohGr2.getRicohGr2CameraConnection());
         }
         catch (Exception e)
         {
@@ -105,18 +93,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getButtonControl());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getButtonControl());
             }
-*/
-            return (ricohGr2.getButtonControl());
         }
         catch (Exception e)
         {
@@ -130,18 +115,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getDisplayInjector());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getDisplayInjector());
             }
-*/
-            return (ricohGr2.getDisplayInjector());
         }
         catch (Exception e)
         {
@@ -155,18 +137,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getLiveViewControl());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getLiveViewControl());
             }
-*/
-            return (ricohGr2.getLiveViewControl());
         }
         catch (Exception e)
         {
@@ -180,18 +159,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getLiveViewListener());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getLiveViewListener());
             }
-*/
-            return (ricohGr2.getLiveViewListener());
         }
         catch (Exception e)
         {
@@ -205,18 +181,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getFocusingControl());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getFocusingControl());
             }
-*/
-            return (ricohGr2.getFocusingControl());
         }
         catch (Exception e)
         {
@@ -230,18 +203,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getCameraInformation());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCameraInformation());
             }
-*/
-            return (ricohGr2.getCameraInformation());
         }
         catch (Exception e)
         {
@@ -255,18 +225,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getZoomLensControl());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getZoomLensControl());
             }
-*/
-            return (ricohGr2.getZoomLensControl());
         }
         catch (Exception e)
         {
@@ -280,18 +247,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getCaptureControl());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCaptureControl());
             }
-*/
-            return (ricohGr2.getCaptureControl());
         }
         catch (Exception e)
         {
@@ -305,18 +269,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getCameraStatusListHolder());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCameraStatusListHolder());
             }
-*/
-            return (ricohGr2.getCameraStatusListHolder());
         }
         catch (Exception e)
         {
@@ -330,18 +291,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getCameraStatusWatcher());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCameraStatusWatcher());
             }
-*/
-            return (ricohGr2.getCameraStatusWatcher());
         }
         catch (Exception e)
         {
@@ -355,18 +313,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getPlaybackControl());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getPlaybackControl());
             }
-*/
-            return (ricohGr2.getPlaybackControl());
         }
         catch (Exception e)
         {
@@ -380,18 +335,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getHardwareStatus());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getHardwareStatus());
             }
-*/
-            return (ricohGr2.getHardwareStatus());
         }
         catch (Exception e)
         {
@@ -405,18 +357,15 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     {
         try
         {
-/*
             ICameraConnection.CameraConnectionMethod connectionMethod = getCammeraConnectionMethodImpl();
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getCameraRunMode());
             }
-            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCameraRunMode());
             }
-*/
-            return (ricohGr2.getCameraRunMode());
         }
         catch (Exception e)
         {
@@ -428,7 +377,7 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     /**
      *   OPC/GR2/SONY カメラを使用するかどうか
      *
-     * @return OPC / SONY / RICOH_GR2  (ICameraConnection.CameraConnectionMethod)
+     * @return OPC / SONY / RICOH  (ICameraConnection.CameraConnectionMethod)
      */
     public ICameraConnection.CameraConnectionMethod getCammeraConnectionMethod()
     {
@@ -458,23 +407,22 @@ public class CameraInterfaceProvider implements IInterfaceProvider
         ICameraConnection.CameraConnectionMethod ret;
         try
         {
-/*
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            String connectionMethod = preferences.getString(IPreferencePropertyAccessor.CONNECTION_METHOD, "RICOH_GR2");
-            if (connectionMethod.contains("RICOH_GR2"))
+            String connectionMethod = preferences.getString(IPreferencePropertyAccessor.CONNECTION_METHOD, "RICOH");
+            if (connectionMethod.contains("RICOH"))
             {
-                ret = ICameraConnection.CameraConnectionMethod.RICOH_GR2;
+                ret = ICameraConnection.CameraConnectionMethod.RICOH;
             }
             else // if (connectionMethod.contains("OPC"))
             {
                 ret = ICameraConnection.CameraConnectionMethod.OPC;
             }
+/*
             else if (connectionMethod.contains("SONY"))
             {
                 ret = ICameraConnection.CameraConnectionMethod.SONY;
             }
 */
-            ret = ICameraConnection.CameraConnectionMethod.RICOH_GR2;
         }
         catch (Exception e)
         {

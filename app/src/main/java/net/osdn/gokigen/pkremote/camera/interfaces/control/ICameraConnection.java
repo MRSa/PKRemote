@@ -13,7 +13,7 @@ public interface ICameraConnection
         UNKNOWN,
         OPC,
         SONY,
-        RICOH_GR2,
+        RICOH,
     }
 
     enum CameraConnectionStatus

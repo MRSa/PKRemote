@@ -1,4 +1,4 @@
-package net.osdn.gokigen.pkremote.camera.interfaces;
+package net.osdn.gokigen.pkremote.camera.vendor.olympus;
 
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
@@ -14,33 +14,29 @@ import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraHardwareStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraInformation;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher;
-import net.osdn.gokigen.pkremote.camera.vendor.olympus.IOlympusInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.vendor.olympus.wrapper.property.IOlyCameraPropertyProvider;
 
 /**
  *
  */
-public interface IInterfaceProvider
+public interface IOlympusInterfaceProvider
 {
-    ICameraConnection getCameraConnection();
-    ICameraButtonControl getButtonControl();
-
-    IDisplayInjector getDisplayInjector();
-
+    ICameraConnection getOlyCameraConnection();
     ILiveViewControl getLiveViewControl();
     ILiveViewListener getLiveViewListener();
     IFocusingControl getFocusingControl();
     ICameraInformation getCameraInformation();
     IZoomLensControl getZoomLensControl();
     ICaptureControl getCaptureControl();
+    ICameraButtonControl getButtonControl();
+    IDisplayInjector getDisplayInjector();
+
+    IOlyCameraPropertyProvider getCameraPropertyProvider();
+
     ICameraStatus getCameraStatusListHolder();
     ICameraStatusWatcher getCameraStatusWatcher();
-
     IPlaybackControl getPlaybackControl();
 
     ICameraHardwareStatus getHardwareStatus();
     ICameraRunMode getCameraRunMode();
-
-    IOlympusInterfaceProvider getOlympusInterfaceProvider();
-
-    ICameraConnection.CameraConnectionMethod getCammeraConnectionMethod();
-    void resetCameraConnectionMethod();}
+}

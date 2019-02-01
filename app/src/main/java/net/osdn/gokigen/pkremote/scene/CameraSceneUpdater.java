@@ -150,7 +150,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
         {
             ICameraConnection.CameraConnectionMethod method = interfaceProvider.getCammeraConnectionMethod();
             ICameraConnection connection = getCameraConnection(method);
-            if (method == ICameraConnection.CameraConnectionMethod.RICOH_GR2)
+            if (method == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 // OPCカメラでない場合には、「OPCカメラのみ有効です」表示をして画面遷移させない
                 Toast.makeText(getApplicationContext(), getText(R.string.only_opc_feature), Toast.LENGTH_SHORT).show();
@@ -201,7 +201,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
                     preferenceFragment = RicohGr2PreferenceFragment.newInstance(activity, this);
 /*
                     ICameraConnection.CameraConnectionMethod connectionMethod = interfaceProvider.getCammeraConnectionMethod();
-                    if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH_GR2) {
+                    if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH) {
                         preferenceFragment = RicohGr2PreferenceFragment.newInstance(activity, this);
                     //} else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY) {
                     //    preferenceFragment = SonyPreferenceFragment.newInstance(this, this);

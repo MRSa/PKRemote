@@ -1,10 +1,17 @@
 <resources>
     <string name="app_name">PKRemote</string>
+    <string name="blank"> </string>
+
+    <string name="configuration">Settings</string>
+    <string name="restore">Restore</string>
+    <string name="icon">icon</string>
+
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_settings">Settings</string>
     <string name="title_photo_library">Photo Library</string>
+
 
     <string name="dialog_title_confirmation">Confirmation</string>
     <string name="dialog_positive_execute">OK</string>
@@ -17,10 +24,6 @@
     <string name="dialog_confirm_message_output_log">Share the debug log, OK?</string>
 
     <string name="dialog_message_power_off">Power Off</string>
-    <string name="camera_not_found">Not Found&#8230;</string>
-    <string name="connect_connected">connected</string>
-    <string name="network_connection_timeout">Connection time out</string>
-    <string name="connect_check_wifi">check WIFI</string>
 
     <string name="camera_disconnected">Disconnected</string>
     <string name="only_opc_feature">This feature is only available for a OPC Camera.</string>
@@ -63,4 +66,42 @@
     <string name="dialog_title_button_retry">Retry</string>
     <string name="dialog_title_button_network_settings">WiFi Settings</string>
 
+    <string name="save_props">Save</string>
+    <string name="hint_save_props">Label</string>
+    <string name="saved_my_props">Saved Property : </string>
+    <string name="auto_save_props">(Auto Save)</string>
+    <string name="title_tab_title_load">Load</string>
+    <string name="title_tab_title_save">Save</string>
+    <string name="title_my_settings">Favorite Camera Properties</string>
+
+    <string name="dialog_title_loading_properties">Loading Camera Properties</string>
+    <string name="dialog_message_loading_properties">Please wait&#8230;</string>
+
+    <string name="dialog_start_save_property_message">Please Wait</string>
+    <string name="dialog_start_save_property_title">Storing Properties&#8230;</string>
+    <string name="dialog_start_load_property_message">Please Wait</string>
+    <string name="dialog_start_load_property_title">Setting Properties&#8230;</string>
+    <string name="restored_my_props">Restored Property : </string>
+    <string name="dialog_message_restore_camera_property">Restore Camera Property</string>
+
+    <string name="camera_not_found">Not Found&#8230;</string>
+    <string name="connect_connected">connected</string>
+    <string name="network_connection_timeout">Connection time out</string>
+    <string name="connect_check_wifi">check WIFI</string>
+    <string name="connect_start">start</string>
+    <string name="connect_change_run_mode">changeRunMode</string>
+    <string name="fatal_cannot_use_camera">The CameraKit SDK can not work because the running mode of camera is UNKNOWN.   So please long press the power button of camera more than 8 seconds. (This is the camera reset operation.) After that turn on the camera power again.</string>
+    <string name="camera_reset_required">The camera reset operation is required.</string>
+
+    <string name="pref_camera_sound_volume">Shutter Sound</string>
+    <string name="pref_take_raw">Take Raw</string>
+
+    <string name="pref_cat_live_view">Live View Settings</string>
+    <string name="pref_live_view_quality">Live View Quality</string>
+    <string name="pref_cat_info">Information</string>
+    <string name="pref_focal_length">Focal Length</string>
+    <string name="pref_lens_status">Lens Status</string>
+    <string name="pref_media_status">SD Card Status</string>
+    <string name="pref_camera_version">Camera Version</string>
+    <string name="pref_camerakit_version">Camera kit Version</string>
 </resources>
