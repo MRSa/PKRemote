@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">PKRemote</string>
     <string name="blank"> </string>
+    <string name="dummy">##</string>
+    <string name="button">Button</string>
 
     <string name="configuration">Settings</string>
     <string name="restore">Restore</string>
@@ -42,8 +44,9 @@
 
     <string name="pref_gr2_display_mode">Display Mode</string>
     <string name="pref_gr2_display_camera_view">Mirror Camera Screen</string>
-    <string name="pref_gr2_display_camera_view_summary">Use same camera screen.</string>
+    <string name="pref_gr2_display_camera_view_summary">Use same camera screen.(GR2 Only)</string>
     <string name="pref_gr2_lcd_sleep">Screen off during connected</string>
+    <string name="pref_gr2_lcd_sleep_summary">This switch effects only GR2.</string>
 
     <string name="pref_cat_others">Others</string>
     <string name="pref_call_share_after_save">Share after Save</string>
@@ -53,7 +56,7 @@
     <string name="summary_use_gr2_special_command">Use some GR2 special command.</string>
 
     <string name="pref_pentax_capture_after_auto_focus">Capture after AF(PENTAX)</string>
-    <string name="summary_pentax_capture_after_auto_focus">Capture after AF.(for PENTAX DSLR, need restart)</string>
+    <string name="summary_pentax_capture_after_auto_focus">Capture after AF.(for PENTAX DSLR, needs restart)</string>
 
     <string name="pref_cat_gokigen">GOKIGEN</string>
     <string name="pref_instruction_manual">Instructions</string>
@@ -104,4 +107,13 @@
     <string name="pref_media_status">SD Card Status</string>
     <string name="pref_camera_version">Camera Version</string>
     <string name="pref_camerakit_version">Camera kit Version</string>
+
+    <string name="today">Today</string>
+    <string name="sundayLabel">Sun</string>
+    <string name="mondayLabel">Mon</string>
+    <string name="tuesdayLabel">Tue</string>
+    <string name="wednesdayLabel">Wed</string>
+    <string name="thursdayLabel">Thu</string>
+    <string name="fridayLabel">Fri</string>
+    <string name="saturdayLabel">Sat</string>
 </resources>

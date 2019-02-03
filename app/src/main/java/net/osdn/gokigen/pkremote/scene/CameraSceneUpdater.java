@@ -8,6 +8,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IStatusViewDrawer;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.logcat.LogCatFragment;
+import net.osdn.gokigen.pkremote.preference.olympus.OpcPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.ricohgr2.RicohGr2PreferenceFragment;
 
 import androidx.annotation.NonNull;
@@ -41,6 +42,28 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
     private CameraSceneUpdater(@NonNull AppCompatActivity activity)
     {
         this.activity = activity;
+    }
+
+    /**
+     *   一番最初のフラグメントを表示する
+     *
+     */
+    public void changeFirstFragment(@NonNull IInterfaceProvider interfaceProvider)
+    {
+        this.interfaceProvider = interfaceProvider;
+
+        // 初期画面へ遷移
+        changeSceneToConfiguration();
+/*
+            LiveViewFragment fragment = LiveViewFragment.newInstance(scenceUpdater, interfaceProvider);
+            scenceUpdater.registerInterface(fragment, interfaceProvider);
+
+            fragment.setRetainInstance(true);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment1, fragment);
+            transaction.commitAllowingStateLoss();
+*/
+
     }
 
     //  CameraSceneUpdater
@@ -199,7 +222,6 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
                 try
                 {
                     preferenceFragment = RicohGr2PreferenceFragment.newInstance(activity, this);
-/*
                     ICameraConnection.CameraConnectionMethod connectionMethod = interfaceProvider.getCammeraConnectionMethod();
                     if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH) {
                         preferenceFragment = RicohGr2PreferenceFragment.newInstance(activity, this);
@@ -207,9 +229,8 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
                     //    preferenceFragment = SonyPreferenceFragment.newInstance(this, this);
                     } else //  if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
                     {
-                        preferenceFragment = PreferenceFragment.newInstance(activity, interfaceProvider, this);
+                        preferenceFragment = OpcPreferenceFragment.newInstance(activity, interfaceProvider, this);
                     }
-*/
                 }
                 catch (Exception e)
                 {

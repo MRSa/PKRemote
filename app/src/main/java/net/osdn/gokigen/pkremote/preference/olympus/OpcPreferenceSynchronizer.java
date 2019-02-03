@@ -9,14 +9,14 @@ import net.osdn.gokigen.pkremote.camera.vendor.olympus.wrapper.property.IOlyCame
 import net.osdn.gokigen.pkremote.camera.vendor.olympus.wrapper.property.IOlyCameraPropertyProvider;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
-class PreferenceSynchronizer implements Runnable
+class OpcPreferenceSynchronizer implements Runnable
 {
     private final String TAG = toString();
     private final IOlyCameraPropertyProvider propertyInterface;
     private final SharedPreferences preference;
     private final IPropertySynchronizeCallback callback;
 
-    PreferenceSynchronizer(IOlyCameraPropertyProvider propertyInterface, SharedPreferences preference, IPropertySynchronizeCallback callback)
+    OpcPreferenceSynchronizer(IOlyCameraPropertyProvider propertyInterface, SharedPreferences preference, IPropertySynchronizeCallback callback)
     {
         this.propertyInterface = propertyInterface;
         this.preference = preference;

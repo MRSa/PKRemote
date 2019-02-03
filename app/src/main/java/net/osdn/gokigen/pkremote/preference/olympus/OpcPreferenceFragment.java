@@ -36,7 +36,7 @@ import jp.co.olympus.camerakit.OLYCamera;
  *   SettingFragment
  *
  */
-public class PreferenceFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, PreferenceSynchronizer.IPropertySynchronizeCallback
+public class OpcPreferenceFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, OpcPreferenceSynchronizer.IPropertySynchronizeCallback
 {
     private final String TAG = toString();
     private IOlyCameraPropertyProvider propertyInterface = null;
@@ -46,12 +46,12 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Shar
     private LogCatViewer logCatViewer = null;
     private SharedPreferences preferences = null;
     private ProgressDialog busyDialog = null;
-    private PreferenceSynchronizer preferenceSynchronizer = null;
+    private OpcPreferenceSynchronizer opcPreferenceSynchronizer = null;
 
 
-    public static PreferenceFragment newInstance(@NonNull AppCompatActivity context, @NonNull IInterfaceProvider factory, @NonNull IChangeScene changeScene)
+    public static OpcPreferenceFragment newInstance(@NonNull AppCompatActivity context, @NonNull IInterfaceProvider factory, @NonNull IChangeScene changeScene)
     {
-        PreferenceFragment instance = new PreferenceFragment();
+        OpcPreferenceFragment instance = new OpcPreferenceFragment();
         instance.setInterface(context, factory, changeScene);
 
         // パラメータはBundleにまとめておく
@@ -91,9 +91,9 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Shar
 
         // Preference をつかまえる
         preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-        if (preferenceSynchronizer == null)
+        if (opcPreferenceSynchronizer == null)
         {
-            preferenceSynchronizer = new PreferenceSynchronizer(this.propertyInterface, preferences, this);
+            opcPreferenceSynchronizer = new OpcPreferenceSynchronizer(this.propertyInterface, preferences, this);
         }
 
         // Preference を初期設定する
@@ -319,7 +319,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Shar
         // データ読み込み処理（別スレッドで実行）
         if (isPropertyLoad)
         {
-            new Thread(preferenceSynchronizer).start();
+            new Thread(opcPreferenceSynchronizer).start();
         }
     }
 
