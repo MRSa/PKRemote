@@ -3,6 +3,7 @@ package net.osdn.gokigen.pkremote.scene;
 import android.util.Log;
 
 import net.osdn.gokigen.pkremote.R;
+import net.osdn.gokigen.pkremote.calendar.CalendarFragment;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IStatusViewDrawer;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
@@ -29,6 +30,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
 
     private PreferenceFragmentCompat preferenceFragment = null;
     private LogCatFragment logCatFragment = null;
+    private CalendarFragment calendarFragment = null;
 
     public static CameraSceneUpdater newInstance(@NonNull AppCompatActivity activity)
     {
@@ -313,6 +315,21 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
         transaction.addToBackStack(null);
         transaction.commit();
 */
+    }
+
+    //  IChangeScene
+    @Override
+    public void changeSceneToCalendar()
+    {
+        if (calendarFragment == null)
+        {
+            calendarFragment = CalendarFragment.newInstance(this, interfaceProvider);
+        }
+        FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment1, calendarFragment);
+        // backstackに追加
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     /**

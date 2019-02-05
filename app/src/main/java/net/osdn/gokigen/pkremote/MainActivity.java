@@ -13,7 +13,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceManager;
 
 import android.util.Log;
@@ -46,14 +45,16 @@ public class MainActivity extends AppCompatActivity
                 case R.id.navigation_photo_library:
                     mTextMessage.setText(R.string.title_photo_library);
                     return true;
-                case R.id.navigation_dashboard:
-                    mTextMessage.setText(R.string.title_dashboard);
+                case R.id.navigation_calendar:
+                    mTextMessage.setText(R.string.title_calendar);
+                    scenceUpdater.changeSceneToCalendar();
                     return true;
                 case R.id.navigation_notifications:
                     mTextMessage.setText(R.string.title_notifications);
                     return true;
                 case R.id.navigation_settings:
                     mTextMessage.setText(R.string.title_settings);
+                    scenceUpdater.changeSceneToConfiguration();
                     return true;
             }
             return false;
