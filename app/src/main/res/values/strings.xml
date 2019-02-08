@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">PKRemote</string>
     <string name="blank"> </string>
-    <string name="dummy">##</string>
+    <string name="dummy">--</string>
     <string name="button">Button</string>
 
     <string name="configuration">Settings</string>

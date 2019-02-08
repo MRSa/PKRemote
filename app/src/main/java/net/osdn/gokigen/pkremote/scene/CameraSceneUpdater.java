@@ -323,7 +323,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
     {
         if (calendarFragment == null)
         {
-            calendarFragment = CalendarFragment.newInstance(this, interfaceProvider);
+            calendarFragment = CalendarFragment.newInstance(activity,this, interfaceProvider);
         }
         FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment1, calendarFragment);
