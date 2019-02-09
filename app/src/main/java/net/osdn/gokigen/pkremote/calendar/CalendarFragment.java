@@ -1,7 +1,6 @@
 package net.osdn.gokigen.pkremote.calendar;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -29,10 +28,11 @@ import java.util.Locale;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import static android.content.Context.VIBRATOR_SERVICE;
 
-public class CalendarFragment extends Fragment  implements View.OnClickListener
+public class CalendarFragment extends Fragment  implements View.OnClickListener, TargetMonthSetDialog.Callback
 {
     private final String TAG = this.toString();
 
@@ -43,9 +43,9 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener
 
     private Context context = null;
 
-    private int showYear = 2017;
-    private int showMonth = 11;
-    private int showDay = 11;
+//    private int showYear = 2017;
+//    private int showMonth = 11;
+//    private int showDay = 11;
 
     private int currentYear = 0;
     private int currentMonth = 0;
@@ -275,19 +275,13 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener
             }
             else if (id == R.id.showDayYear)
             {
-                // 日付ピッカーを出したい。
+                // 年・月 ピッカーを出す
                 Log.v(TAG, "SELECT YEAR/MONTH LABEL.");
-                /*
-                Calendar calendar = Calendar.getInstance();
-                int year = calendar.get(Calendar.YEAR);
-                int month = calendar.get(Calendar.MONTH) + 1;
-                int day = calendar.get(Calendar.DAY_OF_MONTH);
-                decideDate(year, month, day);
-                */
+                pickYearMonth();
             }
             else
             {
-                // 日付を選択した処理
+                // 日付を選択した処理... 画面遷移
                 Log.v(TAG, "onClick : " + id);
             }
         }
@@ -296,6 +290,28 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener
             ex.printStackTrace();
         }
     }
+
+    private void pickYearMonth()
+    {
+        try
+        {
+            TargetMonthSetDialog dialog2 = TargetMonthSetDialog.newInstance(getString(R.string.information_month_picker), currentYear, currentMonth, this);
+            FragmentManager manager = getFragmentManager();
+            if (manager != null)
+            {
+                dialog2.show(manager, "dialog2");
+            }
+            else
+            {
+                Log.v(TAG, "FragmentManager is NULL...");
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      *  月の動きボタンを移動させる
@@ -363,6 +379,17 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener
     {
         try
         {
+            if (currentMonth > 12)
+            {
+                currentMonth = 1;
+                currentYear++;
+            }
+            if (currentMonth < 1)
+            {
+                currentMonth = 12;
+                currentYear--;
+            }
+
             Calendar calendar = new GregorianCalendar();
             calendar.set(currentYear, currentMonth - 1, 1);
             int week = getStartCalendarIndex(calendar);
@@ -436,7 +463,6 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener
         }
         return (week);
     }
-
 
     /**
      *   カレンダーの設定
@@ -540,10 +566,11 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener
     }
 
 
-    /**
+    /*
      *   日時情報を設定する
      *
      */
+/*
     public void decideDate(int year, int month, int day)
     {
         showYear = year;
@@ -552,8 +579,9 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener
 
         updateDateList();
     }
+*/
 
-    /**
+    /*
      *   一覧を指定した日付のものに更新する
      *
      */
@@ -573,6 +601,7 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener
      *   一覧を今日の日付に更新する
      *
      */
+/*
     private void moveToToday()
     {
         Calendar calendar = Calendar.getInstance();
@@ -582,6 +611,7 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener
 
         updateDateList();
     }
+*/
 
     /**
      *  一覧表示情報を更新する
@@ -593,4 +623,23 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener
 
     }
 
+    /**
+     *  年・月 ダイアログの結果を反映させる
+     *
+     */
+    @Override
+    public void dataSetYearMonth(int year, int month)
+    {
+        Log.v(TAG, "dataSetYearMonth : " + year + " / " + month);
+        currentYear = year;
+        currentMonth = month;
+
+        setCalendarLabels(myView);
+    }
+
+    @Override
+    public void dataSetCancelled()
+    {
+        Log.v(TAG, "dataSetCancelled");
+    }
 }

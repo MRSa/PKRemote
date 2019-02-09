@@ -108,7 +108,7 @@
     <string name="pref_camera_version">Camera Version</string>
     <string name="pref_camerakit_version">Camera kit Version</string>
 
-    <string name="today">Today</string>
+    <string name="now">Now</string>
     <string name="sundayLabel">Sun</string>
     <string name="mondayLabel">Mon</string>
     <string name="tuesdayLabel">Tue</string>
@@ -116,4 +116,11 @@
     <string name="thursdayLabel">Thu</string>
     <string name="fridayLabel">Fri</string>
     <string name="saturdayLabel">Sat</string>
+
+
+    <string name="time_picker_year_month_separator">/</string>
+    <string name="time_picker_minute_separator">:</string>
+    <string name="time_picker_end_separator"> </string>
+    <string name="information_month_picker">Set Year and Month</string>
+
 </resources>
