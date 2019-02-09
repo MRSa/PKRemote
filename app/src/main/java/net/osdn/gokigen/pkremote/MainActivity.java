@@ -17,50 +17,62 @@ import androidx.preference.PreferenceManager;
 
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
+import android.widget.ImageButton;
 
 import net.osdn.gokigen.pkremote.camera.CameraInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 import net.osdn.gokigen.pkremote.scene.CameraSceneUpdater;
 
-public class MainActivity extends AppCompatActivity
+/**
+ *
+ *
+ */
+public class MainActivity extends AppCompatActivity implements View.OnClickListener
 {
     private final String TAG = toString();
     private IInterfaceProvider interfaceProvider = null;
     private CameraSceneUpdater scenceUpdater = null;
 
+    private ImageButton mImageConnectButton = null;
+    //private TextView mTextMessage = null;
 
-    private TextView mTextMessage;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
+        public boolean onNavigationItemSelected(@NonNull MenuItem item)
+        {
+            switch (item.getItemId())
+            {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
-                    return true;
+                    //
+                    return (true);
                 case R.id.navigation_photo_library:
-                    mTextMessage.setText(R.string.title_photo_library);
-                    return true;
+                    //
+                    return (true);
                 case R.id.navigation_calendar:
-                    mTextMessage.setText(R.string.title_calendar);
+                    //
                     scenceUpdater.changeSceneToCalendar();
-                    return true;
+                    return (true);
                 case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
-                    return true;
+                    //
+                    return (true);
                 case R.id.navigation_settings:
-                    mTextMessage.setText(R.string.title_settings);
+                    //
                     scenceUpdater.changeSceneToConfiguration();
-                    return true;
+                    return (true);
             }
-            return false;
+            return (false);
         }
     };
 
+    /**
+     *
+     *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -81,7 +93,9 @@ public class MainActivity extends AppCompatActivity
         }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        mTextMessage = findViewById(R.id.message);
+        //mTextMessage = findViewById(R.id.message);
+        mImageConnectButton = findViewById(R.id.button_wifi_connect);
+
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -103,6 +117,7 @@ public class MainActivity extends AppCompatActivity
                     REQUEST_NEED_PERMISSIONS);
         }
         initializeClass();
+        prepareClass();
         onReadyClass();
     }
 
@@ -114,6 +129,7 @@ public class MainActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, @NonNull String  permissions[], @NonNull int[] grantResults)
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        prepareClass();
         onReadyClass();
     }
 
@@ -135,6 +151,20 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     *    本クラスの準備
+     */
+    private void prepareClass()
+    {
+        try
+        {
+            mImageConnectButton.setOnClickListener(this);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
 
     /**
      *    初期化終了時の処理 (カメラへの自動接続)
@@ -153,6 +183,29 @@ public class MainActivity extends AppCompatActivity
             {
                 // 自動接続の指示があったとき
                 scenceUpdater.changeCameraConnection();
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onClick(View v)
+    {
+        try
+        {
+            int id = v.getId();
+            switch (id)
+            {
+                case R.id.button_wifi_connect:
+                    // カメラとの接続を行う
+                    scenceUpdater.changeCameraConnection();
+                    break;
+
+                default:
+                    break;
             }
         }
         catch (Exception e)

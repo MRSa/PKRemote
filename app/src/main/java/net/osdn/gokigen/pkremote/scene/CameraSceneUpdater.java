@@ -1,6 +1,8 @@
 package net.osdn.gokigen.pkremote.scene;
 
 import android.util.Log;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.calendar.CalendarFragment;
@@ -14,6 +16,7 @@ import net.osdn.gokigen.pkremote.preference.ricohgr2.RicohGr2PreferenceFragment;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -104,7 +107,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
     public void onCameraConnected()
     {
         Log.v(TAG, "onCameraConnected()");
-
+        updateConnectionStatus(activity.getString(R.string.connect_connected), ICameraConnection.CameraConnectionStatus.CONNECTED);
         try
         {
             ICameraConnection connection = getCameraConnection(interfaceProvider.getCammeraConnectionMethod());
@@ -116,8 +119,8 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
             {
                 statusViewDrawer.updateConnectionStatus(ICameraConnection.CameraConnectionStatus.CONNECTED);
 
-                // ライブビューの開始...
-                statusViewDrawer.startLiveView();
+                // ライブビューの開始... 今回は手動化。
+                //statusViewDrawer.startLiveView();
             }
         }
         catch (Exception e)
@@ -131,6 +134,8 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
     public void onCameraDisconnected()
     {
         Log.v(TAG, "onCameraDisconnected()");
+        String message = activity.getString(R.string.camera_disconnected);
+        updateConnectionStatus(message, ICameraConnection.CameraConnectionStatus.DISCONNECTED);
         if (statusViewDrawer != null)
         {
             statusViewDrawer.updateStatusView(activity.getString(R.string.camera_disconnected));
@@ -145,24 +150,86 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
         Log.v(TAG, "onCameraOccursException() " + message);
         try
         {
+            ICameraConnection.CameraConnectionStatus connectionStatus = ICameraConnection.CameraConnectionStatus.UNKNOWN;
+
             e.printStackTrace();
             ICameraConnection connection = getCameraConnection(interfaceProvider.getCammeraConnectionMethod());
             if (connection != null)
             {
+                connectionStatus = connection.getConnectionStatus();
                 connection.alertConnectingFailed(message + " " + e.getLocalizedMessage());
+                updateConnectionStatus(message, connectionStatus);
             }
             if (statusViewDrawer != null)
             {
                 statusViewDrawer.updateStatusView(message);
                 if (connection != null)
                 {
-                    statusViewDrawer.updateConnectionStatus(connection.getConnectionStatus());
+                    statusViewDrawer.updateConnectionStatus(connectionStatus);
                 }
             }
         }
         catch (Exception ee)
         {
             ee.printStackTrace();
+        }
+    }
+
+    /**
+     *   カメラとの接続状態を表示更新する
+     *
+     */
+    private void updateConnectionStatus(final String message, final ICameraConnection.CameraConnectionStatus status)
+    {
+        try
+        {
+            final int resId;
+            switch (status)
+            {
+                case CONNECTED:
+                    resId = R.drawable.ic_cloud_done_black_24dp;
+                    break;
+                case CONNECTING:
+                    resId = R.drawable.ic_cloud_queue_black_24dp;
+                    break;
+                case DISCONNECTED:
+                    resId = R.drawable.ic_cloud_off_black_24dp;
+                    break;
+                case UNKNOWN:
+                default:
+                    resId = R.drawable.ic_cloud_queue_grey_24dp;
+                    break;
+            }
+            final TextView messageArea = activity.findViewById(R.id.message);
+            final ImageButton buttonArea = activity.findViewById(R.id.button_wifi_connect);
+            activity.runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        if (buttonArea != null)
+                        {
+                            buttonArea.setImageDrawable(ResourcesCompat.getDrawable(activity.getResources(), resId, null));
+                            buttonArea.invalidate();
+                        }
+                        if ((messageArea != null)&&(message != null))
+                        {
+                            messageArea.setText(message);
+                            messageArea.invalidate();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 
