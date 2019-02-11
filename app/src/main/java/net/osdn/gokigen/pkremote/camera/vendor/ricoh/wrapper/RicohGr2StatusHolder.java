@@ -31,6 +31,8 @@ class RicohGr2StatusHolder
     private String meteringModeStatus = "";
     private String wbModeStatus = "";
     private String batteryStatus = "";
+    private String model = "";
+    private String serialNo = "";
 
     /**
      *
@@ -39,6 +41,15 @@ class RicohGr2StatusHolder
     RicohGr2StatusHolder(ICameraStatusUpdateNotify notifier)
     {
         this.notifier = notifier;
+    }
+
+    /**
+     *
+     *
+     */
+    String getCameraId()
+    {
+        return (model + " " + serialNo);
     }
 
     /**
@@ -137,6 +148,9 @@ class RicohGr2StatusHolder
             boolean focus = getBooleanStatus(latestResultObject,"focused");
             boolean focusLock = getBooleanStatus(latestResultObject,"focusLocked");
 
+            String modelRx = getStatusString(latestResultObject,"model");
+            String serialNoRx = getStatusString(latestResultObject,"serialNo");
+
             if (result.contains("OK"))
             {
                 if (!avStatus.equals(av))
@@ -179,6 +193,15 @@ class RicohGr2StatusHolder
                     focused = focus;
                     focusLocked = focusLock;
                     notifier.updateFocusedStatus(focused, focusLocked);
+                }
+
+                if (!model.equals(modelRx))
+                {
+                    model = modelRx;
+                }
+                if (!serialNo.equals(serialNoRx))
+                {
+                    serialNo = serialNoRx;
                 }
             }
             System.gc();

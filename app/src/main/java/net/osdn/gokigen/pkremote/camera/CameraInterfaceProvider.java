@@ -1,11 +1,12 @@
 package net.osdn.gokigen.pkremote.camera;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 
+import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ILiveViewListener;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecognizer;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraHardwareStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraInformation;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode;
@@ -19,12 +20,14 @@ import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ILiveViewControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.IZoomLensControl;
+import net.osdn.gokigen.pkremote.camera.playback.CameraContentsRecognizer;
 import net.osdn.gokigen.pkremote.camera.vendor.olympus.IOlympusInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.olympus.wrapper.OlympusInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ricoh.wrapper.RicohGr2InterfaceProvider;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 /**
@@ -36,24 +39,28 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     //private final SonyCameraWrapper sony;
     private final OlympusInterfaceProvider olympus;
     private final RicohGr2InterfaceProvider ricohGr2;
-    private final Activity context;
+    private final IInformationReceiver informationReceiver;
+    private final CameraContentsRecognizer cameraContentsRecognizer;
+    private final AppCompatActivity context;
     private ICameraConnection.CameraConnectionMethod connectionMethod = ICameraConnection.CameraConnectionMethod.UNKNOWN;
 
-    public static IInterfaceProvider newInstance(@NonNull Activity context, @NonNull ICameraStatusReceiver provider)
+    public static IInterfaceProvider newInstance(@NonNull AppCompatActivity context, @NonNull ICameraStatusReceiver provider, @NonNull IInformationReceiver informationReceiver)
     {
-        return (new CameraInterfaceProvider(context, provider));
+        return (new CameraInterfaceProvider(context, provider, informationReceiver));
     }
 
     /**
      *
      *
      */
-    private CameraInterfaceProvider(@NonNull Activity context, @NonNull ICameraStatusReceiver provider)
+    private CameraInterfaceProvider(@NonNull AppCompatActivity context, @NonNull ICameraStatusReceiver provider, @NonNull IInformationReceiver informationReceiver)
     {
         this.context = context;
         olympus = new OlympusInterfaceProvider(context, provider);
         ricohGr2 = new RicohGr2InterfaceProvider(context, provider);
         //sony = new SonyCameraWrapper(context, provider);
+        this.informationReceiver = informationReceiver;
+        this.cameraContentsRecognizer = new CameraContentsRecognizer(context, this);
     }
 
     @Override
@@ -392,6 +399,22 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     public void resetCameraConnectionMethod()
     {
         connectionMethod = ICameraConnection.CameraConnectionMethod.UNKNOWN;
+    }
+
+    /**
+     *
+     *
+     */
+    @Override
+    public IInformationReceiver getInformationReceiver()
+    {
+        return (informationReceiver);
+    }
+
+    @Override
+    public ICameraContentsRecognizer getCameraContentsRecognizer()
+    {
+        return (cameraContentsRecognizer);
     }
 
     /**

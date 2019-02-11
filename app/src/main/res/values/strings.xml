@@ -123,4 +123,9 @@
     <string name="time_picker_end_separator"> </string>
     <string name="information_month_picker">Set Year and Month</string>
 
+    <string name="get_camera_contents_wait">Check contents&#8230; wait</string>
+    <string name="get_camera_contents_error">Check contents&#8230; Error!</string>
+    <string name="get_camera_contents_finished">Check contents&#8230; finished</string>
+    <string name="get_camera_contents_error_retry">Try Again?</string>
+
 </resources>

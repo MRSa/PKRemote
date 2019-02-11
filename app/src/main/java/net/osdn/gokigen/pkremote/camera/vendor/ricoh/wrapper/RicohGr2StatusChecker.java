@@ -44,6 +44,19 @@ public class RicohGr2StatusChecker implements ICameraStatusWatcher, ICameraStatu
      *
      *
      */
+    String getCameraId()
+    {
+        if (statusHolder != null)
+        {
+            return (statusHolder.getCameraId());
+        }
+        return ("");
+    }
+
+    /**
+     *
+     *
+     */
     @Override
     public void startStatusWatch(@NonNull ICameraStatusUpdateNotify notifier)
     {
@@ -242,6 +255,7 @@ public class RicohGr2StatusChecker implements ICameraStatusWatcher, ICameraStatu
                 buttonCode = "bdial P";
                 break;
             case "auto":
+            default:
                 buttonCode = "bdial AUTO";
                 break;
         }

@@ -1,5 +1,6 @@
 package net.osdn.gokigen.pkremote.camera.interfaces;
 
+import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode;
@@ -9,6 +10,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.control.IZoomLensControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IDisplayInjector;
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ILiveViewControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ILiveViewListener;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecognizer;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraHardwareStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraInformation;
@@ -43,4 +45,8 @@ public interface IInterfaceProvider
     IOlympusInterfaceProvider getOlympusInterfaceProvider();
 
     ICameraConnection.CameraConnectionMethod getCammeraConnectionMethod();
-    void resetCameraConnectionMethod();}
+    void resetCameraConnectionMethod();
+
+    IInformationReceiver getInformationReceiver();
+    ICameraContentsRecognizer getCameraContentsRecognizer();
+}

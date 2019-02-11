@@ -1,5 +1,7 @@
 package net.osdn.gokigen.pkremote.camera.interfaces.playback;
 
+import java.util.List;
+
 /**
  *   画像再生・取得用インタフェース
  *
@@ -14,4 +16,6 @@ public interface IPlaybackControl
     void downloadContentScreennail(String  path, IDownloadThumbnailImageCallback callback);
     void downloadContentThumbnail(String path, IDownloadThumbnailImageCallback callback);
     void downloadContent(String  path, boolean isSmallSize, IDownloadContentCallback callback);
+
+    void getCameraContentList(ICameraContentListCallback callback);
 }

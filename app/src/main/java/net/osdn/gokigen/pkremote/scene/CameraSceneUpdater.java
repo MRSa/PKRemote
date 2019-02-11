@@ -8,6 +8,7 @@ import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.calendar.CalendarFragment;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IStatusViewDrawer;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecognizer;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.logcat.LogCatFragment;
@@ -24,12 +25,13 @@ import androidx.preference.PreferenceFragmentCompat;
  *
  *
  */
-public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
+public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, ICameraContentsRecognizer.ICameraContentsListCallback
 {
     private final String TAG = toString();
     private final AppCompatActivity activity;
     private IInterfaceProvider interfaceProvider;
     private IStatusViewDrawer statusViewDrawer;
+    private ICameraStatusReceiver anotherStatusReceiver = null;
 
     private PreferenceFragmentCompat preferenceFragment = null;
     private LogCatFragment logCatFragment = null;
@@ -95,6 +97,10 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
                     statusViewDrawer.updateConnectionStatus(connection.getConnectionStatus());
                 }
             }
+            if (anotherStatusReceiver != null)
+            {
+                anotherStatusReceiver.onStatusNotify(message);
+            }
         }
         catch (Exception e)
         {
@@ -122,6 +128,16 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
                 // ライブビューの開始... 今回は手動化。
                 //statusViewDrawer.startLiveView();
             }
+            if (anotherStatusReceiver != null)
+            {
+                anotherStatusReceiver.onCameraConnected();
+            }
+            ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
+            if (recognizer != null)
+            {
+                // カメラ内のコンテンツ一覧を作成するように指示する
+                recognizer.getRemoteCameraContentsList(this);
+            }
         }
         catch (Exception e)
         {
@@ -136,10 +152,21 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
         Log.v(TAG, "onCameraDisconnected()");
         String message = activity.getString(R.string.camera_disconnected);
         updateConnectionStatus(message, ICameraConnection.CameraConnectionStatus.DISCONNECTED);
-        if (statusViewDrawer != null)
+        try
         {
-            statusViewDrawer.updateStatusView(activity.getString(R.string.camera_disconnected));
-            statusViewDrawer.updateConnectionStatus(ICameraConnection.CameraConnectionStatus.DISCONNECTED);
+            if (statusViewDrawer != null)
+            {
+                statusViewDrawer.updateStatusView(activity.getString(R.string.camera_disconnected));
+                statusViewDrawer.updateConnectionStatus(ICameraConnection.CameraConnectionStatus.DISCONNECTED);
+            }
+            if (anotherStatusReceiver != null)
+            {
+                anotherStatusReceiver.onCameraDisconnected();
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -167,6 +194,10 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
                 {
                     statusViewDrawer.updateConnectionStatus(connectionStatus);
                 }
+            }
+            if (anotherStatusReceiver != null)
+            {
+                anotherStatusReceiver.onCameraOccursException(message, e);
             }
         }
         catch (Exception ee)
@@ -445,9 +476,21 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene
         }
     }
 
+    @Override
+    public void setAnotherStatusReceiver(ICameraStatusReceiver statusReceiver)
+    {
+        this.anotherStatusReceiver = statusReceiver;
+    }
+
     private ICameraConnection getCameraConnection(ICameraConnection.CameraConnectionMethod method)
     {
         Log.v(TAG, "method : " + method);
         return (interfaceProvider.getCameraConnection());
+    }
+
+    @Override
+    public void contentsListCreated(int nofContents)
+    {
+        Log.v(TAG, "contentsListCreated() : " + nofContents);
     }
 }

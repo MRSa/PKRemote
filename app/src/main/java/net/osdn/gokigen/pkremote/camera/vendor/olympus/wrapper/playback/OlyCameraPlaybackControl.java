@@ -3,12 +3,15 @@ package net.osdn.gokigen.pkremote.camera.vendor.olympus.wrapper.playback;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IContentInfoCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
+import net.osdn.gokigen.pkremote.camera.playback.CameraContentInfo;
 import net.osdn.gokigen.pkremote.camera.playback.CameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.playback.ProgressEvent;
 
@@ -221,6 +224,44 @@ public class OlyCameraPlaybackControl implements IPlaybackControl
                     {
                         ee.printStackTrace();
                     }
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            callback.onErrorOccurred(e);
+        }
+    }
+
+    @Override
+    public void getCameraContentList(final ICameraContentListCallback callback)
+    {
+        if (callback == null)
+        {
+            // 何もせず戻る
+            return;
+        }
+        try
+        {
+            camera.downloadContentList(new OLYCamera.DownloadContentListCallback()
+            {
+                @Override
+                public void onCompleted(List<OLYCameraFileInfo> list)
+                {
+                    List<ICameraContent> list2 = new ArrayList<>();
+                    for (OLYCameraFileInfo fileInfo : list)
+                    {
+                        CameraContentInfo contentInfo = new CameraContentInfo("AirA01", "sd1", fileInfo.getDirectoryPath(), fileInfo.getDirectoryPath(), fileInfo.getDatetime());
+                        list2.add(contentInfo);
+                    }
+                    callback.onCompleted(list2);
+                }
+
+                @Override
+                public void onErrorOccurred(Exception e)
+                {
+                    callback.onErrorOccurred(e);
                 }
             });
         }

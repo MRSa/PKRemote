@@ -2,12 +2,15 @@ package net.osdn.gokigen.pkremote.camera.vendor.ricoh.wrapper;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IContentInfoCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
+import net.osdn.gokigen.pkremote.camera.playback.CameraContentInfo;
 import net.osdn.gokigen.pkremote.camera.playback.CameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.playback.ProgressEvent;
 import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
@@ -16,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,6 +33,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
 {
     private final String TAG = toString();
     private final String getPhotoUrl = "http://192.168.0.1/v1/photos/";
+    private final RicohGr2StatusChecker statusChecker;
     private static final int DEFAULT_TIMEOUT = 5000;
 
     /*****
@@ -44,9 +49,9 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
             動画をダウンロードする      ： http://192.168.0.1/v1/photos/yyyRICOH/R0000xxx.MOV?size=full
      *****/
 
-    RicohGr2PlaybackControl()
+    RicohGr2PlaybackControl(RicohGr2StatusChecker statusChecker)
     {
-
+        this.statusChecker = statusChecker;
     }
 
     @Override
@@ -252,5 +257,63 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         {
             e.printStackTrace();
         }
+    }
+
+    private Date getCameraContentDate(@NonNull ICameraContent cameraContent)
+    {
+        return (cameraContent.getCapturedDate());
+    }
+
+    @Override
+    public void getCameraContentList(ICameraContentListCallback callback)
+    {
+        List<ICameraContent> fileList = new ArrayList<>();
+        String imageListurl = "http://192.168.0.1/v1/photos?limit=3000";
+        String contentList;
+        try
+        {
+            contentList = SimpleHttpClient.httpGet(imageListurl, DEFAULT_TIMEOUT);
+            if (contentList == null)
+            {
+                // ぬるぽ発行
+                callback.onErrorOccurred(new NullPointerException());
+                return;
+            }
+        }
+        catch (Exception e)
+        {
+            // 例外をそのまま転送
+            callback.onErrorOccurred(e);
+            return;
+        }
+        try
+        {
+            String cameraId = statusChecker.getCameraId();
+            JSONArray dirsArray = new JSONObject(contentList).getJSONArray("dirs");
+            if (dirsArray != null)
+            {
+                int size = dirsArray.length();
+                for (int index = 0; index < size; index++)
+                {
+                    JSONObject object = dirsArray.getJSONObject(index);
+                    String dirName = object.getString("name");
+                    JSONArray filesArray = object.getJSONArray("files");
+                    int nofFiles = filesArray.length();
+                    for (int fileIndex = 0; fileIndex < nofFiles; fileIndex++)
+                    {
+                        String fileName = filesArray.getString(fileIndex);
+                        ICameraContent cameraContent = new CameraContentInfo(cameraId, "sd1", dirName, fileName, new Date());
+                        cameraContent.setCapturedDate(getCameraContentDate(cameraContent));
+                        fileList.add(cameraContent);
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            callback.onErrorOccurred(e);
+            return;
+        }
+        callback.onCompleted(fileList);
     }
 }

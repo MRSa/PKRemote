@@ -1,5 +1,7 @@
 package net.osdn.gokigen.pkremote.scene;
 
+import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
+
 /**
  *
  */
@@ -13,4 +15,5 @@ public interface IChangeScene
     void changeSceneToApiList();
     //void changeScenceToImageList();
     void exitApplication();
+    void setAnotherStatusReceiver(ICameraStatusReceiver statusReceiver);
 }
