@@ -18,10 +18,13 @@ import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 
@@ -259,8 +262,32 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         }
     }
 
+    /**
+     *   撮影時刻は（個別に）取れるが、非常に遅い...
+     *
+     */
     private Date getCameraContentDate(@NonNull ICameraContent cameraContent)
     {
+/*
+        String fileInfo;
+        try
+        {
+            String imageInfoUrl = "http://192.168.0.1/v1/photos/" + cameraContent.getContentPath() + "/" + cameraContent.getContentName() + "/info?storage=" + cameraContent.getCardId();
+            Log.v(TAG, "getCameraContentDate() : " + imageInfoUrl);
+            fileInfo = SimpleHttpClient.httpGet(imageInfoUrl, DEFAULT_TIMEOUT);
+            if (fileInfo != null)
+            {
+                String datetime = new JSONObject(fileInfo).getString("datetime");
+                SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US); // "yyyy-MM-dd'T'HH:mm:ssZ"
+                dateFormatter.setCalendar(new GregorianCalendar());
+                return (dateFormatter.parse(datetime));
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+**/
         return (cameraContent.getCapturedDate());
     }
 
@@ -311,8 +338,16 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         }
         catch (Exception e)
         {
-            callback.onErrorOccurred(e);
-            return;
+            //callback.onErrorOccurred(e);
+            //return;
+            e.printStackTrace();
+            try {
+                fileList.clear();
+            }
+            catch (Exception ee)
+            {
+                ee.printStackTrace();
+            }
         }
         callback.onCompleted(fileList);
     }
