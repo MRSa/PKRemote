@@ -252,7 +252,7 @@ public class OlyCameraPlaybackControl implements IPlaybackControl
                     List<ICameraContent> list2 = new ArrayList<>();
                     for (OLYCameraFileInfo fileInfo : list)
                     {
-                        CameraContentInfo contentInfo = new CameraContentInfo("AirA01", "sd1", fileInfo.getDirectoryPath(), fileInfo.getDirectoryPath(), fileInfo.getDatetime());
+                        CameraContentInfo contentInfo = new CameraContentInfo("AirA01", "sd1", fileInfo.getDirectoryPath(), fileInfo.getFilename(), fileInfo.getDatetime());
                         list2.add(contentInfo);
                     }
                     callback.onCompleted(list2);
