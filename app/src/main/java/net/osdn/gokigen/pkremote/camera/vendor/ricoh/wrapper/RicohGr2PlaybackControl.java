@@ -38,6 +38,8 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
     private final String getPhotoUrl = "http://192.168.0.1/v1/photos/";
     private final RicohGr2StatusChecker statusChecker;
     private static final int DEFAULT_TIMEOUT = 5000;
+    private final boolean useGrCommand;
+
 
     /*****
          [操作メモ]
@@ -52,9 +54,10 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
             動画をダウンロードする      ： http://192.168.0.1/v1/photos/yyyRICOH/R0000xxx.MOV?size=full
      *****/
 
-    RicohGr2PlaybackControl(RicohGr2StatusChecker statusChecker)
+    RicohGr2PlaybackControl(RicohGr2StatusChecker statusChecker, boolean useGrCommand)
     {
         this.statusChecker = statusChecker;
+        this.useGrCommand = useGrCommand;
     }
 
     @Override
@@ -287,12 +290,92 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         {
             e.printStackTrace();
         }
-**/
+*/
         return (cameraContent.getCapturedDate());
     }
 
+
+    /**
+     *   カメラ内画像ファイルの取得処理... GRコマンドが失敗したらPENTAXコマンドを使う。
+     *
+     */
     @Override
     public void getCameraContentList(ICameraContentListCallback callback)
+    {
+        try
+        {
+            if (useGrCommand)
+            {
+                getGrCameraContentListImpl(callback);
+                return;
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        getCameraContentListImpl(callback);
+    }
+
+    /**
+     *   RICOH GR2用のカメラ内画像ファイル一覧取得処理
+     *   （エラー発生時には、通常のPENTAX用のカメラ内画像ファイル一覧取得処理を使う）
+     *
+     */
+    private void getGrCameraContentListImpl(ICameraContentListCallback callback)
+    {
+        List<ICameraContent> fileList = new ArrayList<>();
+        String imageListurl = "http://192.168.0.1/_gr/objs";
+        String contentList;
+
+        // try ～ catch でくくらない ... だめだったら PENTAXのシーケンスに入るようにしたいので
+        contentList = SimpleHttpClient.httpGet(imageListurl, DEFAULT_TIMEOUT);
+        if (contentList == null)
+        {
+            // ぬるぽ発行
+            throw (new NullPointerException());
+        }
+
+        try
+        {
+            String cameraId = statusChecker.getCameraId();
+            JSONArray dirsArray = new JSONObject(contentList).getJSONArray("dirs");
+            if (dirsArray != null)
+            {
+                int size = dirsArray.length();
+                for (int index = 0; index < size; index++)
+                {
+                    JSONObject object = dirsArray.getJSONObject(index);
+                    String dirName = object.getString("name");
+                    JSONArray filesArray = object.getJSONArray("files");
+                    int nofFiles = filesArray.length();
+                    for (int fileIndex = 0; fileIndex < nofFiles; fileIndex++)
+                    {
+                        JSONObject fileObject = filesArray.getJSONObject(fileIndex);
+                        String fileName = fileObject.getString("n");
+                        String dateString = fileObject.getString("d");
+                        Date capturedDate = new Date();
+                        if (dateString != null)
+                        {
+                            SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US); // "yyyy-MM-dd'T'HH:mm:ssZ"
+                            dateFormatter.setCalendar(new GregorianCalendar());
+                            capturedDate = dateFormatter.parse(dateString);
+                        }
+                        ICameraContent cameraContent = new CameraContentInfo(cameraId, "sd1", dirName, fileName, capturedDate);
+                        fileList.add(cameraContent);
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            // ぬるぽ発行
+           throw  (new NullPointerException());
+        }
+        callback.onCompleted(fileList);
+    }
+
+    private void getCameraContentListImpl(ICameraContentListCallback callback)
     {
         List<ICameraContent> fileList = new ArrayList<>();
         String imageListurl = "http://192.168.0.1/v1/photos?limit=3000";
