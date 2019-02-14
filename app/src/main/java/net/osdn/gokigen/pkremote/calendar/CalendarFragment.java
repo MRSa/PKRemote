@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.text.format.DateUtils;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,13 +17,18 @@ import android.widget.TextView;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecognizer;
 import net.osdn.gokigen.pkremote.scene.IChangeScene;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -32,7 +39,7 @@ import androidx.fragment.app.FragmentManager;
 
 import static android.content.Context.VIBRATOR_SERVICE;
 
-public class CalendarFragment extends Fragment  implements View.OnClickListener, TargetMonthSetDialog.Callback
+public class CalendarFragment extends Fragment  implements View.OnClickListener, TargetMonthSetDialog.Callback, ICameraContentsRecognizer.ICameraContentsListCallback
 {
     private final String TAG = this.toString();
 
@@ -42,10 +49,6 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
     private View myView = null;
 
     private Context context = null;
-
-//    private int showYear = 2017;
-//    private int showMonth = 11;
-//    private int showDay = 11;
 
     private int currentYear = 0;
     private int currentMonth = 0;
@@ -364,6 +367,13 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
             currentMonth = calendar.get(Calendar.MONTH) + 1;
 
             setCalendarLabels(view);
+
+            //  表示画像を取得する
+            ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
+            if (recognizer != null)
+            {
+                recognizer.getRemoteCameraContentsList(true, this);
+            }
         }
         catch (Exception e)
         {
@@ -465,165 +475,6 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
     }
 
     /**
-     *   カレンダーの設定
-     *
-     *
-     */
-    private void updateCalendar()
-    {
-/*
-        Calendar calendar = new GregorianCalendar();
-        calendar.set(currentYear, (currentMonth - 1), 1);
-
-        currentYear = calendar.get(Calendar.YEAR);
-        currentMonth = calendar.get(Calendar.MONTH) + 1;
-
-        char [] appendChar = new char[NUMBER_OF_CALENDAR_BUTTONS];
-        for (int index = 0; index < NUMBER_OF_CALENDAR_BUTTONS; index++)
-        {
-            appendChar[index] = ' ';
-        }
-        // 追加のテキストデータをもらう。
-        try
-        {
-            resultReceiver.setAppendCharacter(currentYear, currentMonth, appendChar);
-        }
-        catch (Exception ex)
-        {
-            // ダイアログを閉じる
-            try
-            {
-                dialog.dismiss();
-            }
-            catch (Exception e)
-            {
-                // 何もしない
-            }
-        }
-
-        // テキストで日時を表示する
-        TextView field = (TextView) layout.findViewById(R.id.showDayYear);
-        field.setText(currentYear + "/" + currentMonth);
-//        DateFormat dateF = new SimpleDateFormat("yyyy/MM");
-//        field.setText(dateF.format(calendar.getTime()));
-
-        // その月の最初の曜日を取得する
-        int week = calendar.get(Calendar.DAY_OF_WEEK);
-        if (week == Calendar.SUNDAY)
-        {
-            monthStartIndex = 0;
-        }
-        else if (week == Calendar.MONDAY)
-        {
-            monthStartIndex = 1;
-        }
-        else if (week == Calendar.TUESDAY)
-        {
-            monthStartIndex = 2;
-        }
-        else if (week == Calendar.WEDNESDAY)
-        {
-            monthStartIndex = 3;
-        }
-        else if (week == Calendar.THURSDAY)
-        {
-            monthStartIndex = 4;
-        }
-        else if (week == Calendar.FRIDAY)
-        {
-            monthStartIndex = 5;
-        }
-        else if (week == Calendar.SATURDAY)
-        {
-            monthStartIndex = 6;
-        }
-
-        for (int index = 0; index < monthStartIndex; index++)
-        {
-            setButtonLabel(false, layout, index, "");
-        }
-
-        calendar.set(currentYear, currentMonth, 0);
-        int lastIndex =calendar.get(Calendar.DATE);
-        for (int index = 1; index <= lastIndex; index++)
-        {
-            if (appendChar[index - 1] == '_')
-            {
-                // アンダーバーの時にはアンダーラインを引く
-                setButtonLabel(true, layout, (index + monthStartIndex - 1), "" + index + appendChar[index - 1]);
-            }
-            else
-            {
-                setButtonLabel(true, layout, (index + monthStartIndex - 1), index + "" + appendChar[index - 1]);
-            }
-        }
-
-        for (int index = (monthStartIndex + lastIndex); index < NUMBER_OF_CALENDAR_BUTTONS; index++)
-        {
-            setButtonLabel(false, layout, index, "");
-        }
-*/
-    }
-
-
-    /*
-     *   日時情報を設定する
-     *
-     */
-/*
-    public void decideDate(int year, int month, int day)
-    {
-        showYear = year;
-        showMonth = month;
-        showDay = day;
-
-        updateDateList();
-    }
-*/
-
-    /*
-     *   一覧を指定した日付のものに更新する
-     *
-     */
-    private void updateDateList()
-    {
-/*
-        // ボタンに一覧を表示する日付を設定する
-        Button dateSelectionButton =  context.findViewById(R.id.dateSelectionButton);
-        String dateString = "" + showYear + "/" + showMonth + "/" + showDay;
-        dateSelectionButton.setText(dateString);
-
-        updateDataListView();
-*/
-    }
-
-    /**
-     *   一覧を今日の日付に更新する
-     *
-     */
-/*
-    private void moveToToday()
-    {
-        Calendar calendar = Calendar.getInstance();
-        showYear = calendar.get(Calendar.YEAR);
-        showMonth = calendar.get(Calendar.MONTH) + 1;
-        showDay = calendar.get(Calendar.DAY_OF_MONTH);
-
-        updateDateList();
-    }
-*/
-
-    /**
-     *  一覧表示情報を更新する
-     *
-     */
-    private void updateDataListView()
-    {
-
-
-    }
-
-    /**
      *  年・月 ダイアログの結果を反映させる
      *
      */
@@ -642,4 +493,54 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
     {
         Log.v(TAG, "dataSetCancelled");
     }
+
+
+    @Override
+    public void contentsListCreated(int nofContents)
+    {
+        Log.v(TAG, "contentsListCreated() : " + nofContents);
+        try
+        {
+            SparseArray<ICameraContent> picsMap = new SparseArray<>();
+            ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
+            if (recognizer != null)
+            {
+                List<ICameraContent> contentList = recognizer.getContentsList();
+
+                Calendar calendar = new GregorianCalendar();
+                calendar.set(currentYear, currentMonth - 1, 1);
+                int week = getStartCalendarIndex(calendar);
+                calendar.add(Calendar.DATE, week * (-1));
+                for (int index = 0; index < calendarList.size(); index++)
+                {
+                    int checkYear = calendar.get(Calendar.YEAR);
+                    int checkMonth = calendar.get(Calendar.MONTH);
+                    int checkDate = calendar.get(Calendar.DATE);
+                    for (ICameraContent content : contentList)
+                    {
+                        Date picsDate = content.getCapturedDate();
+                        Calendar capturedDate = new GregorianCalendar();
+                        capturedDate.setTime(picsDate);
+                        int picYear = capturedDate.get(Calendar.YEAR);
+                        int picMonth = capturedDate.get(Calendar.MONTH);
+                        int picDate = capturedDate.get(Calendar.DATE);
+                        if ((checkYear == picYear)&&(checkMonth == picMonth)&&(checkDate == picDate))
+                        {
+                            // 日時一致...抜ける
+                            picsMap.append(calendarList.get(index), content);
+                            Log.v(TAG, "MATCHED : " + content.getContentPath() + "/" + content.getContentName());
+                            break;
+                        }
+                    }
+                    // 一日進める
+                    calendar.add(Calendar.DATE, 1);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
 }

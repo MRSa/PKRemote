@@ -12,7 +12,6 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCa
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecognizer;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 
-import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -32,6 +31,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
     private final  IInterfaceProvider interfaceProvider;
     private ICameraContentsListCallback contentsListCallback = null;
     private List<ICameraContent> cameraContentsList = null;
+    private boolean isLoadedContents = false;
 
     /**
      *
@@ -49,9 +49,18 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
      *
      */
     @Override
-    public void getRemoteCameraContentsList(ICameraContentsListCallback callback)
+    public void getRemoteCameraContentsList(boolean isReload, ICameraContentsListCallback callback)
     {
         contentsListCallback = callback;
+        if ((isLoadedContents)&&(cameraContentsList != null)&&(!isReload))
+        {
+            Log.v(TAG, "getRemoteCameraContentsList() : cached data.");
+            if (callback != null)
+            {
+                callback.contentsListCreated(cameraContentsList.size());
+            }
+            return;
+        }
         getRemoteCameraContentsListImpl(this);
     }
 
@@ -68,6 +77,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
                 try
                 {
                     IPlaybackControl playbackControl = interfaceProvider.getPlaybackControl();
+                    isLoadedContents = false;
                     playbackControl.getCameraContentList(callback);
                 }
                 catch (Exception e)
@@ -94,6 +104,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
     public void onCompleted(List<ICameraContent> contentList)
     {
         cameraContentsList = contentList;
+        isLoadedContents = true;
         if (contentsListCallback != null)
         {
             try
@@ -105,8 +116,8 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
                     informationReceiver.updateMessage(activity.getString(R.string.get_camera_contents_finished), false, false, 0);
                 }
 
-                // とりあえず、できたコンテンツ一覧をログにダンプしてみる。
-                dumpCameraContentList();
+                //// とりあえず、できたコンテンツ一覧をログにダンプしてみる。
+                // dumpCameraContentList();
             }
             catch (Exception e)
             {
@@ -118,6 +129,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
     @Override
     public void onErrorOccurred(Exception e)
     {
+        isLoadedContents = false;
         cameraContentsList = null;
         if (informationReceiver != null)
         {
@@ -134,7 +146,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
                     @Override
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        getRemoteCameraContentsList(contentsListCallback);
+                        getRemoteCameraContentsList(true, contentsListCallback);
                     }
                 });
         activity.runOnUiThread(new Runnable()
@@ -147,6 +159,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
         });
     }
 
+/*
     private void dumpCameraContentList()
     {
         Log.v(TAG, "dumpCameraContentList()");
@@ -171,5 +184,12 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
         {
             e.printStackTrace();
         }
+    }
+*/
+
+    @Override
+    public List<ICameraContent> getContentsList()
+    {
+        return (cameraContentsList);
     }
 }

@@ -136,7 +136,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
             if (recognizer != null)
             {
                 // カメラ内のコンテンツ一覧を作成するように指示する
-                recognizer.getRemoteCameraContentsList(this);
+                recognizer.getRemoteCameraContentsList(true,this);
             }
         }
         catch (Exception e)
