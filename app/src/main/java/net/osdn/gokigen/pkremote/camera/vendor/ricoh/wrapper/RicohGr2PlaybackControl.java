@@ -271,7 +271,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
      */
     private Date getCameraContentDate(@NonNull ICameraContent cameraContent)
     {
-/*
+/**/
         String fileInfo;
         try
         {
@@ -290,7 +290,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         {
             e.printStackTrace();
         }
-*/
+/**/
         return (cameraContent.getCapturedDate());
     }
 

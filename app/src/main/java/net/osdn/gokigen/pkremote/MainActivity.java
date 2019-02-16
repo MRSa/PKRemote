@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CameraSceneUpdater scenceUpdater = null;
 
     private ImageButton mImageConnectButton = null;
+    private ImageButton mReloadButton = null;
     //private TextView mTextMessage = null;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -97,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //mTextMessage = findViewById(R.id.message);
         mImageConnectButton = findViewById(R.id.button_wifi_connect);
+        mReloadButton = findViewById(R.id.button_reload);
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -159,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try
         {
             mImageConnectButton.setOnClickListener(this);
+            mReloadButton.setOnClickListener(this);
         }
         catch (Exception e)
         {
@@ -202,6 +205,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case R.id.button_wifi_connect:
                     // カメラとの接続を行う
                     scenceUpdater.changeCameraConnection();
+                    vibrate();
+                    break;
+
+                case R.id.button_reload:
+                    // 画像一覧情報をリロードする
+                    scenceUpdater.reloadRemoteImageContents();
                     vibrate();
                     break;
 

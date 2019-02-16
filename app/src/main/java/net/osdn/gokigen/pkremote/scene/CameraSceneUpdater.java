@@ -60,7 +60,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
         this.interfaceProvider = interfaceProvider;
 
         // 初期画面へ遷移
-        changeSceneToConfiguration();
+        changeSceneToCalendar();
 /*
             LiveViewFragment fragment = LiveViewFragment.newInstance(scenceUpdater, interfaceProvider);
             scenceUpdater.registerInterface(fragment, interfaceProvider);
@@ -375,6 +375,25 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
                 }
                 // 接続中でない時は、接続中にする
                 connection.startWatchWifiStatus(activity);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    //  IChangeScene
+    @Override
+    public void reloadRemoteImageContents()
+    {
+        try
+        {
+            ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
+            if (recognizer != null)
+            {
+                // カメラ内のコンテンツ一覧を作成するように指示する
+                recognizer.getRemoteCameraContentsList(true,this);
             }
         }
         catch (Exception e)
