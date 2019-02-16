@@ -12,6 +12,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecog
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.logcat.LogCatFragment;
+import net.osdn.gokigen.pkremote.playback.ImageGridViewFragment;
 import net.osdn.gokigen.pkremote.preference.olympus.OpcPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.ricohgr2.RicohGr2PreferenceFragment;
 
@@ -453,7 +454,6 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
      *   画像一覧画面を開く
      *
      */
-/*
     //  IChangeScene
     @Override
     public void changeScenceToImageList()
@@ -473,7 +473,6 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
             e.printStackTrace();
         }
     }
-*/
 
     //  IChangeScene
     @Override

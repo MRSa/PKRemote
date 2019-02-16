@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return (true);
                 case R.id.navigation_photo_library:
                     //
+                    scenceUpdater.changeScenceToImageList();
                     return (true);
                 case R.id.navigation_calendar:
                     //
