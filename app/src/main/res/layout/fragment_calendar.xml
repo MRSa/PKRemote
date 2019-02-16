@@ -273,83 +273,90 @@
             style="?android:attr/buttonBarStyle"
             android:layout_weight="2"
             >
-            <Button
+            <ImageButton
                 android:id="@+id/Calendar00"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
                 android:layout_weight="1"
+                android:contentDescription="@string/blank"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar01"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar02"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar03"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar04"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar05"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar06"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
+            </ImageButton>
         </LinearLayout>
 
         <LinearLayout
@@ -462,83 +469,90 @@
             style="?android:attr/buttonBarStyle"
             android:layout_weight="2"
             >
-            <Button
+            <ImageButton
                 android:id="@+id/Calendar10"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar11"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar12"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar13"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar14"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar15"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar16"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
+            </ImageButton>
         </LinearLayout>
 
         <LinearLayout
@@ -651,83 +665,90 @@
             style="?android:attr/buttonBarStyle"
             android:layout_weight="2"
             >
-            <Button
+            <ImageButton
                 android:id="@+id/Calendar20"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar21"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar22"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar23"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar24"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar25"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar26"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
+            </ImageButton>
         </LinearLayout>
 
         <LinearLayout
@@ -840,83 +861,90 @@
             style="?android:attr/buttonBarStyle"
             android:layout_weight="2"
             >
-            <Button
+            <ImageButton
                 android:id="@+id/Calendar30"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar31"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar32"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar33"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar34"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar35"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar36"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
+            </ImageButton>
         </LinearLayout>
 
         <LinearLayout
@@ -1030,83 +1058,90 @@
             style="?android:attr/buttonBarStyle"
             android:layout_weight="2"
             >
-            <Button
+            <ImageButton
                 android:id="@+id/Calendar40"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar41"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar42"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar43"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar44"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar45"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar46"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
+            </ImageButton>
         </LinearLayout>
 
         <LinearLayout
@@ -1219,83 +1254,90 @@
             style="?android:attr/buttonBarStyle"
             android:layout_weight="2"
             >
-            <Button
+            <ImageButton
                 android:id="@+id/Calendar50"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar51"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar52"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar53"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar54"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar55"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
-            <Button
+            </ImageButton>
+            <ImageButton
                 android:id="@+id/Calendar56"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds = "true"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/blank"
                 android:layout_weight="1"
                 android:textSize="8pt"
                 style="?android:attr/buttonBarButtonStyle"
                 >
-            </Button>
+            </ImageButton>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

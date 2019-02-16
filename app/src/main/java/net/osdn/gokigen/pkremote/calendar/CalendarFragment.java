@@ -2,6 +2,7 @@ package net.osdn.gokigen.pkremote.calendar;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.text.format.DateUtils;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.osdn.gokigen.pkremote.R;
@@ -20,6 +22,8 @@ import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecognizer;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.scene.IChangeScene;
 
 import java.text.DateFormat;
@@ -31,24 +35,30 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import static android.content.Context.VIBRATOR_SERVICE;
 
+/**
+ *
+ *
+ *
+ */
 public class CalendarFragment extends Fragment  implements View.OnClickListener, TargetMonthSetDialog.Callback, ICameraContentsRecognizer.ICameraContentsListCallback
 {
     private final String TAG = this.toString();
 
     private IInterfaceProvider interfaceProvider = null;
     private IChangeScene changeScene = null;
+    private AppCompatActivity activity = null;
     private boolean myViewCreated = false;
     private View myView = null;
-
-    private Context context = null;
 
     private int currentYear = 0;
     private int currentMonth = 0;
@@ -180,11 +190,11 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
     /**
      *
      */
-    private void prepare(@NonNull AppCompatActivity context, IChangeScene sceneSelector, IInterfaceProvider interfaceProvider)
+    private void prepare(@NonNull AppCompatActivity activity, IChangeScene sceneSelector, IInterfaceProvider interfaceProvider)
     {
         Log.v(TAG, "prepare()");
 
-        this.context = context;
+        this.activity = activity;
         this.changeScene = sceneSelector;
         this.interfaceProvider = interfaceProvider;
     }
@@ -244,6 +254,13 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
 
             // カレンダー上のボタンを準備する
             prepareButtons(myView);
+
+            //  表示用の画像を取得する
+            ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
+            if (recognizer != null)
+            {
+                recognizer.getRemoteCameraContentsList(true, this);
+            }
         }
         catch (Exception e)
         {
@@ -251,7 +268,6 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
         }
         return (myView);
     }
-
 
     /**
      *   クリックされたときの処理
@@ -261,20 +277,25 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
         int id = v.getId();
         try
         {
+            boolean isUpdateImage = false;
+
             //  日付を動かす処理
             if (id == R.id.todaySelectButton)
             {
                 prepareLabels(myView);
+                isUpdateImage = true;
             }
             else if (id == R.id.showNextMonth)
             {
                 currentMonth++;
                 setCalendarLabels(myView);
+                isUpdateImage = true;
             }
             else if (id == R.id.showPreviousMonth)
             {
                 currentMonth--;
                 setCalendarLabels(myView);
+                isUpdateImage = true;
             }
             else if (id == R.id.showDayYear)
             {
@@ -286,6 +307,16 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
             {
                 // 日付を選択した処理... 画面遷移
                 Log.v(TAG, "onClick : " + id);
+            }
+
+            if (isUpdateImage)
+            {
+                //  表示用の画像を取得する
+                ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
+                if (recognizer != null)
+                {
+                    recognizer.getRemoteCameraContentsList(false, this);
+                }
             }
         }
         catch (Exception ex)
@@ -315,7 +346,6 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
         }
     }
 
-
     /**
      *  月の動きボタンを移動させる
      *
@@ -340,8 +370,8 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
             // カレンダー(画像)ボタン
             for (int id : calendarList)
             {
-                btn = view.findViewById(id);
-                btn.setOnClickListener(this);
+                ImageButton imageBtn = view.findViewById(id);
+                imageBtn.setOnClickListener(this);
             }
         }
         catch (Exception e)
@@ -367,13 +397,6 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
             currentMonth = calendar.get(Calendar.MONTH) + 1;
 
             setCalendarLabels(view);
-
-            //  表示画像を取得する
-            ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
-            if (recognizer != null)
-            {
-                recognizer.getRemoteCameraContentsList(true, this);
-            }
         }
         catch (Exception e)
         {
@@ -486,22 +509,38 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
         currentMonth = month;
 
         setCalendarLabels(myView);
+
+        //  表示用の画像を取得する
+        ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
+        if (recognizer != null)
+        {
+            recognizer.getRemoteCameraContentsList(false, this);
+        }
     }
 
+    /**
+     *
+     *
+     *
+     */
     @Override
     public void dataSetCancelled()
     {
         Log.v(TAG, "dataSetCancelled");
     }
 
-
+    /**
+     *
+     *
+     *
+     */
     @Override
     public void contentsListCreated(int nofContents)
     {
         Log.v(TAG, "contentsListCreated() : " + nofContents);
         try
         {
-            SparseArray<ICameraContent> picsMap = new SparseArray<>();
+            SparseArray<ICameraContent> imageMaps = new SparseArray<>();
             ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
             if (recognizer != null)
             {
@@ -527,7 +566,7 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
                         if ((checkYear == picYear)&&(checkMonth == picMonth)&&(checkDate == picDate))
                         {
                             // 日時一致...抜ける
-                            picsMap.append(calendarList.get(index), content);
+                            imageMaps.append(calendarList.get(index), content);
                             Log.v(TAG, "MATCHED : " + content.getContentPath() + "/" + content.getContentName());
                             break;
                         }
@@ -535,6 +574,9 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
                     // 一日進める
                     calendar.add(Calendar.DATE, 1);
                 }
+
+                // カレンダーに載せる画像の一覧ができた！
+                updateCalendarImages(imageMaps);
             }
         }
         catch (Exception e)
@@ -543,4 +585,138 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
         }
     }
 
+    /**
+     *
+     *
+     */
+    private void updateCalendarImages(final SparseArray<ICameraContent> imageMaps)
+    {
+        try
+        {
+            if (interfaceProvider == null)
+            {
+                Log.v(TAG, "interfaceProvider is null...");
+                return;
+            }
+            final IPlaybackControl playbackControl = interfaceProvider.getPlaybackControl();
+            if (playbackControl == null)
+            {
+                Log.v(TAG, "getPlaybackControl is null...");
+                return;
+            }
+
+            if (imageMaps == null)
+            {
+                Log.v(TAG, "imageMaps is null...");
+                return;
+            }
+
+            if (activity == null)
+            {
+                Log.v(TAG, "Activity is null...");
+                return;
+            }
+            final int targetYear = currentYear;
+            final int targetMonth = currentMonth;
+            Thread thread = new Thread(new Runnable()
+            {
+                @Override
+                public void run() {
+                    int width = -1;
+                    for (int id : calendarList)
+                    {
+                        try {
+                            final ImageButton targetView = activity.findViewById(id);
+                            final ICameraContent content = imageMaps.get(id);
+                            width = (targetView != null) ? targetView.getWidth() : -1;
+
+                            activity.runOnUiThread(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    int drawableId = (content != null) ? R.drawable.ic_satellite_grey_24dp : R.drawable.ic_crop_original_grey_24dp;
+                                    if (targetView != null)
+                                    {
+                                        targetView.setImageDrawable(ResourcesCompat.getDrawable(activity.getResources(), drawableId, null));
+                                    }
+                                }
+                            });
+                        }
+                        catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                    for (int index = 0; index < imageMaps.size(); index++)
+                    {
+                        getImageThumbnail(playbackControl, imageMaps.keyAt(index), imageMaps.valueAt(index), targetYear, targetMonth, width);
+                    }
+                }
+            });
+            thread.start();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     *
+     *
+     */
+    private void getImageThumbnail(@NonNull IPlaybackControl playbackControl, final int id, @NonNull final ICameraContent content, final int targetYear, final int targetMonth, final int drawWidth)
+    {
+        try
+        {
+            final ImageButton targetView = activity.findViewById(id);
+            playbackControl.downloadContentThumbnail(content.getContentPath() + "/" + content.getContentName(), new IDownloadThumbnailImageCallback() {
+                @Override
+                public void onCompleted(final Bitmap bitmap, Map<String, Object> metadata)
+                {
+                    if (activity != null)
+                    {
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    if ((targetView != null)&&(currentYear == targetYear)&&(currentMonth == targetMonth))
+                                    {
+                                        float width = drawWidth;
+                                        if (width < 0)
+                                        {
+                                            width = targetView.getWidth();
+                                        }
+                                        float scale = width / (float) bitmap.getWidth();
+                                        float height = (float) bitmap.getHeight() * scale;
+                                        targetView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, (int) width, (int) height, false));
+                                    }
+                                    else
+                                    {
+                                        Log.v(TAG, "" + currentYear + "(" + targetYear + ") " + currentMonth + "" + " [" + targetMonth + "]");
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onErrorOccurred(Exception e)
+                {
+                    e.printStackTrace();
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
 }

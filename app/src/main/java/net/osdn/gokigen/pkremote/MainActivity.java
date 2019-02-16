@@ -17,6 +17,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -79,13 +80,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        try {
+        try
+        {
             ActionBar bar = getSupportActionBar();
-            if (bar != null) {
+            if (bar != null)
+            {
                 // タイトルバーは表示しない
                 bar.hide();
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -122,7 +127,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * パーミッション設定が終わった後...
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults)
+    {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         prepareClass();
         onReadyClass();
@@ -133,11 +139,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void initializeClass()
     {
-        try {
+        try
+        {
             scenceUpdater = CameraSceneUpdater.newInstance(this);
             interfaceProvider = CameraInterfaceProvider.newInstance(this, scenceUpdater, this);
             scenceUpdater.changeFirstFragment(interfaceProvider);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
@@ -145,10 +154,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 本クラスの準備
      */
-    private void prepareClass() {
-        try {
+    private void prepareClass()
+    {
+        try
+        {
             mImageConnectButton.setOnClickListener(this);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
@@ -156,40 +169,73 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 初期化終了時の処理 (カメラへの自動接続)
      */
-    private void onReadyClass() {
-        try {
+    private void onReadyClass()
+    {
+        try
+        {
             // カメラに自動接続するかどうか確認
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             boolean isAutoConnectCamera = preferences.getBoolean(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, true);
             Log.v(TAG, "isAutoConnectCamera() : " + isAutoConnectCamera);
 
             // カメラに接続する
-            if (isAutoConnectCamera) {
+            if (isAutoConnectCamera)
+            {
                 // 自動接続の指示があったとき
                 scenceUpdater.changeCameraConnection();
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void onClick(View v) {
-        try {
+    public void onClick(View v)
+    {
+        try
+        {
             int id = v.getId();
-            switch (id) {
+            switch (id)
+            {
                 case R.id.button_wifi_connect:
                     // カメラとの接続を行う
                     scenceUpdater.changeCameraConnection();
+                    vibrate();
                     break;
 
                 default:
                     break;
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
+
+    /**
+     *
+     *
+     */
+    private void vibrate()
+    {
+        try {
+            Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+            if (vibrator != null)
+            {
+                vibrator.vibrate(50);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+
+    }
+
 
     @Override
     public void updateMessage(final String message, final boolean isBold, final boolean isColor,  final int color)
