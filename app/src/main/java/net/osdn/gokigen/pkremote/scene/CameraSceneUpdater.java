@@ -461,7 +461,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
         Log.v(TAG, "changeScenceToImageList()");
         try
         {
-            ImageGridViewFragment fragment = ImageGridViewFragment.newInstance(interfaceProvider.getPlaybackControl(), interfaceProvider.getCameraRunMode());
+            ImageGridViewFragment fragment = ImageGridViewFragment.newInstance(interfaceProvider);
             FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment1, fragment);
             // backstackに追加

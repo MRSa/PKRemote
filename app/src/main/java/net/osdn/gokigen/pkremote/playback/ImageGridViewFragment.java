@@ -3,6 +3,7 @@ package net.osdn.gokigen.pkremote.playback;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,13 +15,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import net.osdn.gokigen.pkremote.R;
+import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecognizer;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
@@ -49,6 +56,10 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceManager;
 
+/**
+ *
+ *
+ */
 public class ImageGridViewFragment extends Fragment
 {
 	private final String TAG = this.toString();
@@ -61,6 +72,7 @@ public class ImageGridViewFragment extends Fragment
 
     private GridView gridView;
 	private boolean gridViewIsScrolling;
+	private IInterfaceProvider interfaceProvider;
 	private IPlaybackControl playbackControl;
 	private ICameraRunMode runMode;
 		
@@ -68,17 +80,18 @@ public class ImageGridViewFragment extends Fragment
 	private ExecutorService executor;
 	private LruCache<String, Bitmap> imageCache;
 
-	public static ImageGridViewFragment newInstance(@NonNull IPlaybackControl playbackControl, @NonNull ICameraRunMode runMode)
+	public static ImageGridViewFragment newInstance(@NonNull IInterfaceProvider interfaceProvider)
 	{
 		ImageGridViewFragment fragment = new ImageGridViewFragment();
-		fragment.setControllers(playbackControl, runMode);
+		fragment.setControllers(interfaceProvider);
 		return (fragment);
 	}
 
-	private void setControllers(IPlaybackControl playbackControl, ICameraRunMode runMode)
+	private void setControllers(@NonNull IInterfaceProvider interfaceProvider)
 	{
-		this.playbackControl = playbackControl;
-		this.runMode = runMode;
+		this.interfaceProvider = interfaceProvider;
+		this.playbackControl = interfaceProvider.getPlaybackControl();
+		this.runMode = interfaceProvider.getCameraRunMode();
 	}
 
 	@Override
@@ -142,24 +155,30 @@ public class ImageGridViewFragment extends Fragment
 		AppCompatActivity activity = (AppCompatActivity)getActivity();
 		if (activity != null)
 		{
-            ActionBar bar = activity.getSupportActionBar();
-            if (bar != null)
+		    try {
+                ActionBar bar = activity.getSupportActionBar();
+                if (bar != null) {
+                    // アクションバーの表示をするかどうか
+                    boolean isShowActionBar = false;
+                    Context context = getContext();
+                    if (context != null)
+                    {
+                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+                        if (preferences != null)
+                        {
+                            isShowActionBar = preferences.getBoolean("use_playback_menu", false);
+                        }
+                        if (isShowActionBar) {
+                            bar.show();  // ActionBarの表示を出す
+                        } else {
+                            bar.hide();   // ActionBarの表示を消す
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
             {
-                // アクションバーの表示をするかどうか
-                boolean isShowActionBar = false;
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-                if (preferences != null)
-                {
-                    isShowActionBar = preferences.getBoolean("use_playback_menu", false);
-                }
-                if (isShowActionBar)
-                {
-                    bar.show();  // ActionBarの表示を出す
-                }
-                else
-                {
-                    bar.hide();   // ActionBarの表示を消す
-                }
+                e.printStackTrace();
             }
         }
 
@@ -206,6 +225,31 @@ public class ImageGridViewFragment extends Fragment
             if (runMode.isRecordingMode())
             {
                 runMode.changeRunMode(false);
+            }
+
+            // ここはテンポラリで...
+            AppCompatActivity activity = (AppCompatActivity)getActivity();
+            if (activity != null)
+            {
+                RadioButton dateButton = activity.findViewById(R.id.radio_date);
+                RadioButton pathButton = activity.findViewById(R.id.radio_path);
+                Spinner categorySpinner = activity.findViewById(R.id.category_spinner);
+                boolean dateChecked = dateButton.isChecked();
+                dateButton.setChecked(dateChecked);
+                pathButton.setChecked(!dateChecked);
+
+                ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
+                if (recognizer != null)
+                {
+                    // パス一覧 / 日付一覧
+                    List<String> strList = (dateChecked) ? recognizer.getDateList() : recognizer.getPathList();
+
+                    // 先頭に ALLを追加
+                    //strList.add("ALL");
+                    strList.add(0, "ALL");
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, strList);
+                    categorySpinner.setAdapter(adapter);
+                }
             }
         }
         catch (Exception e)

@@ -155,4 +155,7 @@
     <string name="dialog_download_title">Get Image</string>
     <string name="dialog_download_message">File Name:</string>
     <string name="download_control_save_success">Saved</string>
+
+    <string name="select_radio_date">Date</string>
+    <string name="select_radio_path">Path</string>
 </resources>
