@@ -3,8 +3,6 @@ package net.osdn.gokigen.pkremote.camera.playback;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.util.Log;
-import android.util.SparseArray;
-import android.widget.ArrayAdapter;
 
 import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.R;
@@ -16,6 +14,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -199,6 +198,11 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
         return (cameraContentsList);
     }
 
+    /**
+     *
+     *
+     *
+     */
     @Override
     public List<String> getDateList()
     {
@@ -206,12 +210,18 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
         HashMap<String, String> map = new HashMap<>();
         for (ICameraContent content : cameraContentsList)
         {
-            String dateStr = format.format(content.getCapturedDate());
-            map.put(dateStr, content.getContentName());
+            map.put(format.format(content.getCapturedDate()), content.getContentName());
         }
-        return (new ArrayList<>(map.keySet()));
+        ArrayList<String> dateList = new ArrayList<>(map.keySet());
+        Collections.sort(dateList);
+        return (dateList);
     }
 
+    /**
+     *
+     *
+     *
+     */
     @Override
     public List<String> getPathList()
     {
@@ -220,6 +230,8 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
         {
             map.put(content.getContentPath(), content.getContentName());
         }
-        return (new ArrayList<>(map.keySet()));
+        ArrayList<String> pathList = new ArrayList<>(map.keySet());
+        Collections.sort(pathList);
+        return (pathList);
     }
 }

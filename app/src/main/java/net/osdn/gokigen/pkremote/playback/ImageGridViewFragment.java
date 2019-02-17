@@ -227,8 +227,8 @@ public class ImageGridViewFragment extends Fragment
                 runMode.changeRunMode(false);
             }
 
-            // ここはテンポラリで...
-            AppCompatActivity activity = (AppCompatActivity)getActivity();
+            // ここはまだテンポラリで...
+            final AppCompatActivity activity = (AppCompatActivity)getActivity();
             if (activity != null)
             {
                 RadioButton dateButton = activity.findViewById(R.id.radio_date);
@@ -299,6 +299,10 @@ public class ImageGridViewFragment extends Fragment
         }
     }
 
+    /**
+     *
+     *
+     */
 	private void refreshImpl()
 	{
 		contentList = null;
