@@ -3,7 +3,6 @@ package net.osdn.gokigen.pkremote.playback;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,36 +12,32 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecognizer;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentListCallback;
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
+import net.osdn.gokigen.pkremote.playback.detail.CameraContentEx;
 import net.osdn.gokigen.pkremote.playback.detail.ImageContentInfoEx;
 import net.osdn.gokigen.pkremote.playback.detail.ImagePagerViewFragment;
+import net.osdn.gokigen.pkremote.playback.grid.ImageGridViewAdapter;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -60,7 +55,7 @@ import androidx.preference.PreferenceManager;
  *
  *
  */
-public class ImageGridViewFragment extends Fragment
+public class ImageGridViewFragment extends Fragment implements AdapterView.OnItemClickListener
 {
 	private final String TAG = this.toString();
     private final String MOVIE_SUFFIX = ".mov";
@@ -69,16 +64,17 @@ public class ImageGridViewFragment extends Fragment
 	private final String OLYMPUS_RAW_SUFFIX = ".orf";
 	private final String PENTAX_RAW_PEF_SUFFIX = ".pef";
 
-
     private GridView gridView;
-	private boolean gridViewIsScrolling;
 	private IInterfaceProvider interfaceProvider;
 	private IPlaybackControl playbackControl;
 	private ICameraRunMode runMode;
-		
-    private List<ImageContentInfoEx> contentList;
+
+    private LruCache<String, Bitmap> imageCache;
+    private List<CameraContentEx> imageContentList;
+    //private List<ImageContentInfoEx> contentList;
 	private ExecutorService executor;
-	private LruCache<String, Bitmap> imageCache;
+	private ImageGridViewAdapter adapter = null;
+
 
 	public static ImageGridViewFragment newInstance(@NonNull IInterfaceProvider interfaceProvider)
 	{
@@ -100,8 +96,8 @@ public class ImageGridViewFragment extends Fragment
 		super.onCreate(savedInstanceState);
         Log.v(TAG, "ImageGridViewFragment::onCreate()");
 
+        imageCache = new LruCache<>(200);
 		executor = Executors.newFixedThreadPool(1);
-		imageCache = new LruCache<>(160);
 		setHasOptionsMenu(true);
 	}
 	
@@ -110,12 +106,16 @@ public class ImageGridViewFragment extends Fragment
 	{
 		Log.v(TAG, "ImageGridViewFragment::onCreateView()");
 		View view = inflater.inflate(R.layout.fragment_image_grid_view, container, false);
-		
-		gridView = view.findViewById(R.id.gridView1);
-		gridView.setAdapter(new GridViewAdapter(inflater));
-		gridView.setOnItemClickListener(new GridViewOnItemClickListener());
-		gridView.setOnScrollListener(new GridViewOnScrollListener());
-		
+
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        if (activity != null)
+        {
+            adapter = new ImageGridViewAdapter(activity, playbackControl, executor, imageCache, inflater, imageContentList);
+            gridView = view.findViewById(R.id.gridView1);
+            gridView.setAdapter(adapter);
+            gridView.setOnItemClickListener(this);
+            gridView.setOnScrollListener(adapter);
+        }
 		return (view);
 	}
 	
@@ -180,6 +180,31 @@ public class ImageGridViewFragment extends Fragment
             {
                 e.printStackTrace();
             }
+
+            // ここはまだテンポラリで...
+            //final AppCompatActivity activity = (AppCompatActivity)getActivity();
+            //if (activity != null)
+            {
+                RadioButton dateButton = activity.findViewById(R.id.radio_date);
+                RadioButton pathButton = activity.findViewById(R.id.radio_path);
+                Spinner categorySpinner = activity.findViewById(R.id.category_spinner);
+                boolean dateChecked = dateButton.isChecked();
+                dateButton.setChecked(dateChecked);
+                pathButton.setChecked(!dateChecked);
+
+                ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
+                if (recognizer != null)
+                {
+                    // パス一覧 / 日付一覧
+                    List<String> strList = (dateChecked) ? recognizer.getDateList() : recognizer.getPathList();
+
+                    // 先頭に ALLを追加
+                    //strList.add("ALL");
+                    strList.add(0, "ALL");
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, strList);
+                    categorySpinner.setAdapter(adapter);
+                }
+            }
         }
 
         try
@@ -227,30 +252,6 @@ public class ImageGridViewFragment extends Fragment
                 runMode.changeRunMode(false);
             }
 
-            // ここはまだテンポラリで...
-            final AppCompatActivity activity = (AppCompatActivity)getActivity();
-            if (activity != null)
-            {
-                RadioButton dateButton = activity.findViewById(R.id.radio_date);
-                RadioButton pathButton = activity.findViewById(R.id.radio_path);
-                Spinner categorySpinner = activity.findViewById(R.id.category_spinner);
-                boolean dateChecked = dateButton.isChecked();
-                dateButton.setChecked(dateChecked);
-                pathButton.setChecked(!dateChecked);
-
-                ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
-                if (recognizer != null)
-                {
-                    // パス一覧 / 日付一覧
-                    List<String> strList = (dateChecked) ? recognizer.getDateList() : recognizer.getPathList();
-
-                    // 先頭に ALLを追加
-                    //strList.add("ALL");
-                    strList.add(0, "ALL");
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, strList);
-                    categorySpinner.setAdapter(adapter);
-                }
-            }
         }
         catch (Exception e)
         {
@@ -300,12 +301,84 @@ public class ImageGridViewFragment extends Fragment
     }
 
     /**
+     *   処理をContentsRecognizer ベースに差し替える
+     *
+     */
+    private void refreshImpl()
+    {
+        imageContentList = null;
+        Log.v(TAG, "refreshImpl() start");
+
+        ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
+        if (recognizer == null)
+        {
+            Log.v(TAG, "refreshImpl() : recognizer is null");
+            return;
+        }
+        List<ICameraContent> contents = recognizer.getContentsList();
+        if (contents == null)
+        {
+            Log.v(TAG, "refreshImpl() : contents is null");
+            return;
+        }
+
+        List<CameraContentEx> contentItems = new ArrayList<>();
+        HashMap<String, CameraContentEx> rawItems = new HashMap<>();
+        for (ICameraContent item : contents)
+        {
+            String path = item.getContentName().toLowerCase(Locale.getDefault());
+            if ((path.endsWith(JPEG_SUFFIX))||(path.endsWith(MOVIE_SUFFIX)))
+            {
+                contentItems.add(new CameraContentEx(item, false, ""));
+            }
+            else if (path.endsWith(DNG_RAW_SUFFIX))
+            {
+                contentItems.add(new CameraContentEx(item, true, DNG_RAW_SUFFIX));
+            }
+            else if (path.endsWith(OLYMPUS_RAW_SUFFIX))
+            {
+                rawItems.put(path, new CameraContentEx(item, true, OLYMPUS_RAW_SUFFIX));
+            }
+            else if (path.endsWith(PENTAX_RAW_PEF_SUFFIX))
+            {
+                contentItems.add(new CameraContentEx(item, true, PENTAX_RAW_PEF_SUFFIX));
+            }
+        }
+
+        for (CameraContentEx item : contentItems)
+        {
+            String path = item.getFileInfo().getContentName().toLowerCase(Locale.getDefault());
+            if (path.endsWith(JPEG_SUFFIX))
+            {
+                String target2 = path.replace(JPEG_SUFFIX, OLYMPUS_RAW_SUFFIX);
+                CameraContentEx raw2 = rawItems.get(target2);
+                if (raw2 != null)
+                {
+                    // RAW は、JPEGファイルがあった場合にのみリストする
+                    item.setHasRaw(true, OLYMPUS_RAW_SUFFIX);
+                    Log.v(TAG, "DETECT RAW FILE: " + target2);
+                }
+            }
+        }
+        imageContentList = contentItems;
+        adapter.setContentList(imageContentList);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showHideProgressBar(false);
+                gridView.invalidateViews();
+            }
+        });
+        Log.v(TAG, "refreshImpl() end");
+    }
+
+    /**
      *
      *
      */
-	private void refreshImpl()
+	private void refreshImplOriginal()
 	{
-		contentList = null;
+//		contentList = null;
 		Log.v(TAG, "refreshImpl() start");
 
 		playbackControl.downloadContentList(new IDownloadContentListCallback() {
@@ -397,7 +470,7 @@ public class ImageGridViewFragment extends Fragment
                     }
                 }
                 //contentItems.addAll(appendRawContents);
-                contentList = contentItems;
+//                contentList = contentItems;
 
 				runOnUiThread(new Runnable() {
 					@Override
@@ -423,12 +496,15 @@ public class ImageGridViewFragment extends Fragment
         Log.v(TAG, "refreshImpl() end");
     }
 
+
+/*
+
 	private static class GridCellViewHolder
     {
 		ImageView imageView;
 		ImageView iconView;
 	}
-	
+
 	private class GridViewAdapter extends BaseAdapter
     {
 		private LayoutInflater inflater;
@@ -638,7 +714,7 @@ public class ImageGridViewFragment extends Fragment
 			}
 		}
 	}
-	
+*/
 	
 	// -------------------------------------------------------------------------
 	// Helpers
@@ -753,4 +829,21 @@ public class ImageGridViewFragment extends Fragment
 		return (degrees);
 	}
 */
+
+    // AdapterView.OnItemClickListener
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+    {
+/*
+        ImagePagerViewFragment fragment = ImagePagerViewFragment.newInstance(playbackControl, runMode, contentList, position);
+        FragmentActivity activity = getActivity();
+        if (activity != null)
+        {
+            FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
+            transaction.replace(getId(), fragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }
+*/
+    }
 }

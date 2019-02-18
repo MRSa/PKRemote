@@ -22,12 +22,12 @@ public class ImageContentInfoEx
         this.rawSuffix = rawSuffix;
     }
 
-    public boolean hasRaw()
+    boolean hasRaw()
     {
         return (hasRaw);
     }
 
-    public String getRawSuffix()
+    String getRawSuffix()
     {
         return (rawSuffix);
     }

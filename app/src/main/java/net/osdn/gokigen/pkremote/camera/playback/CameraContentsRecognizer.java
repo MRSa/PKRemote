@@ -15,6 +15,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -121,6 +122,20 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
                     informationReceiver.updateMessage(activity.getString(R.string.get_camera_contents_finished), false, false, 0);
                 }
 
+                // 最新の撮影データから並べる
+                Collections.sort(contentList, new Comparator<ICameraContent>() {
+                    @Override
+                    public int compare(ICameraContent lhs, ICameraContent rhs)
+                    {
+                        long diff = rhs.getCapturedDate().getTime() - lhs.getCapturedDate().getTime();
+                        if (diff == 0)
+                        {
+                            diff = rhs.getContentName().compareTo(lhs.getContentName());
+                        }
+                        return (int)Math.min(Math.max(-1, diff), 1);
+                    }
+                });
+
                 //// とりあえず、できたコンテンツ一覧をログにダンプしてみる。
                 // dumpCameraContentList();
             }
@@ -192,11 +207,101 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
     }
 */
 
+    /**
+     *
+     *
+     *
+     */
     @Override
     public List<ICameraContent> getContentsList()
     {
         return (cameraContentsList);
     }
+
+    /**
+     *
+     *
+     *
+     */
+    @Override
+    public List<ICameraContent> getContentsListAtDate(String date)
+    {
+        if (date.equals("ALL"))
+        {
+            return (getContentsList());
+        }
+        if (cameraContentsList == null)
+        {
+            return (cameraContentsList);
+        }
+
+        ArrayList<ICameraContent> targetList = new ArrayList<>();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
+        for (ICameraContent content : cameraContentsList)
+        {
+            String capturedDate = format.format(content.getCapturedDate());
+            if (date.equals(capturedDate))
+            {
+                targetList.add(content);
+            }
+        }
+        Collections.sort(targetList, new Comparator<ICameraContent>() {
+            @Override
+            public int compare(ICameraContent lhs, ICameraContent rhs)
+            {
+                long diff = rhs.getCapturedDate().getTime() - lhs.getCapturedDate().getTime();
+                if (diff == 0)
+                {
+                    diff = rhs.getContentName().compareTo(lhs.getContentName());
+                }
+                return (int)Math.min(Math.max(-1, diff), 1);
+            }
+        });
+        //Collections.sort(targetList);
+        return (targetList);
+    }
+
+    /**
+     *
+     *
+     *
+     */
+    @Override
+    public List<ICameraContent> getContentsListAtPath(String path)
+    {
+        if (path.equals("ALL"))
+        {
+            return (getContentsList());
+        }
+        if (cameraContentsList == null)
+        {
+            return (cameraContentsList);
+        }
+
+        ArrayList<ICameraContent> targetList = new ArrayList<>();
+        for (ICameraContent content : cameraContentsList)
+        {
+            if (path.equals(content.getContentPath()))
+            {
+                targetList.add(content);
+            }
+        }
+        Collections.sort(targetList, new Comparator<ICameraContent>() {
+            @Override
+            public int compare(ICameraContent lhs, ICameraContent rhs)
+            {
+                long diff = rhs.getCapturedDate().getTime() - lhs.getCapturedDate().getTime();
+                if (diff == 0)
+                {
+                    diff = rhs.getContentName().compareTo(lhs.getContentName());
+                }
+                return (int)Math.min(Math.max(-1, diff), 1);
+            }
+        });
+        //Collections.sort(targetList);
+        return (targetList);
+    }
+
 
     /**
      *
@@ -213,7 +318,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
             map.put(format.format(content.getCapturedDate()), content.getContentName());
         }
         ArrayList<String> dateList = new ArrayList<>(map.keySet());
-        Collections.sort(dateList);
+        Collections.sort(dateList, Collections.reverseOrder());
         return (dateList);
     }
 
@@ -231,7 +336,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
             map.put(content.getContentPath(), content.getContentName());
         }
         ArrayList<String> pathList = new ArrayList<>(map.keySet());
-        Collections.sort(pathList);
+        Collections.sort(pathList, Collections.reverseOrder());
         return (pathList);
     }
 }
