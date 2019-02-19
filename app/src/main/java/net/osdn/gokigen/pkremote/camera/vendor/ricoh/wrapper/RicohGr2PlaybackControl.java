@@ -37,7 +37,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
     private final String TAG = toString();
     private final String getPhotoUrl = "http://192.168.0.1/v1/photos/";
     private final RicohGr2StatusChecker statusChecker;
-    private static final int DEFAULT_TIMEOUT = 5000;
+    private static final int DEFAULT_TIMEOUT = 7700;
     private final boolean useGrCommand;
 
 
@@ -164,9 +164,9 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
     }
 
     @Override
-    public void getContentInfo(@NonNull String path, @NonNull IContentInfoCallback callback)
+    public void getContentInfo(@NonNull String path, @NonNull String name, @NonNull IContentInfoCallback callback)
     {
-        String url = getPhotoUrl + path + "/info";
+        String url = getPhotoUrl + path + "/" + name + "/info";
         Log.v(TAG, "getContentInfo() GET URL : " + url);
         try
         {
@@ -175,6 +175,23 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
             {
                 callback.onErrorOccurred(new NullPointerException());
             }
+            CameraFileInfo fileInfo = new CameraFileInfo(path, name);
+
+            JSONObject object = new JSONObject(response);
+
+            boolean captured = object.getBoolean("captured");
+            String av = getJSONString(object, "av");
+            String tv = getJSONString(object, "tv");
+            String sv = getJSONString(object,"sv");
+            String xv = getJSONString(object,"xv");
+            int orientation = object.getInt("orientation");
+            String aspectRatio = getJSONString(object,"aspectRatio");
+            String cameraModel = getJSONString(object,"cameraModel");
+            String latLng = getJSONString(object,"latlng");
+            String dateTime = object.getString("datetime");
+            fileInfo.updateValues(dateTime, av, tv, sv, xv, orientation, aspectRatio, cameraModel, latLng, captured);
+
+            callback.onCompleted(fileInfo);
         }
         catch (Throwable e)
         {

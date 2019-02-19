@@ -14,7 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import net.osdn.gokigen.pkremote.R;
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IProgressEvent;
@@ -64,21 +64,21 @@ class MyContentDownloader implements IDownloadContentCallback
      *   ダウンロードの開始
      *
      */
-    void startDownload(final ICameraFileInfo fileInfo, String replaceJpegSuffix, boolean isSmallSize)
+    void startDownload(final ICameraContent fileInfo, String replaceJpegSuffix, boolean isSmallSize)
     {
         if (fileInfo == null)
         {
             Log.v(TAG, "startDownload() ICameraFileInfo is NULL...");
             return;
         }
-        Log.v(TAG, "startDownload() " + fileInfo.getFilename());
+        Log.v(TAG, "startDownload() " + fileInfo.getContentName());
 
         // Download the image.
         try
         {
             Calendar calendar = Calendar.getInstance();
             String extendName = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(calendar.getTime());
-            targetFileName = fileInfo.getFilename().toUpperCase();
+            targetFileName = fileInfo.getContentName().toUpperCase();
             if (replaceJpegSuffix != null)
             {
                 targetFileName = targetFileName.replace(JPEG_SUFFIX, replaceJpegSuffix);
@@ -112,7 +112,7 @@ class MyContentDownloader implements IDownloadContentCallback
                     downloadDialog.show();
                 }
             });
-            String path = fileInfo.getDirectoryPath() + "/" + targetFileName;
+            String path = fileInfo.getContentPath() + "/" + targetFileName;
 
             final String directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath() + "/" + activity.getString(R.string.app_name2) + "/";
             String outputFileName =  extendName + "_" + targetFileName;

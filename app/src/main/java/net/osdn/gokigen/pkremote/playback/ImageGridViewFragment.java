@@ -834,8 +834,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id)
     {
-/*
-        ImagePagerViewFragment fragment = ImagePagerViewFragment.newInstance(playbackControl, runMode, contentList, position);
+        ImagePagerViewFragment fragment = ImagePagerViewFragment.newInstance(playbackControl, runMode, imageContentList, position);
         FragmentActivity activity = getActivity();
         if (activity != null)
         {
@@ -844,6 +843,5 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
             transaction.addToBackStack(null);
             transaction.commit();
         }
-*/
     }
 }

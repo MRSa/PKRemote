@@ -15,7 +15,9 @@ import android.widget.ImageView;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.IContentInfoCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 
@@ -31,6 +33,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.collection.LruCache;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -42,7 +45,7 @@ public class ImagePagerViewFragment extends Fragment
     private IPlaybackControl playbackControl;
     private ICameraRunMode runMode;
 
-	private List<ImageContentInfoEx> contentList = null;
+	private List<CameraContentEx> contentList = null;
 	private int contentIndex = 0;
 
 	private LayoutInflater layoutInflater = null;
@@ -50,7 +53,7 @@ public class ImagePagerViewFragment extends Fragment
 	private LruCache<String, Bitmap> imageCache =null;
 
 
-    public static ImagePagerViewFragment newInstance(@NonNull IPlaybackControl playbackControl, @NonNull ICameraRunMode runMode, @NonNull List<ImageContentInfoEx> contentList, int contentIndex)
+    public static ImagePagerViewFragment newInstance(@NonNull IPlaybackControl playbackControl, @NonNull ICameraRunMode runMode, @NonNull List<CameraContentEx> contentList, int contentIndex)
 	{
 		ImagePagerViewFragment fragment = new ImagePagerViewFragment();
 		fragment.setInterface(playbackControl, runMode);
@@ -66,7 +69,7 @@ public class ImagePagerViewFragment extends Fragment
     }
 
 
-	private void setContentList(@NonNull List<ImageContentInfoEx> contentList, int contentIndex)
+	private void setContentList(@NonNull List<CameraContentEx> contentList, int contentIndex)
 	{
 		this.contentList = contentList;
 		this.contentIndex = contentIndex;
@@ -97,9 +100,9 @@ public class ImagePagerViewFragment extends Fragment
 	{
 		try
 		{
-			ImageContentInfoEx info  = contentList.get(contentIndex);
-            ICameraFileInfo file = info.getFileInfo();
-			String path = file.getDirectoryPath() + "/" + file.getFilename();
+            CameraContentEx info  = contentList.get(contentIndex);
+            ICameraContent file = info.getFileInfo();
+			String path = file.getContentPath() + "/" + file.getContentName();
 
 			AppCompatActivity activity = (AppCompatActivity) getActivity();
 			if (activity != null)
@@ -147,7 +150,6 @@ public class ImagePagerViewFragment extends Fragment
         boolean getInformation = false;
 		boolean isSmallSize = false;
 		boolean isRaw = false;
-        String specialSuffix = null;
         if ((item.getItemId() == R.id.action_get_information)||(item.getItemId() == R.id.action_get_information_raw))
         {
             getInformation = true;
@@ -205,41 +207,64 @@ public class ImagePagerViewFragment extends Fragment
 		return (super.onOptionsItemSelected(item));
 	}
 
-    private void showFileInformation(final ICameraFileInfo fileInfo)
+    /**
+     *
+     *
+     */
+    private void showFileInformation(final ICameraContent contentInfo)
     {
         if (playbackControl != null)
         {
-            playbackControl.updateCameraFileInfo(fileInfo);
-        }
+            playbackControl.getContentInfo(contentInfo.getContentPath(), contentInfo.getContentName(), new IContentInfoCallback() {
+                /**
+                 *
+                 *
+                 */
+                @Override
+                public void onCompleted(final ICameraFileInfo fileInfo)
+                {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String message = "";
+                            try {
+                                String model = fileInfo.getModel();
+                                String dateTime = "";
+                                Date date = fileInfo.getDatetime();
+                                if (date != null) {
+                                    dateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(date);
+                                }
+                                String path = fileInfo.getDirectoryPath() + "/" + fileInfo.getFilename();
+                                String shutter = fileInfo.getShutterSpeed();
+                                shutter = shutter.replace(".", "/");
+                                String aperture = fileInfo.getAperature();
+                                String iso = fileInfo.getIsoSensitivity();
+                                String expRev = fileInfo.getExpRev();
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String message = "";
-                try {
-                    String model = fileInfo.getModel();
-                    String dateTime = "";
-                    Date date = fileInfo.getDatetime();
-                    if (date != null) {
-                        dateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(date);
-                    }
-                    String path = fileInfo.getDirectoryPath() + "/" + fileInfo.getFilename();
-                    String shutter = fileInfo.getShutterSpeed();
-                    shutter = shutter.replace(".", "/");
-                    String aperture = fileInfo.getAperature();
-                    String iso = fileInfo.getIsoSensitivity();
-                    String expRev = fileInfo.getExpRev();
-
-                    message = path + "\r\n" + dateTime + "\r\n" + "- - - - - - - - - -\r\n  " + shutter + "  F" + aperture + " (" + expRev + ")" + " ISO" + iso + "\r\n" + "- - - - - - - - - -\r\n" + "  model : " + model + "\r\n";
+                                message = path + "\r\n" + dateTime + "\r\n" + "- - - - - - - - - -\r\n  " + shutter + "  F" + aperture + " (" + expRev + ")" + " ISO" + iso + "\r\n" + "- - - - - - - - - -\r\n" + "  model : " + model + "\r\n";
+                            }
+                            catch (Exception e)
+                            {
+                                e.printStackTrace();
+                            }
+                            presentMessage(getString(R.string.download_control_get_information_title), message);
+                            System.gc();
+                        }
+                    });
                 }
-                catch (Exception e)
+
+                /**
+                 *
+                 *
+                 */
+                @Override
+                public void onErrorOccurred(Exception e)
                 {
                     e.printStackTrace();
                 }
-                presentMessage(getString(R.string.download_control_get_information_title), message);
-                System.gc();
-            }
-        });
+            });
+        }
+
     }
 
     @Override
@@ -349,8 +374,8 @@ public class ImagePagerViewFragment extends Fragment
 			contentIndex = position;
 			try
 			{
-                ICameraFileInfo file = (contentList.get(contentIndex)).getFileInfo();
-                String path = file.getDirectoryPath() + "/" + file.getFilename();
+                ICameraContent file = (contentList.get(contentIndex)).getFileInfo();
+                String path = file.getContentPath() + "/" + file.getContentName();
 
                 AppCompatActivity activity = (AppCompatActivity) getActivity();
                 if (activity != null)
@@ -360,7 +385,7 @@ public class ImagePagerViewFragment extends Fragment
                     {
                         bar.setTitle(path);
                     }
-                    activity.getSupportActionBar().setTitle(path);
+                    //activity.getSupportActionBar().setTitle(path);
                     activity.getFragmentManager().invalidateOptionsMenu();
                 }
 			}
@@ -401,8 +426,8 @@ public class ImagePagerViewFragment extends Fragment
     {
         try
         {
-            ICameraFileInfo file = (contentList.get(position)).getFileInfo();
-            final String path = file.getDirectoryPath() + "/" + file.getFilename();
+            ICameraContent file = (contentList.get(position)).getFileInfo();
+            final String path = file.getContentPath() + "/" + file.getContentName();
 
             // Get the cached image.
             final Bitmap bitmap = imageCache.get(path);
@@ -480,7 +505,7 @@ public class ImagePagerViewFragment extends Fragment
 	 * @param isRaw           RAWファイルをダウンロードするか
 	 * @param isSmallSize    小さいサイズの量にするか
      */
-	public void saveImageWithDialog(final boolean isRaw, final boolean isSmallSize)
+	private void saveImageWithDialog(final boolean isRaw, final boolean isSmallSize)
 	{
         Log.v(TAG, "saveImageWithDialog() : raw : " + isRaw + " (small : " + isSmallSize + ")");
         try
@@ -492,10 +517,10 @@ public class ImagePagerViewFragment extends Fragment
                     @Override
                     public void run() {
                         MyContentDownloader contentDownloader = new MyContentDownloader(activity, playbackControl);
-                        ImageContentInfoEx infoEx = contentList.get(contentIndex);
+                        CameraContentEx infoEx = contentList.get(contentIndex);
                         if (infoEx != null)
                         {
-                            ICameraFileInfo fileInfo = infoEx.getFileInfo();
+                            ICameraContent fileInfo = infoEx.getFileInfo();
                             contentDownloader.startDownload(fileInfo, (isRaw) ? infoEx.getRawSuffix() : null, isSmallSize);
                         }
                     }
@@ -518,9 +543,12 @@ public class ImagePagerViewFragment extends Fragment
         runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle(title).setMessage(message);
-                    builder.show();
+                    FragmentActivity activity = getActivity();
+                    if (activity != null) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                        builder.setTitle(title).setMessage(message);
+                        builder.show();
+                    }
                 }
         });
 	}

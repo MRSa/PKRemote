@@ -74,12 +74,12 @@ public class OlyCameraPlaybackControl implements IPlaybackControl
     }
 
     @Override
-    public void getContentInfo(@NonNull String path, @NonNull IContentInfoCallback callback)
+    public void getContentInfo(@NonNull String path, @NonNull String name, @NonNull IContentInfoCallback callback)
     {
         try
         {
-            // ここは使っていないから何もしない
-            Log.v(TAG, "getContentInfo() : " + path);
+            // ここは使っていないから何もしない... 本当は画像をダウンロードして動きたい。
+            Log.v(TAG, "getContentInfo() : " + path + "/" + name );
         }
         catch (Exception e)
         {
