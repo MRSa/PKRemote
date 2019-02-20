@@ -232,7 +232,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
         }
         if (cameraContentsList == null)
         {
-            return (cameraContentsList);
+            return (new ArrayList<>());
         }
 
         ArrayList<ICameraContent> targetList = new ArrayList<>();
@@ -275,7 +275,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
         }
         if (cameraContentsList == null)
         {
-            return (cameraContentsList);
+            return (new ArrayList<>());
         }
 
         ArrayList<ICameraContent> targetList = new ArrayList<>();
@@ -302,7 +302,6 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
         return (targetList);
     }
 
-
     /**
      *
      *
@@ -311,6 +310,10 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
     @Override
     public List<String> getDateList()
     {
+        if (cameraContentsList == null)
+        {
+            return (new ArrayList<>());
+        }
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
         HashMap<String, String> map = new HashMap<>();
         for (ICameraContent content : cameraContentsList)
@@ -330,6 +333,10 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
     @Override
     public List<String> getPathList()
     {
+        if (cameraContentsList == null)
+        {
+            return (new ArrayList<>());
+        }
         HashMap<String, String> map = new HashMap<>();
         for (ICameraContent content : cameraContentsList)
         {
