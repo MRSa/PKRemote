@@ -226,12 +226,14 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
     @Override
     public List<ICameraContent> getContentsListAtDate(String date)
     {
+        Log.v(TAG, "getContentsListAtDate() : " + date);
         if (date.equals("ALL"))
         {
             return (getContentsList());
         }
         if (cameraContentsList == null)
         {
+            getRemoteCameraContentsListImpl(this);
             return (new ArrayList<>());
         }
 
@@ -269,12 +271,14 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
     @Override
     public List<ICameraContent> getContentsListAtPath(String path)
     {
+        Log.v(TAG, "getContentsListAtPath() : " + path);
         if (path.equals("ALL"))
         {
             return (getContentsList());
         }
         if (cameraContentsList == null)
         {
+            getRemoteCameraContentsListImpl(this);
             return (new ArrayList<>());
         }
 
