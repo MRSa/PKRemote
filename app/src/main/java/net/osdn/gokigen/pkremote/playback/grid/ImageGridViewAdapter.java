@@ -108,7 +108,7 @@ public class ImageGridViewAdapter extends BaseAdapter implements AbsListView.OnS
         ICameraContent item = (infoEx != null) ? infoEx.getFileInfo() : null;
         if (item == null)
         {
-            viewHolder.getImageView().setImageDrawable(null);
+            viewHolder.getImageView().setImageResource(R.drawable.ic_satellite_grey_24dp);
             viewHolder.getIconView().setImageDrawable(null);
             return (convertView);
         }
@@ -116,7 +116,7 @@ public class ImageGridViewAdapter extends BaseAdapter implements AbsListView.OnS
         Bitmap thumbnail = imageCache.get(path);
         if (thumbnail == null)
         {
-            viewHolder.getImageView().setImageDrawable(null);
+            viewHolder.getImageView().setImageResource(R.drawable.ic_satellite_grey_24dp);
             viewHolder.getIconView().setImageDrawable(null);
             if (!gridViewIsScrolling)
             {
