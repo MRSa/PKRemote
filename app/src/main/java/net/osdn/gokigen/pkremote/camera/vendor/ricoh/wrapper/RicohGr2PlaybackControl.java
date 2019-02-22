@@ -371,7 +371,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
                         JSONObject fileObject = filesArray.getJSONObject(fileIndex);
                         String fileName = fileObject.getString("n");
                         String dateString = fileObject.getString("d");
-                        Date capturedDate = new Date();
+                        Date capturedDate = new Date(2001, 1, 1);
                         if (dateString != null)
                         {
                             SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US); // "yyyy-MM-dd'T'HH:mm:ssZ"
@@ -429,7 +429,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
                     for (int fileIndex = 0; fileIndex < nofFiles; fileIndex++)
                     {
                         String fileName = filesArray.getString(fileIndex);
-                        ICameraContent cameraContent = new CameraContentInfo(cameraId, "sd1", dirName, fileName, new Date());
+                        ICameraContent cameraContent = new CameraContentInfo(cameraId, "sd1", dirName, fileName, new Date(2001, 1, 1));
                         cameraContent.setCapturedDate(getCameraContentDate(cameraContent));
                         fileList.add(cameraContent);
                     }
