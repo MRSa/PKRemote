@@ -293,7 +293,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         try
         {
             String imageInfoUrl = "http://192.168.0.1/v1/photos/" + cameraContent.getContentPath() + "/" + cameraContent.getContentName() + "/info?storage=" + cameraContent.getCardId();
-            Log.v(TAG, "getCameraContentDate() : " + imageInfoUrl);
+            //Log.v(TAG, "getCameraContentDate() : " + imageInfoUrl);
             fileInfo = SimpleHttpClient.httpGet(imageInfoUrl, DEFAULT_TIMEOUT);
             if (fileInfo != null)
             {

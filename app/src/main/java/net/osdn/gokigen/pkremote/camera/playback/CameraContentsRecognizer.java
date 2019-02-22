@@ -208,18 +208,23 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
 */
 
     /**
-     *
+     *    ファイル全件のリストを返す
      *
      *
      */
     @Override
     public List<ICameraContent> getContentsList()
     {
+        if (cameraContentsList == null)
+        {
+            getRemoteCameraContentsListImpl(this);
+            return (new ArrayList<>());
+        }
         return (cameraContentsList);
     }
 
     /**
-     *
+     *　 指定された年月日（yyyy/MM/DD）に含まれている一覧を応答する
      *
      *
      */
@@ -264,7 +269,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
     }
 
     /**
-     *
+     *   指定されたパスに入っている一覧を応答する
      *
      *
      */
@@ -274,6 +279,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
         Log.v(TAG, "getContentsListAtPath() : " + path);
         if (path.equals("ALL"))
         {
+            // 全件の場合...
             return (getContentsList());
         }
         if (cameraContentsList == null)
@@ -303,12 +309,13 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
             }
         });
         //Collections.sort(targetList);
+        //Log.v(TAG, "getContentsListAtPath() " + targetList.size());
         return (targetList);
     }
 
     /**
-     *
-     *
+     *   撮影年月日の一覧を取得する
+     *   （最新の撮影日からの並びに整列する）
      *
      */
     @Override
@@ -330,8 +337,8 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
     }
 
     /**
-     *
-     *
+     *   ファイルパス（ディレクトリ）の一覧を取得する
+     *   たぶん、新しい画像が入ったディレクトリからのリスト
      *
      */
     @Override

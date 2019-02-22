@@ -326,7 +326,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
             {
                 return (recognizer.getContentsListAtDate(label));
             }
-            recognizer.getContentsListAtPath(label);
+            return (recognizer.getContentsListAtPath(label));
         }
         catch (Exception e)
         {
@@ -351,6 +351,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         HashMap<String, CameraContentEx> rawItems = new HashMap<>();
         for (ICameraContent item : contents)
         {
+            //Log.v(TAG, "......contents : [" + item.getContentName() + "]");
             String path = item.getContentName().toLowerCase(Locale.getDefault());
             if ((path.endsWith(JPEG_SUFFIX))||(path.endsWith(MOVIE_SUFFIX)))
             {
@@ -386,6 +387,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
             }
         }
         imageContentList = contentItems;
+        //Log.v(TAG, ".....imageContentList : " + imageContentList.size());
         adapter.setContentList(imageContentList);
         runOnUiThread(new Runnable() {
             @Override
@@ -427,7 +429,14 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
     {
         Log.v(TAG, "onItemSelected()");
-        refresh();
+        try
+        {
+            refresh();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     //  AdapterView.OnItemSelectedListener
