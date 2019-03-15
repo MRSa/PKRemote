@@ -89,7 +89,7 @@ public class ImageGridViewAdapter extends BaseAdapter implements AbsListView.OnS
             convertView = inflater.inflate(R.layout.view_grid_cell, parent, false);
             if (convertView != null)
             {
-                viewHolder = new ImageGridCellViewHolder((ImageView) convertView.findViewById(R.id.imageViewY), (ImageView) convertView.findViewById(R.id.imageViewZ));
+                viewHolder = new ImageGridCellViewHolder((ImageView) convertView.findViewById(R.id.imageViewY), (ImageView) convertView.findViewById(R.id.imageViewZ), (ImageView) convertView.findViewById(R.id.imageViewX));
                 convertView.setTag(viewHolder);
             }
             else
@@ -110,6 +110,7 @@ public class ImageGridViewAdapter extends BaseAdapter implements AbsListView.OnS
         {
             viewHolder.getImageView().setImageResource(R.drawable.ic_satellite_grey_24dp);
             viewHolder.getIconView().setImageDrawable(null);
+            viewHolder.getSelectView().setImageDrawable(null);
             return (convertView);
         }
         String path = new File(item.getContentPath(), item.getContentName()).getPath();
@@ -118,6 +119,7 @@ public class ImageGridViewAdapter extends BaseAdapter implements AbsListView.OnS
         {
             viewHolder.getImageView().setImageResource(R.drawable.ic_satellite_grey_24dp);
             viewHolder.getIconView().setImageDrawable(null);
+            viewHolder.getSelectView().setImageDrawable(null);
             if (!gridViewIsScrolling)
             {
                 if (executor.isShutdown())
@@ -141,6 +143,14 @@ public class ImageGridViewAdapter extends BaseAdapter implements AbsListView.OnS
             else
             {
                 viewHolder.getIconView().setImageDrawable(null);
+            }
+            if (infoEx.isSelected())
+            {
+                viewHolder.getSelectView().setImageResource(R.drawable.ic_check_green_24dp);
+            }
+            else
+            {
+                viewHolder.getSelectView().setImageDrawable(null);
             }
         }
         return (convertView);

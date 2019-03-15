@@ -10,18 +10,25 @@ public class CameraContentEx
     private static final String MOVIE_SUFFIX = ".mov";
     private String rawSuffix;
     private boolean hasRaw;
+    private boolean isSelected;
 
     public CameraContentEx(ICameraContent fileInfo, boolean hasRaw, String rawSuffix)
     {
         this.fileInfo = fileInfo;
         this.hasRaw = hasRaw;
         this.rawSuffix = rawSuffix;
+        this.isSelected = false;
     }
 
     public void setHasRaw(boolean value, String rawSuffix)
     {
         hasRaw = value;
         this.rawSuffix = rawSuffix;
+    }
+
+    public void setSelected(boolean isSelected)
+    {
+        this.isSelected = isSelected;
     }
 
     public boolean hasRaw()
@@ -33,6 +40,11 @@ public class CameraContentEx
     {
         String contentName = fileInfo.getContentName().toLowerCase(Locale.ENGLISH);
         return (contentName.endsWith(MOVIE_SUFFIX));
+    }
+
+    public boolean isSelected()
+    {
+        return (isSelected);
     }
 
     public String getRawSuffix()

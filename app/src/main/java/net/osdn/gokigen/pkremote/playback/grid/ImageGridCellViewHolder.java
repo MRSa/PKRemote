@@ -6,11 +6,13 @@ class ImageGridCellViewHolder
 {
     private ImageView imageView;
     private ImageView iconView;
+    private ImageView selectView;
 
-    ImageGridCellViewHolder(ImageView image, ImageView icon)
+    ImageGridCellViewHolder(ImageView image, ImageView icon, ImageView selection)
     {
         this.imageView = image;
         this.iconView = icon;
+        this.selectView = selection;
     }
 
     ImageView getImageView()
@@ -21,6 +23,11 @@ class ImageGridCellViewHolder
     ImageView getIconView()
     {
         return (iconView);
+    }
+
+    ImageView getSelectView()
+    {
+        return (selectView);
     }
 
 }

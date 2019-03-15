@@ -50,7 +50,7 @@ import androidx.preference.PreferenceManager;
  *
  *
  */
-public class ImageGridViewFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemSelectedListener, CompoundButton.OnCheckedChangeListener
+public class ImageGridViewFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemSelectedListener, CompoundButton.OnCheckedChangeListener, MultiFileDownloadConfirmationDialog.Callback
 {
 	private final String TAG = this.toString();
 
@@ -110,6 +110,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
             gridView = view.findViewById(R.id.gridView1);
             gridView.setAdapter(adapter);
             gridView.setOnItemClickListener(this);
+            gridView.setOnItemLongClickListener(this);
             gridView.setOnScrollListener(adapter);
         }
 		return (view);
@@ -424,6 +425,45 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         }
     }
 
+
+    @Override
+    public boolean onItemLongClick(final AdapterView<?> parent, View view, int position, long id)
+    {
+        try
+        {
+            CameraContentEx infoEx = imageContentList.get(position);
+            if (infoEx != null)
+            {
+                boolean isChecked = infoEx.isSelected();
+                infoEx.setSelected(!isChecked);
+            }
+            view.invalidate();
+            runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        ImageGridViewAdapter adapter = (ImageGridViewAdapter) parent.getAdapter();
+                        adapter.notifyDataSetChanged();
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            return (true);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+
     // AdapterView.OnItemSelectedListener
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
@@ -482,5 +522,50 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void confirmSelection(int selectedButtonId, boolean withRaw)
+    {
+        Log.v(TAG, "confirmSelection : " + selectedButtonId + " (" + withRaw + ")");
+/*
+        float downloadSize;
+        switch (selectedButtonId)
+        {
+            case R.id.radio_download__1024x768:
+                downloadSize = OLYCamera.IMAGE_RESIZE_1024;
+                break;
+            case R.id.radio_download__1600x1200:
+                downloadSize = OLYCamera.IMAGE_RESIZE_1600;
+                break;
+            case R.id.radio_download__1920x1440:
+                downloadSize = OLYCamera.IMAGE_RESIZE_1920;
+                break;
+            case R.id.radio_download__2048x1536:
+                downloadSize = OLYCamera.IMAGE_RESIZE_2048;
+                break;
+
+            case R.id.radio_download__original_size:
+            default:
+                downloadSize = OLYCamera.IMAGE_RESIZE_NONE;
+                break;
+        }
+
+        List<OLYCameraContentInfoEx> contentList = contentListHolder.getSelectedContentList();
+        for (OLYCameraContentInfoEx item : contentList)
+        {
+            Log.v(TAG, "  " + item.getFileInfo().getFilename());
+        }
+
+        try
+        {
+            ImageDownloader downloader = new ImageDownloader(getActivity(), camera);
+            downloader.startDownloadMulti(contentList, downloadSize, withRaw, this);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+*/
     }
 }
