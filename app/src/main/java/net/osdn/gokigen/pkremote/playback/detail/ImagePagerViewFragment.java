@@ -521,7 +521,7 @@ public class ImagePagerViewFragment extends Fragment
                         if (infoEx != null)
                         {
                             ICameraContent fileInfo = infoEx.getFileInfo();
-                            contentDownloader.startDownload(fileInfo, (isRaw) ? infoEx.getRawSuffix() : null, isSmallSize);
+                            contentDownloader.startDownload(fileInfo, "", (isRaw) ? infoEx.getRawSuffix() : null, isSmallSize);
                         }
                     }
                 });

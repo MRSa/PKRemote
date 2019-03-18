@@ -28,6 +28,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecog
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.playback.detail.CameraContentEx;
 import net.osdn.gokigen.pkremote.playback.detail.ImagePagerViewFragment;
+import net.osdn.gokigen.pkremote.playback.detail.MyContentDownloader;
 import net.osdn.gokigen.pkremote.playback.grid.ImageGridViewAdapter;
 
 import java.util.ArrayList;
@@ -60,6 +61,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	private static final String OLYMPUS_RAW_SUFFIX = ".orf";
 	private static final String PENTAX_RAW_PEF_SUFFIX = ".pef";
 
+    private MyContentDownloader contentDownloader;
     private GridView gridView;
 	private IInterfaceProvider interfaceProvider;
 	private IPlaybackControl playbackControl;
@@ -84,6 +86,15 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 		this.interfaceProvider = interfaceProvider;
 		this.playbackControl = interfaceProvider.getPlaybackControl();
 		this.runMode = interfaceProvider.getCameraRunMode();
+        Activity activity = getActivity();
+        if (activity != null)
+        {
+            this.contentDownloader = new MyContentDownloader(getActivity(), playbackControl);
+        }
+        else
+        {
+            this.contentDownloader = null;
+        }
 	}
 
 	@Override
@@ -141,6 +152,23 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 			refresh();
 			return (true);
 		}
+        if (id == R.id.action_batch_download_original_size_raw)
+        {
+            // オリジナルサイズのダウンロード
+            startDownloadBatch(false);
+            return (true);
+        }
+        if (id == R.id.action_batch_download_640x480_raw)
+        {
+            // 小さいサイズのダウンロード
+            startDownloadBatch(true);
+            return (true);
+        }
+        if (id == R.id.action_select_all)
+        {
+            selectUnselectAll();
+            return (true);
+        }
 		return (super.onOptionsItemSelected(item));
 	}
 	
@@ -227,7 +255,24 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
             // Threadで呼んではダメみたいだ...
             runMode.changeRunMode(true);
         }
-
+        try
+        {
+            //  アクションバーは隠した状態に戻しておく
+            AppCompatActivity activity = (AppCompatActivity) getActivity();
+            if (activity != null)
+            {
+                ActionBar bar = activity.getSupportActionBar();
+                if (bar != null)
+                {
+                    bar.hide();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        System.gc();
 		if (!executor.isShutdown())
 		{
 			executor.shutdownNow();
@@ -400,6 +445,137 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         Log.v(TAG, "refreshImpl() end");
     }
 
+
+    /**
+     *   全選択・全選択解除
+     *
+     */
+    private void selectUnselectAll()
+    {
+        if ((imageContentList == null)||(imageContentList.size() == 0))
+        {
+            // 選択されていない時は終わる。
+            return;
+        }
+
+        int nofSelected = 0;
+        for (CameraContentEx content : imageContentList)
+        {
+            if (content.isSelected())
+            {
+                nofSelected++;
+            }
+        }
+
+        // 全部選択されているときは全選択解除・そうでない時は全選択
+        boolean setSelected = (nofSelected != imageContentList.size());
+        for (CameraContentEx content : imageContentList)
+        {
+            content.setSelected(setSelected);
+        }
+
+        // グリッドビューの再描画
+        redrawGridView();
+    }
+
+
+    /**
+     *    一括ダウンロードの開始
+     *
+     * @param isSmall  小さいサイズ(JPEG)
+     */
+    private void startDownloadBatch(final boolean isSmall)
+    {
+        try
+        {
+            if ((imageContentList == null)||(imageContentList.size() == 0))
+            {
+                // 画像が選択されていない場合にはなにもしない。
+                return;
+            }
+
+            // 念のため、contentDownloader がなければ作る
+            if (contentDownloader == null)
+            {
+                Activity activity = getActivity();
+                if (activity == null)
+                {
+                    // activityが取れない時には終わる。
+                    return;
+                }
+                this.contentDownloader = new MyContentDownloader(getActivity(), playbackControl);
+            }
+            Thread thread = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        // ダウンロード枚数を取得
+                        int totalSize = 0;
+                        for (CameraContentEx content : imageContentList)
+                        {
+                            if (content.isSelected())
+                            {
+                                totalSize++;
+                            }
+                        }
+                        if (totalSize == 0)
+                        {
+                            // 画像が選択されていなかった...終了する
+                            return;
+                        }
+                        int count = 1;
+                        for (CameraContentEx content : imageContentList)
+                        {
+                            if (content.isSelected())
+                            {
+                                contentDownloader.startDownload(content.getFileInfo(), " (" + count + "/" + totalSize + ") ", null, isSmall);
+                                count++;
+
+                                // 画像の選択を落とす
+                                content.setSelected(false);
+                            }
+                        }
+
+                        // グリッドビューの再描画
+                        redrawGridView();
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            thread.start();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void redrawGridView()
+    {
+        // グリッドビューの再描画
+        Activity activity = getActivity();
+        if (activity != null)
+        {
+            getActivity().runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    if (gridView != null)
+                    {
+                        gridView.invalidateViews();
+                    }
+                }
+            });
+        }
+    }
+
 	private void runOnUiThread(Runnable action)
     {
 		Activity activity = getActivity();
@@ -425,7 +601,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         }
     }
 
-
+    //  AdapterView.OnItemLongClickListener
     @Override
     public boolean onItemLongClick(final AdapterView<?> parent, View view, int position, long id)
     {
@@ -462,7 +638,6 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         }
         return (false);
     }
-
 
     // AdapterView.OnItemSelectedListener
     @Override

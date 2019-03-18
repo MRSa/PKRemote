@@ -168,4 +168,8 @@
     <string name="message_download_finished_pics_with_failure">Finished. # of Pics. : </string>
     <string name="message_download_failure_count"> Failures : </string>
     <string name="message_download_finished_but_failed">Download was failed&#8230; </string>
+
+    <string name="action_batch_download_640x480">Small Size(JPEG)</string>
+    <string name="action_batch_download_raw">Original Size(with RAW)</string>
+    <string name="action_select_all">Select All/Unselect All</string>
 </resources>
