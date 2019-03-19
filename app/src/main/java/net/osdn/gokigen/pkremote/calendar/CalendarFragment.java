@@ -50,7 +50,7 @@ import static android.content.Context.VIBRATOR_SERVICE;
  *
  *
  */
-public class CalendarFragment extends Fragment  implements View.OnClickListener, TargetMonthSetDialog.Callback, ICameraContentsRecognizer.ICameraContentsListCallback
+public class CalendarFragment extends Fragment  implements View.OnClickListener, View.OnLongClickListener, TargetMonthSetDialog.Callback, ICameraContentsRecognizer.ICameraContentsListCallback
 {
     private final String TAG = this.toString();
 
@@ -305,8 +305,9 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
             }
             else
             {
-                // 日付を選択した処理... 画面遷移
-                Log.v(TAG, "onClick : " + id);
+                // 画像をタッチした
+                String dateLabel = getSelectedDate(id);
+                Log.v(TAG, "SELECTED : " + dateLabel);
             }
 
             if (isUpdateImage)
@@ -323,6 +324,35 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
         {
             ex.printStackTrace();
         }
+    }
+
+    private String getSelectedDate(int buttonId)
+    {
+        // カレンダー(画像)ボタン  ::  日付を選択した処理... 画面遷移させたい
+        int labelId = 0;
+        for (int calId : calendarList)
+        {
+            if (calId == buttonId)
+            {
+                // 選択されたボタンと画像のボタンが一致した...
+                try
+                {
+                    Calendar calendar = new GregorianCalendar();
+                    calendar.set(currentYear, currentMonth - 1, 1);
+                    int week = getStartCalendarIndex(calendar);
+                    calendar.add(Calendar.DATE, labelId - week);
+
+                    DateFormat dateF = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
+                    return (dateF.format(calendar.getTime()));
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            labelId++;
+        }
+        return ("");
     }
 
     private void pickYearMonth()
@@ -372,6 +402,8 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
             {
                 ImageButton imageBtn = view.findViewById(id);
                 imageBtn.setOnClickListener(this);
+                imageBtn.setOnLongClickListener(this);
+
             }
         }
         catch (Exception e)
@@ -718,5 +750,27 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
         {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean onLongClick(View v)
+    {
+        int id = v.getId();
+        try
+        {
+            // 画像をロングタッチした...
+            String dateLabel = getSelectedDate(id);
+            if (dateLabel.length() > 1)
+            {
+                Log.v(TAG, "LONG SELECTED : " + dateLabel);
+
+                return (true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+        return false;
     }
 }
