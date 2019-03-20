@@ -38,6 +38,8 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     private LogCatFragment logCatFragment = null;
     private CalendarFragment calendarFragment = null;
 
+    private ImageGridViewFragment gridViewFragment = null;
+
     public static CameraSceneUpdater newInstance(@NonNull AppCompatActivity activity)
     {
         return (new CameraSceneUpdater(activity));
@@ -71,7 +73,6 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
             transaction.replace(R.id.fragment1, fragment);
             transaction.commitAllowingStateLoss();
 */
-
     }
 
     //  CameraSceneUpdater
@@ -456,14 +457,18 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
      */
     //  IChangeScene
     @Override
-    public void changeScenceToImageList()
+    public void changeScenceToImageList(String filterLabel)
     {
-        Log.v(TAG, "changeScenceToImageList()");
+        Log.v(TAG, "changeScenceToImageList() : " + filterLabel);
         try
         {
-            ImageGridViewFragment fragment = ImageGridViewFragment.newInstance(interfaceProvider);
+            if (gridViewFragment == null)
+            {
+                gridViewFragment = ImageGridViewFragment.newInstance(interfaceProvider);
+            }
+            gridViewFragment.setFilterLabel(filterLabel);
             FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment1, fragment);
+            transaction.replace(R.id.fragment1, gridViewFragment);
             // backstackに追加
             transaction.addToBackStack(null);
             transaction.commit();

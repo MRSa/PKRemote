@@ -51,7 +51,7 @@ import androidx.preference.PreferenceManager;
  *
  *
  */
-public class ImageGridViewFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemSelectedListener, CompoundButton.OnCheckedChangeListener, MultiFileDownloadConfirmationDialog.Callback
+public class ImageGridViewFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemSelectedListener, CompoundButton.OnCheckedChangeListener
 {
 	private final String TAG = this.toString();
 
@@ -69,9 +69,9 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 
     private LruCache<String, Bitmap> imageCache;
     private List<CameraContentEx> imageContentList;
-    //private List<ImageContentInfoEx> contentList;
 	private ExecutorService executor;
 	private ImageGridViewAdapter adapter = null;
+	private String filterLabel = null;
 
 
 	public static ImageGridViewFragment newInstance(@NonNull IInterfaceProvider interfaceProvider)
@@ -220,17 +220,42 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
                 pathButton.setOnCheckedChangeListener(this);
                 categorySpinner.setOnItemSelectedListener(this);
 
-                ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
-                if (recognizer != null)
+                try
                 {
-                    // パス一覧 / 日付一覧
-                    List<String> strList = (dateChecked) ? recognizer.getDateList() : recognizer.getPathList();
+                    ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
+                    if (recognizer != null)
+                    {
+                        // パス一覧 / 日付一覧
+                        List<String> strList = (dateChecked) ? recognizer.getDateList() : recognizer.getPathList();
 
-                    // 先頭に ALLを追加
-                    //strList.add("ALL");
-                    strList.add(0, "ALL");
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, strList);
-                    categorySpinner.setAdapter(adapter);
+                        // 先頭に ALLを追加
+                        //strList.add("ALL");
+                        strList.add(0, "ALL");
+
+                        // デフォルトで設定したいフィルターがある場合...そのフィルターのインデックスを探る
+                        int selectionIndex = 0;
+                        if (filterLabel != null)
+                        {
+                            int index = 0;
+                            for (String str : strList)
+                            {
+                                if (str.equals(filterLabel))
+                                {
+                                    selectionIndex = index;
+                                    break;
+                                }
+                                index++;
+                            }
+                        }
+                        filterLabel = null;
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, strList);
+                        categorySpinner.setAdapter(adapter);
+                        categorySpinner.setSelection(selectionIndex);
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
                 }
             }
         }
@@ -250,13 +275,14 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	public void onPause()
 	{
         Log.v(TAG, "onPause() Start");
-        if (!runMode.isRecordingMode())
-        {
-            // Threadで呼んではダメみたいだ...
-            runMode.changeRunMode(true);
-        }
         try
         {
+            if (!runMode.isRecordingMode())
+            {
+                // Threadで呼んではダメみたいだ...
+                runMode.changeRunMode(true);
+            }
+
             //  アクションバーは隠した状態に戻しておく
             AppCompatActivity activity = (AppCompatActivity) getActivity();
             if (activity != null)
@@ -699,48 +725,9 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         }
     }
 
-    @Override
-    public void confirmSelection(int selectedButtonId, boolean withRaw)
+
+    public void setFilterLabel(String filterLabel)
     {
-        Log.v(TAG, "confirmSelection : " + selectedButtonId + " (" + withRaw + ")");
-/*
-        float downloadSize;
-        switch (selectedButtonId)
-        {
-            case R.id.radio_download__1024x768:
-                downloadSize = OLYCamera.IMAGE_RESIZE_1024;
-                break;
-            case R.id.radio_download__1600x1200:
-                downloadSize = OLYCamera.IMAGE_RESIZE_1600;
-                break;
-            case R.id.radio_download__1920x1440:
-                downloadSize = OLYCamera.IMAGE_RESIZE_1920;
-                break;
-            case R.id.radio_download__2048x1536:
-                downloadSize = OLYCamera.IMAGE_RESIZE_2048;
-                break;
-
-            case R.id.radio_download__original_size:
-            default:
-                downloadSize = OLYCamera.IMAGE_RESIZE_NONE;
-                break;
-        }
-
-        List<OLYCameraContentInfoEx> contentList = contentListHolder.getSelectedContentList();
-        for (OLYCameraContentInfoEx item : contentList)
-        {
-            Log.v(TAG, "  " + item.getFileInfo().getFilename());
-        }
-
-        try
-        {
-            ImageDownloader downloader = new ImageDownloader(getActivity(), camera);
-            downloader.startDownloadMulti(contentList, downloadSize, withRaw, this);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-*/
+        this.filterLabel = filterLabel;
     }
 }

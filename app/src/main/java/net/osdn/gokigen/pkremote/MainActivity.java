@@ -50,19 +50,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    //
-                    return (true);
                 case R.id.navigation_photo_library:
                     //
-                    scenceUpdater.changeScenceToImageList();
+                    scenceUpdater.changeScenceToImageList(null);
                     return (true);
                 case R.id.navigation_calendar:
                     //
                     scenceUpdater.changeSceneToCalendar();
-                    return (true);
-                case R.id.navigation_notifications:
-                    //
                     return (true);
                 case R.id.navigation_settings:
                     //

@@ -308,6 +308,7 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
                 // 画像をタッチした
                 String dateLabel = getSelectedDate(id);
                 Log.v(TAG, "SELECTED : " + dateLabel);
+                changeScene.changeScenceToImageList(dateLabel);
             }
 
             if (isUpdateImage)
