@@ -13,7 +13,8 @@ public interface IChangeScene
     void changeSceneToDebugInformation();
     void changeSceneToCalendar();
     void changeSceneToApiList();
-    void changeScenceToImageList(String filterLabel);
+    void changeScenceDateSelected(String filterLabel);
+    void changeScenceToImageList();
     void exitApplication();
     void reloadRemoteImageContents();
     void setAnotherStatusReceiver(ICameraStatusReceiver statusReceiver);

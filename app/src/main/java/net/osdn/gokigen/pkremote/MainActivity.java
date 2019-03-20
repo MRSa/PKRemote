@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             switch (item.getItemId()) {
                 case R.id.navigation_photo_library:
                     //
-                    scenceUpdater.changeScenceToImageList(null);
+                    scenceUpdater.changeScenceToImageList();
                     return (true);
                 case R.id.navigation_calendar:
                     //

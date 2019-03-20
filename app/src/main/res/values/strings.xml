@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PKRemote</string>
+    <string name="app_name">A01DL</string>
     <string name="app_name2">AirA01a</string>
     <string name="blank"> </string>
     <string name="dummy">--</string>
@@ -52,6 +52,7 @@
     <string name="pref_cat_others">Others</string>
     <string name="pref_call_share_after_save">Share after Save</string>
     <string name="pref_use_playback_menu">Use playback screen menu</string>
+    <string name="pref_summary_use_playback_menu">Normally to keep ON.</string>
 
     <string name="pref_use_gr2_special_command">Use GR2 Special Command</string>
     <string name="summary_use_gr2_special_command">Use some GR2 special command.</string>

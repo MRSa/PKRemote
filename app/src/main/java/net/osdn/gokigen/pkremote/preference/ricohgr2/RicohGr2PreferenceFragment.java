@@ -111,7 +111,7 @@ public class RicohGr2PreferenceFragment  extends PreferenceFragmentCompat implem
                 editor.putBoolean(IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW, true);
             }
             if (!items.containsKey(IPreferencePropertyAccessor.USE_PLAYBACK_MENU)) {
-                editor.putBoolean(IPreferencePropertyAccessor.USE_PLAYBACK_MENU, false);
+                editor.putBoolean(IPreferencePropertyAccessor.USE_PLAYBACK_MENU, true);
             }
             if (!items.containsKey(IPreferencePropertyAccessor.CONNECTION_METHOD)) {
                 editor.putString(IPreferencePropertyAccessor.CONNECTION_METHOD, IPreferencePropertyAccessor.CONNECTION_METHOD_DEFAULT_VALUE);
@@ -163,7 +163,7 @@ public class RicohGr2PreferenceFragment  extends PreferenceFragmentCompat implem
                     break;
 
                 case IPreferencePropertyAccessor.USE_PLAYBACK_MENU:
-                    value = preferences.getBoolean(key, false);
+                    value = preferences.getBoolean(key, true);
                     Log.v(TAG, " " + key + " , " + value);
                     break;
 

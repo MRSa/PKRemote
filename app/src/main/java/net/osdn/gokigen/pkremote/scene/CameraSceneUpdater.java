@@ -4,6 +4,8 @@ import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.calendar.CalendarFragment;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
@@ -26,10 +28,10 @@ import androidx.preference.PreferenceFragmentCompat;
  *
  *
  */
-public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, ICameraContentsRecognizer.ICameraContentsListCallback
-{
+public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, ICameraContentsRecognizer.ICameraContentsListCallback {
     private final String TAG = toString();
     private final AppCompatActivity activity;
+    private final BottomNavigationView bottomNavigationView;
     private IInterfaceProvider interfaceProvider;
     private IStatusViewDrawer statusViewDrawer;
     private ICameraStatusReceiver anotherStatusReceiver = null;
@@ -40,26 +42,22 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     private ImageGridViewFragment gridViewFragment = null;
 
-    public static CameraSceneUpdater newInstance(@NonNull AppCompatActivity activity)
-    {
+    public static CameraSceneUpdater newInstance(@NonNull AppCompatActivity activity) {
         return (new CameraSceneUpdater(activity));
     }
 
     /**
-     *  コンストラクタ
-     *
+     * コンストラクタ
      */
-    private CameraSceneUpdater(@NonNull AppCompatActivity activity)
-    {
+    private CameraSceneUpdater(@NonNull AppCompatActivity activity) {
         this.activity = activity;
+        this.bottomNavigationView = activity.findViewById(R.id.navigation);
     }
 
     /**
-     *   一番最初のフラグメントを表示する
-     *
+     * 一番最初のフラグメントを表示する
      */
-    public void changeFirstFragment(@NonNull IInterfaceProvider interfaceProvider)
-    {
+    public void changeFirstFragment(@NonNull IInterfaceProvider interfaceProvider) {
         this.interfaceProvider = interfaceProvider;
 
         // 初期画面へ遷移
@@ -76,8 +74,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     }
 
     //  CameraSceneUpdater
-    public void registerInterface(@NonNull IStatusViewDrawer statusViewDrawer, @NonNull IInterfaceProvider interfaceProvider)
-    {
+    public void registerInterface(@NonNull IStatusViewDrawer statusViewDrawer, @NonNull IInterfaceProvider interfaceProvider) {
         Log.v(TAG, "registerInterface()");
         this.statusViewDrawer = statusViewDrawer;
         this.interfaceProvider = interfaceProvider;
@@ -85,140 +82,107 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     // ICameraStatusReceiver
     @Override
-    public void onStatusNotify(String message)
-    {
+    public void onStatusNotify(String message) {
         Log.v(TAG, " CONNECTION MESSAGE : " + message);
-        try
-        {
-            if (statusViewDrawer != null)
-            {
+        try {
+            if (statusViewDrawer != null) {
                 statusViewDrawer.updateStatusView(message);
                 ICameraConnection connection = getCameraConnection(interfaceProvider.getCammeraConnectionMethod());
-                if (connection != null)
-                {
+                if (connection != null) {
                     statusViewDrawer.updateConnectionStatus(connection.getConnectionStatus());
                 }
             }
-            if (anotherStatusReceiver != null)
-            {
+            if (anotherStatusReceiver != null) {
                 anotherStatusReceiver.onStatusNotify(message);
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     // ICameraStatusReceiver
     @Override
-    public void onCameraConnected()
-    {
+    public void onCameraConnected() {
         Log.v(TAG, "onCameraConnected()");
         updateConnectionStatus(activity.getString(R.string.connect_connected), ICameraConnection.CameraConnectionStatus.CONNECTED);
-        try
-        {
+        try {
             ICameraConnection connection = getCameraConnection(interfaceProvider.getCammeraConnectionMethod());
-            if (connection != null)
-            {
+            if (connection != null) {
                 connection.forceUpdateConnectionStatus(ICameraConnection.CameraConnectionStatus.CONNECTED);
             }
-            if (statusViewDrawer != null)
-            {
+            if (statusViewDrawer != null) {
                 statusViewDrawer.updateConnectionStatus(ICameraConnection.CameraConnectionStatus.CONNECTED);
 
                 // ライブビューの開始... 今回は手動化。
                 //statusViewDrawer.startLiveView();
             }
-            if (anotherStatusReceiver != null)
-            {
+            if (anotherStatusReceiver != null) {
                 anotherStatusReceiver.onCameraConnected();
             }
             ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
-            if (recognizer != null)
-            {
+            if (recognizer != null) {
                 // カメラ内のコンテンツ一覧を作成するように指示する
-                recognizer.getRemoteCameraContentsList(true,this);
+                recognizer.getRemoteCameraContentsList(true, this);
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     // ICameraStatusReceiver
     @Override
-    public void onCameraDisconnected()
-    {
+    public void onCameraDisconnected() {
         Log.v(TAG, "onCameraDisconnected()");
         String message = activity.getString(R.string.camera_disconnected);
         updateConnectionStatus(message, ICameraConnection.CameraConnectionStatus.DISCONNECTED);
-        try
-        {
-            if (statusViewDrawer != null)
-            {
+        try {
+            if (statusViewDrawer != null) {
                 statusViewDrawer.updateStatusView(activity.getString(R.string.camera_disconnected));
                 statusViewDrawer.updateConnectionStatus(ICameraConnection.CameraConnectionStatus.DISCONNECTED);
             }
-            if (anotherStatusReceiver != null)
-            {
+            if (anotherStatusReceiver != null) {
                 anotherStatusReceiver.onCameraDisconnected();
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     // ICameraStatusReceiver
     @Override
-    public void onCameraOccursException(String message, Exception e)
-    {
+    public void onCameraOccursException(String message, Exception e) {
         Log.v(TAG, "onCameraOccursException() " + message);
-        try
-        {
+        try {
             ICameraConnection.CameraConnectionStatus connectionStatus = ICameraConnection.CameraConnectionStatus.UNKNOWN;
 
             e.printStackTrace();
             ICameraConnection connection = getCameraConnection(interfaceProvider.getCammeraConnectionMethod());
-            if (connection != null)
-            {
+            if (connection != null) {
                 connectionStatus = connection.getConnectionStatus();
                 connection.alertConnectingFailed(message + " " + e.getLocalizedMessage());
                 updateConnectionStatus(message, connectionStatus);
             }
-            if (statusViewDrawer != null)
-            {
+            if (statusViewDrawer != null) {
                 statusViewDrawer.updateStatusView(message);
-                if (connection != null)
-                {
+                if (connection != null) {
                     statusViewDrawer.updateConnectionStatus(connectionStatus);
                 }
             }
-            if (anotherStatusReceiver != null)
-            {
+            if (anotherStatusReceiver != null) {
                 anotherStatusReceiver.onCameraOccursException(message, e);
             }
-        }
-        catch (Exception ee)
-        {
+        } catch (Exception ee) {
             ee.printStackTrace();
         }
     }
 
     /**
-     *   カメラとの接続状態を表示更新する
-     *
+     * カメラとの接続状態を表示更新する
      */
-    private void updateConnectionStatus(final String message, final ICameraConnection.CameraConnectionStatus status)
-    {
-        try
-        {
+    private void updateConnectionStatus(final String message, final ICameraConnection.CameraConnectionStatus status) {
+        try {
             final int resId;
-            switch (status)
-            {
+            switch (status) {
                 case CONNECTED:
                     resId = R.drawable.ic_cloud_done_black_24dp;
                     break;
@@ -235,41 +199,31 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
             }
             final TextView messageArea = activity.findViewById(R.id.message);
             final ImageButton buttonArea = activity.findViewById(R.id.button_wifi_connect);
-            activity.runOnUiThread(new Runnable()
-            {
+            activity.runOnUiThread(new Runnable() {
                 @Override
-                public void run()
-                {
-                    try
-                    {
-                        if (buttonArea != null)
-                        {
+                public void run() {
+                    try {
+                        if (buttonArea != null) {
                             buttonArea.setImageDrawable(ResourcesCompat.getDrawable(activity.getResources(), resId, null));
                             buttonArea.invalidate();
                         }
-                        if ((messageArea != null)&&(message != null))
-                        {
+                        if ((messageArea != null) && (message != null)) {
                             messageArea.setText(message);
                             messageArea.invalidate();
                         }
-                    }
-                    catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             });
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     //  IChangeScene
     @Override
-    public void changeSceneToCameraPropertyList()
-    {
+    public void changeSceneToCameraPropertyList() {
 /*
         try
         {
@@ -315,27 +269,21 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     //  IChangeScene
     @Override
-    public void changeSceneToConfiguration()
-    {
-        try
-        {
-            if (preferenceFragment == null)
-            {
-                try
-                {
+    public void changeSceneToConfiguration() {
+        try {
+            if (preferenceFragment == null) {
+                try {
                     preferenceFragment = RicohGr2PreferenceFragment.newInstance(activity, this);
                     ICameraConnection.CameraConnectionMethod connectionMethod = interfaceProvider.getCammeraConnectionMethod();
                     if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH) {
                         preferenceFragment = RicohGr2PreferenceFragment.newInstance(activity, this);
-                    //} else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY) {
-                    //    preferenceFragment = SonyPreferenceFragment.newInstance(this, this);
+                        //} else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY) {
+                        //    preferenceFragment = SonyPreferenceFragment.newInstance(this, this);
                     } else //  if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
                     {
                         preferenceFragment = OpcPreferenceFragment.newInstance(activity, interfaceProvider, this);
                     }
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                     //preferenceFragment = SonyPreferenceFragment.newInstance(this, this);
                 }
@@ -346,31 +294,24 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
             // backstackに追加
             transaction.addToBackStack(null);
             transaction.commit();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     //  IChangeScene
     @Override
-    public void changeCameraConnection()
-    {
-        if (interfaceProvider == null)
-        {
+    public void changeCameraConnection() {
+        if (interfaceProvider == null) {
             Log.v(TAG, "changeCameraConnection() : interfaceProvider is NULL");
             return;
         }
-        try
-        {
+        try {
             interfaceProvider.resetCameraConnectionMethod();
             ICameraConnection connection = interfaceProvider.getCameraConnection();
-            if (connection != null)
-            {
+            if (connection != null) {
                 ICameraConnection.CameraConnectionStatus status = connection.getConnectionStatus();
-                if (status == ICameraConnection.CameraConnectionStatus.CONNECTED)
-                {
+                if (status == ICameraConnection.CameraConnectionStatus.CONNECTED) {
                     // 接続中のときには切断する
                     connection.disconnect(false);
                     return;
@@ -378,38 +319,29 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
                 // 接続中でない時は、接続中にする
                 connection.startWatchWifiStatus(activity);
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     //  IChangeScene
     @Override
-    public void reloadRemoteImageContents()
-    {
-        try
-        {
+    public void reloadRemoteImageContents() {
+        try {
             ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
-            if (recognizer != null)
-            {
+            if (recognizer != null) {
                 // カメラ内のコンテンツ一覧を作成するように指示する
-                recognizer.getRemoteCameraContentsList(true,this);
+                recognizer.getRemoteCameraContentsList(true, this);
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     //  IChangeScene
     @Override
-    public void changeSceneToDebugInformation()
-    {
-        if (logCatFragment == null)
-        {
+    public void changeSceneToDebugInformation() {
+        if (logCatFragment == null) {
             logCatFragment = LogCatFragment.newInstance();
         }
         FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
@@ -421,8 +353,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     //  IChangeScene
     @Override
-    public void changeSceneToApiList()
-    {
+    public void changeSceneToApiList() {
 /*
         if (sonyApiListFragmentSony == null)
         {
@@ -438,11 +369,9 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     //  IChangeScene
     @Override
-    public void changeSceneToCalendar()
-    {
-        if (calendarFragment == null)
-        {
-            calendarFragment = CalendarFragment.newInstance(activity,this, interfaceProvider);
+    public void changeSceneToCalendar() {
+        if (calendarFragment == null) {
+            calendarFragment = CalendarFragment.newInstance(activity, this, interfaceProvider);
         }
         FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment1, calendarFragment);
@@ -451,13 +380,27 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
         transaction.commit();
     }
 
+    //  IChangeScene
+    @Override
+    public void changeScenceDateSelected(String filterLabel)
+    {
+        Log.v(TAG, "changeScenceDateSelected()");
+
+        bottomNavigationView.setSelectedItemId(R.id.navigation_photo_library);
+        changeScenceToImageList(filterLabel);
+    }
+
     /**
-     *   画像一覧画面を開く
-     *
+     * 画像一覧画面を開く
      */
     //  IChangeScene
     @Override
-    public void changeScenceToImageList(String filterLabel)
+    public void changeScenceToImageList()
+    {
+        changeScenceToImageList(null);
+    }
+
+    private void changeScenceToImageList(String filterLabel)
     {
         Log.v(TAG, "changeScenceToImageList() : " + filterLabel);
         try
