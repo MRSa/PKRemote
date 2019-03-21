@@ -16,7 +16,7 @@
             android:defaultValue="OPC"/>
 
     </PreferenceCategory>
-
+<!--
     <PreferenceCategory
         android:title="@string/pref_cat_camera">
 
@@ -36,28 +36,20 @@
             android:title="@string/pref_capture_both_camera_and_live_view" />
 
     </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="@string/pref_cat_live_view">
-        <ListPreference
-            android:title="@string/pref_live_view_quality"
-            android:entryValues="@array/live_view_quality_value"
-            android:entries="@array/live_view_quality"
-            android:key="live_view_quality"
-            android:defaultValue="VGA"/>
-
-    </PreferenceCategory>
+-->
 
     <PreferenceCategory
         android:title="@string/pref_cat_others">
-
+<!--
         <CheckBoxPreference
             android:key="share_after_save"
             android:title="@string/pref_call_share_after_save" />
-
+-->
         <CheckBoxPreference
             android:key="use_playback_menu"
-            android:title="@string/pref_use_playback_menu" />
+            android:title="@string/pref_use_playback_menu"
+            android:summary="@string/pref_summary_use_playback_menu"
+            />
 
     </PreferenceCategory>
 
@@ -97,6 +89,16 @@
         android:title="@string/pref_auto_connect_camera"
         android:summary="@string/pref_summary_auto_connect_camera" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_cat_live_view">
+        <ListPreference
+            android:title="@string/pref_live_view_quality"
+            android:entryValues="@array/live_view_quality_value"
+            android:entries="@array/live_view_quality"
+            android:key="live_view_quality"
+            android:defaultValue="VGA"/>
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -28,7 +28,8 @@ import androidx.preference.PreferenceFragmentCompat;
  *
  *
  */
-public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, ICameraContentsRecognizer.ICameraContentsListCallback {
+public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, ICameraContentsRecognizer.ICameraContentsListCallback
+{
     private final String TAG = toString();
     private final AppCompatActivity activity;
     private final BottomNavigationView bottomNavigationView;
@@ -42,14 +43,16 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     private ImageGridViewFragment gridViewFragment = null;
 
-    public static CameraSceneUpdater newInstance(@NonNull AppCompatActivity activity) {
+    public static CameraSceneUpdater newInstance(@NonNull AppCompatActivity activity)
+    {
         return (new CameraSceneUpdater(activity));
     }
 
     /**
      * コンストラクタ
      */
-    private CameraSceneUpdater(@NonNull AppCompatActivity activity) {
+    private CameraSceneUpdater(@NonNull AppCompatActivity activity)
+    {
         this.activity = activity;
         this.bottomNavigationView = activity.findViewById(R.id.navigation);
     }
@@ -57,24 +60,25 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     /**
      * 一番最初のフラグメントを表示する
      */
-    public void changeFirstFragment(@NonNull IInterfaceProvider interfaceProvider) {
+    public void changeFirstFragment(@NonNull IInterfaceProvider interfaceProvider)
+    {
         this.interfaceProvider = interfaceProvider;
+        try
+        {
+            bottomNavigationView.setSelectedItemId(R.id.navigation_calendar);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
-        // 初期画面へ遷移
+        // 初期画面(カレンダー画面)へ遷移
         changeSceneToCalendar();
-/*
-            LiveViewFragment fragment = LiveViewFragment.newInstance(scenceUpdater, interfaceProvider);
-            scenceUpdater.registerInterface(fragment, interfaceProvider);
-
-            fragment.setRetainInstance(true);
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment1, fragment);
-            transaction.commitAllowingStateLoss();
-*/
     }
 
     //  CameraSceneUpdater
-    public void registerInterface(@NonNull IStatusViewDrawer statusViewDrawer, @NonNull IInterfaceProvider interfaceProvider) {
+    public void registerInterface(@NonNull IStatusViewDrawer statusViewDrawer, @NonNull IInterfaceProvider interfaceProvider)
+    {
         Log.v(TAG, "registerInterface()");
         this.statusViewDrawer = statusViewDrawer;
         this.interfaceProvider = interfaceProvider;
@@ -82,17 +86,20 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     // ICameraStatusReceiver
     @Override
-    public void onStatusNotify(String message) {
+    public void onStatusNotify(String message)
+    {
         Log.v(TAG, " CONNECTION MESSAGE : " + message);
         try {
-            if (statusViewDrawer != null) {
+            if (statusViewDrawer != null)
+            {
                 statusViewDrawer.updateStatusView(message);
                 ICameraConnection connection = getCameraConnection(interfaceProvider.getCammeraConnectionMethod());
                 if (connection != null) {
                     statusViewDrawer.updateConnectionStatus(connection.getConnectionStatus());
                 }
             }
-            if (anotherStatusReceiver != null) {
+            if (anotherStatusReceiver != null)
+            {
                 anotherStatusReceiver.onStatusNotify(message);
             }
         } catch (Exception e) {
