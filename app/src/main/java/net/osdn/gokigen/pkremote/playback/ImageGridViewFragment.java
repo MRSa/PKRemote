@@ -278,12 +278,14 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         Log.v(TAG, "onPause() Start");
         try
         {
+/*
+            // Playbackモードでしか使わないので、RunMode は変更しない
             if (!runMode.isRecordingMode())
             {
                 // Threadで呼んではダメみたいだ...
                 runMode.changeRunMode(true);
             }
-
+*/
             //  アクションバーは隠した状態に戻しておく
             AppCompatActivity activity = (AppCompatActivity) getActivity();
             if (activity != null)
@@ -563,6 +565,19 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 
                                 // 画像の選択を落とす
                                 content.setSelected(false);
+
+                                // ここでダウンロードが終わるまで、すこし待つ
+                                do
+                                {
+                                    try
+                                    {
+                                        Thread.sleep(300);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        e.printStackTrace();
+                                    }
+                                } while (contentDownloader.isDownloading());
                             }
                         }
 

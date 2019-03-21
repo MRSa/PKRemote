@@ -288,7 +288,8 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
      */
     private Date getCameraContentDate(@NonNull ICameraContent cameraContent)
     {
-/**/
+        // 各ファイルを個別に撮影時刻をとると、反応が悪すぎるので処理を抑止。
+/*
         String fileInfo;
         try
         {
@@ -307,7 +308,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         {
             e.printStackTrace();
         }
-/**/
+*/
         return (cameraContent.getCapturedDate());
     }
 
@@ -415,31 +416,37 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         }
         try
         {
+            Log.v(TAG, "PHOTO LIST RECV: [" + contentList.length() + "]");
             String cameraId = statusChecker.getCameraId();
             JSONArray dirsArray = new JSONObject(contentList).getJSONArray("dirs");
             if (dirsArray != null)
             {
                 int size = dirsArray.length();
+                Log.v(TAG, "DIRECTORIES : " + size);
                 for (int index = 0; index < size; index++)
                 {
                     JSONObject object = dirsArray.getJSONObject(index);
                     String dirName = object.getString("name");
                     JSONArray filesArray = object.getJSONArray("files");
                     int nofFiles = filesArray.length();
+                    Log.v(TAG, "FILES : [" + dirName + "] " + nofFiles);
                     for (int fileIndex = 0; fileIndex < nofFiles; fileIndex++)
                     {
                         String fileName = filesArray.getString(fileIndex);
-                        ICameraContent cameraContent = new CameraContentInfo(cameraId, "sd1", dirName, fileName, new Date(2001, 1, 1));
+                        Log.v(TAG, "FILE : " + fileName);
+                        ICameraContent cameraContent = new CameraContentInfo(cameraId, "sd1", dirName, fileName, new Date());
                         cameraContent.setCapturedDate(getCameraContentDate(cameraContent));
                         fileList.add(cameraContent);
                     }
                 }
             }
+            else
+            {
+                Log.v(TAG, "NOT FOUND dirs array.");
+            }
         }
         catch (Exception e)
         {
-            //callback.onErrorOccurred(e);
-            //return;
             e.printStackTrace();
             try {
                 fileList.clear();

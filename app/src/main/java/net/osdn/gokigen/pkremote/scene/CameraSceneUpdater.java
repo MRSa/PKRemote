@@ -34,9 +34,8 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     private final AppCompatActivity activity;
     private final BottomNavigationView bottomNavigationView;
     private IInterfaceProvider interfaceProvider;
-    private IStatusViewDrawer statusViewDrawer;
+    //private IStatusViewDrawer statusViewDrawer;
     private ICameraStatusReceiver anotherStatusReceiver = null;
-
     private PreferenceFragmentCompat preferenceFragment = null;
     private LogCatFragment logCatFragment = null;
     private CalendarFragment calendarFragment = null;
@@ -76,6 +75,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
         changeSceneToCalendar();
     }
 
+/*
     //  CameraSceneUpdater
     public void registerInterface(@NonNull IStatusViewDrawer statusViewDrawer, @NonNull IInterfaceProvider interfaceProvider)
     {
@@ -83,6 +83,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
         this.statusViewDrawer = statusViewDrawer;
         this.interfaceProvider = interfaceProvider;
     }
+*/
 
     // ICameraStatusReceiver
     @Override
@@ -90,6 +91,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     {
         Log.v(TAG, " CONNECTION MESSAGE : " + message);
         try {
+/*
             if (statusViewDrawer != null)
             {
                 statusViewDrawer.updateStatusView(message);
@@ -98,6 +100,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
                     statusViewDrawer.updateConnectionStatus(connection.getConnectionStatus());
                 }
             }
+*/
             if (anotherStatusReceiver != null)
             {
                 anotherStatusReceiver.onStatusNotify(message);
@@ -117,12 +120,15 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
             if (connection != null) {
                 connection.forceUpdateConnectionStatus(ICameraConnection.CameraConnectionStatus.CONNECTED);
             }
-            if (statusViewDrawer != null) {
+/*
+            if (statusViewDrawer != null)
+            {
                 statusViewDrawer.updateConnectionStatus(ICameraConnection.CameraConnectionStatus.CONNECTED);
 
                 // ライブビューの開始... 今回は手動化。
                 //statusViewDrawer.startLiveView();
             }
+*/
             if (anotherStatusReceiver != null) {
                 anotherStatusReceiver.onCameraConnected();
             }
@@ -143,10 +149,12 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
         String message = activity.getString(R.string.camera_disconnected);
         updateConnectionStatus(message, ICameraConnection.CameraConnectionStatus.DISCONNECTED);
         try {
+/*
             if (statusViewDrawer != null) {
                 statusViewDrawer.updateStatusView(activity.getString(R.string.camera_disconnected));
                 statusViewDrawer.updateConnectionStatus(ICameraConnection.CameraConnectionStatus.DISCONNECTED);
             }
+*/
             if (anotherStatusReceiver != null) {
                 anotherStatusReceiver.onCameraDisconnected();
             }
@@ -160,7 +168,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     public void onCameraOccursException(String message, Exception e) {
         Log.v(TAG, "onCameraOccursException() " + message);
         try {
-            ICameraConnection.CameraConnectionStatus connectionStatus = ICameraConnection.CameraConnectionStatus.UNKNOWN;
+            ICameraConnection.CameraConnectionStatus connectionStatus;  // = ICameraConnection.CameraConnectionStatus.UNKNOWN;
 
             e.printStackTrace();
             ICameraConnection connection = getCameraConnection(interfaceProvider.getCammeraConnectionMethod());
@@ -169,12 +177,14 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
                 connection.alertConnectingFailed(message + " " + e.getLocalizedMessage());
                 updateConnectionStatus(message, connectionStatus);
             }
+/*
             if (statusViewDrawer != null) {
                 statusViewDrawer.updateStatusView(message);
                 if (connection != null) {
                     statusViewDrawer.updateConnectionStatus(connectionStatus);
                 }
             }
+*/
             if (anotherStatusReceiver != null) {
                 anotherStatusReceiver.onCameraOccursException(message, e);
             }
@@ -465,5 +475,11 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     public void contentsListCreated(int nofContents)
     {
         Log.v(TAG, "contentsListCreated() : " + nofContents);
+
+        // カレンダー画面のリフレッシュを行いたい (かなり無理やり...)
+        if ((calendarFragment != null)&&(calendarFragment.isFragmentActive()))
+        {
+            calendarFragment.contentsListCreated(nofContents);
+        }
     }
 }

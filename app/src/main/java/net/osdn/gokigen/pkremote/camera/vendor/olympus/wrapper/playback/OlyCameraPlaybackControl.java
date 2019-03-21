@@ -27,7 +27,7 @@ public class OlyCameraPlaybackControl implements IPlaybackControl
 {
     private final String TAG = toString();
     private final OLYCamera camera;
-    private List<OLYCamera> list;
+    //private List<OLYCamera> list;
 
     public OlyCameraPlaybackControl(@NonNull OLYCamera camera)
     {
@@ -45,6 +45,7 @@ public class OlyCameraPlaybackControl implements IPlaybackControl
     {
         try
         {
+            changeRunModePlayback();
             camera.downloadContentList(new OLYCamera.DownloadContentListCallback() {
                 @Override
                 public void onCompleted(List<OLYCameraFileInfo> list)
@@ -106,6 +107,7 @@ public class OlyCameraPlaybackControl implements IPlaybackControl
     {
         try
         {
+            changeRunModePlayback();
             camera.downloadContentScreennail(path, new OLYCamera.DownloadImageCallback() {
                 @Override
                 public void onProgress(OLYCamera.ProgressEvent progressEvent)
@@ -146,6 +148,7 @@ public class OlyCameraPlaybackControl implements IPlaybackControl
     {
         try
         {
+            changeRunModePlayback();
             camera.downloadContentThumbnail(path, new OLYCamera.DownloadImageCallback() {
                 @Override
                 public void onProgress(OLYCamera.ProgressEvent progressEvent)
@@ -186,51 +189,137 @@ public class OlyCameraPlaybackControl implements IPlaybackControl
     {
         try
         {
-            camera.downloadLargeContent(path, new OLYCamera.DownloadLargeContentCallback() {
-                @Override
-                public void onProgress(byte[] bytes, OLYCamera.ProgressEvent progressEvent)
-                {
-                    try
-                    {
-                        callback.onProgress(bytes, bytes.length, new ProgressEvent(progressEvent.getProgress(), null));
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onCompleted()
-                {
-                    try
-                    {
-                        callback.onCompleted();
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onErrorOccurred(Exception e)
-                {
-                    try
-                    {
-                        callback.onErrorOccurred(e);
-                    }
-                    catch (Exception ee)
-                    {
-                        ee.printStackTrace();
-                    }
-                }
-            });
+            changeRunModePlayback();
+            if (path.toLowerCase().endsWith(".jpg"))
+            {
+                // JPEGはスモールサイズで取得する
+                downloadJpegContent(path, isSmallSize, callback);
+            }
+            else
+            {
+                downloadLargeContent(path, callback);
+            }
         }
         catch (Exception e)
         {
             e.printStackTrace();
             callback.onErrorOccurred(e);
+        }
+    }
+
+    private void downloadJpegContent(@NonNull String path, boolean isSmallSize, @NonNull final IDownloadContentCallback callback)
+    {
+        float imageSize = (isSmallSize) ? OLYCamera.IMAGE_RESIZE_1600 : OLYCamera.IMAGE_RESIZE_NONE;
+
+        camera.downloadImage(path, imageSize, new OLYCamera.DownloadImageCallback()
+        {
+            @Override
+            public void onProgress(OLYCamera.ProgressEvent progressEvent)
+            {
+                try
+                {
+                    callback.onProgress(null, 0, new ProgressEvent(progressEvent.getProgress(), null));
+                    //Log.v(TAG, "progressEvent.getProgress() : " + progressEvent.getProgress());
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCompleted(byte[] bytes, Map<String, Object> map)
+            {
+                try
+                {
+                    callback.onProgress(bytes, bytes.length, new ProgressEvent(1.0f, null));
+                    callback.onCompleted();
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onErrorOccurred(Exception e)
+            {
+                try
+                {
+                    callback.onErrorOccurred(e);
+                }
+                catch (Exception ee)
+                {
+                    ee.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void downloadLargeContent(@NonNull String path, @NonNull final IDownloadContentCallback callback)
+    {
+        camera.downloadLargeContent(path, new OLYCamera.DownloadLargeContentCallback()
+        {
+            @Override
+            public void onProgress(byte[] bytes, OLYCamera.ProgressEvent progressEvent)
+            {
+                try
+                {
+                    callback.onProgress(bytes, bytes.length, new ProgressEvent(progressEvent.getProgress(), null));
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCompleted()
+            {
+                try
+                {
+                    callback.onCompleted();
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onErrorOccurred(Exception e)
+            {
+                try
+                {
+                    callback.onErrorOccurred(e);
+                }
+                catch (Exception ee)
+                {
+                    ee.printStackTrace();
+                }
+            }
+        });
+    }
+
+
+
+    /**
+     *    ことあるごとに、とにかくRunMode を Playbackにする
+     *    (たまに外れることがあるので...)
+     *
+     */
+    private void changeRunModePlayback()
+    {
+        try
+        {
+            if (camera.getRunMode() != OLYCamera.RunMode.Playback)
+            {
+                camera.changeRunMode(OLYCamera.RunMode.Playback);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -244,6 +333,7 @@ public class OlyCameraPlaybackControl implements IPlaybackControl
         }
         try
         {
+            changeRunModePlayback();
             camera.downloadContentList(new OLYCamera.DownloadContentListCallback()
             {
                 @Override

@@ -127,8 +127,9 @@
 
     <string name="get_camera_contents_wait">Check contents&#8230; wait</string>
     <string name="get_camera_contents_error">Check contents&#8230; Error!</string>
-    <string name="get_camera_contents_finished">Check contents&#8230; finished</string>
+    <string name="get_camera_contents_finished">Contents </string>
     <string name="get_camera_contents_error_retry">Try Again?</string>
+    <string name="get_camera_contents_is_nothing">Camera content is nothing!</string>
 
     <string name="action_synchroize_datetime">Time Sync.</string>
     <string name="action_info">Information</string>

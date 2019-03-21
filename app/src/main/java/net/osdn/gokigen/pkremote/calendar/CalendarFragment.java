@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
@@ -58,6 +60,7 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
 
     private int currentYear = 0;
     private int currentMonth = 0;
+    private boolean fragmentIsActive = false;
 
     private static final List<Integer> dayLabelList = new ArrayList<Integer>()
     {
@@ -263,6 +266,28 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
             e.printStackTrace();
         }
         return (myView);
+    }
+
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        fragmentIsActive = true;
+    }
+
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        fragmentIsActive = false;
+    }
+
+    public boolean isFragmentActive()
+    {
+        return (fragmentIsActive);
     }
 
     /**
@@ -580,7 +605,7 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
     }
 
     /**
-     *
+     *    画像ファイル一覧が取得できた後の処理
      *
      *
      */
@@ -588,6 +613,21 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
     public void contentsListCreated(int nofContents)
     {
         Log.v(TAG, "contentsListCreated() : " + nofContents);
+        if (nofContents == 0)
+        {
+            // コンテンツが１件も取得できなかった
+            final Activity activity = getActivity();
+            if (activity != null)
+            {
+                // コンテンツないよ、を表示する
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Snackbar.make(activity.findViewById(R.id.fragment1), R.string.get_camera_contents_is_nothing, Snackbar.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }
         try
         {
             SparseArray<ICameraContent> imageMaps = new SparseArray<>();

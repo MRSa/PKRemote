@@ -49,6 +49,7 @@ public class MyContentDownloader implements IDownloadContentCallback
     private String targetFileName = "";
     private String filepath = "";
     private String mimeType = "image/jpeg";
+    private boolean isDownloading = false;
 
     /**
      *   コンストラクタ
@@ -76,6 +77,7 @@ public class MyContentDownloader implements IDownloadContentCallback
         // Download the image.
         try
         {
+            isDownloading = true;
             Calendar calendar = Calendar.getInstance();
             String extendName = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(calendar.getTime());
             targetFileName = fileInfo.getContentName().toUpperCase();
@@ -111,8 +113,12 @@ public class MyContentDownloader implements IDownloadContentCallback
             ////// ダイアログの表示
             activity.runOnUiThread(new Runnable() {
                 @Override
-                public void run() {
-                    downloadDialog = new ProgressDialog(activity);
+                public void run()
+                {
+                    if (downloadDialog == null)
+                    {
+                        downloadDialog = new ProgressDialog(activity);
+                    }
                     downloadDialog.setTitle(activity.getString(R.string.dialog_download_file_title) + appendTitle);
                     downloadDialog.setMessage(activity.getString(R.string.dialog_download_message) + " " + targetFileName);
                     downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -136,6 +142,9 @@ public class MyContentDownloader implements IDownloadContentCallback
                     }
                 }
                 outputStream = new FileOutputStream(filepath);
+
+                Log.v(TAG, "downloadContent : " + path + " (small: " + isSmallSize + ")");
+                playbackControl.downloadContent(path, isSmallSize, this);
             }
             catch (Exception e)
             {
@@ -146,16 +155,33 @@ public class MyContentDownloader implements IDownloadContentCallback
                         if (downloadDialog != null) {
                             downloadDialog.dismiss();
                         }
+                        downloadDialog = null;
+                        isDownloading = false;
                         presentMessage(activity.getString(R.string.download_control_save_failed), message);
                     }
                 });
             }
-            Log.v(TAG, "downloadContent : " + path + " (small: " + isSmallSize + ")");
-            playbackControl.downloadContent(path, isSmallSize, this);
         }
         catch (Exception ex)
         {
             ex.printStackTrace();
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try
+                    {
+                        if (downloadDialog != null) {
+                            downloadDialog.dismiss();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                    downloadDialog = null;
+                    isDownloading = false;
+                }
+            });
         }
     }
 
@@ -171,7 +197,7 @@ public class MyContentDownloader implements IDownloadContentCallback
         }
         try
         {
-            if (outputStream != null)
+            if ((outputStream != null)&&(length > 0))
             {
                 outputStream.write(bytes, 0, length);
             }
@@ -235,6 +261,8 @@ public class MyContentDownloader implements IDownloadContentCallback
                     {
                         downloadDialog.dismiss();
                     }
+                    downloadDialog = null;
+                    isDownloading = false;
                     View view = activity.findViewById(R.id.fragment1);
                     Snackbar.make(view, activity.getString(R.string.download_control_save_success) + " " + targetFileName, Snackbar.LENGTH_SHORT).show();
                     //Toast.makeText(activity, activity.getString(R.string.download_control_save_success) + " " + targetFileName, Toast.LENGTH_SHORT).show();
@@ -252,6 +280,8 @@ public class MyContentDownloader implements IDownloadContentCallback
                     {
                         downloadDialog.dismiss();
                     }
+                    downloadDialog = null;
+                    isDownloading = false;
                     presentMessage(activity.getString(R.string.download_control_save_failed), message);
                 }
             });
@@ -262,9 +292,11 @@ public class MyContentDownloader implements IDownloadContentCallback
     @Override
     public void onErrorOccurred(Exception e)
     {
+        isDownloading = false;
         final String message = e.getMessage();
         try
         {
+            e.printStackTrace();
             if (outputStream != null)
             {
                 outputStream.flush();
@@ -274,7 +306,6 @@ public class MyContentDownloader implements IDownloadContentCallback
         }
         catch (Exception ex)
         {
-            e.printStackTrace();
             ex.printStackTrace();
         }
         activity.runOnUiThread(new Runnable()
@@ -286,11 +317,17 @@ public class MyContentDownloader implements IDownloadContentCallback
                 {
                     downloadDialog.dismiss();
                 }
+                downloadDialog = null;
+                isDownloading = false;
                 presentMessage(activity.getString(R.string.download_control_download_failed), message);
-                System.gc();
             }
         });
         System.gc();
+    }
+
+    public boolean isDownloading()
+    {
+        return (isDownloading);
     }
 
     /**

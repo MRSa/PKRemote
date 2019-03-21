@@ -119,7 +119,8 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
                 contentsListCallback.contentsListCreated(contentList.size());
                 if (informationReceiver != null)
                 {
-                    informationReceiver.updateMessage(activity.getString(R.string.get_camera_contents_finished), false, false, 0);
+                    String message = activity.getString(R.string.get_camera_contents_finished) + " : " + contentList.size();
+                    informationReceiver.updateMessage(message, false, false, 0);
                 }
 
                 // 最新の撮影データから並べる
