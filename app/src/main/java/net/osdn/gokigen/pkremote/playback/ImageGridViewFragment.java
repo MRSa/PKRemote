@@ -19,6 +19,7 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
@@ -72,6 +73,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	private ExecutorService executor;
 	private ImageGridViewAdapter adapter = null;
 	private String filterLabel = null;
+	private int currentSelectedIndex = 0;
 
 
 	public static ImageGridViewFragment newInstance(@NonNull IInterfaceProvider interfaceProvider)
@@ -233,7 +235,6 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
                         strList.add(0, "ALL");
 
                         // デフォルトで設定したいフィルターがある場合...そのフィルターのインデックスを探る
-                        int selectionIndex = 0;
                         if (filterLabel != null)
                         {
                             int index = 0;
@@ -241,7 +242,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
                             {
                                 if (str.equals(filterLabel))
                                 {
-                                    selectionIndex = index;
+                                    currentSelectedIndex = index;
                                     break;
                                 }
                                 index++;
@@ -250,7 +251,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
                         filterLabel = null;
                         ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, strList);
                         categorySpinner.setAdapter(adapter);
-                        categorySpinner.setSelection(selectionIndex);
+                        categorySpinner.setSelection(currentSelectedIndex);
                     }
                 }
                 catch (Exception e)
@@ -616,6 +617,22 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id)
     {
+        try
+        {
+            // 現在のスピナーで表示されているラベルを取得する。(返ってきたときのフィルター用)
+            Activity  activity = getActivity();
+            if (activity != null)
+            {
+                Spinner categorySpinner = activity.findViewById(R.id.category_spinner);
+                SpinnerAdapter adapter = categorySpinner.getAdapter();
+                filterLabel = (String) adapter.getItem(currentSelectedIndex);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         ImagePagerViewFragment fragment = ImagePagerViewFragment.newInstance(playbackControl, runMode, imageContentList, position);
         FragmentActivity activity = getActivity();
         if (activity != null)
@@ -672,6 +689,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         Log.v(TAG, "onItemSelected()");
         try
         {
+            currentSelectedIndex = position;
             refresh();
         }
         catch (Exception e)
