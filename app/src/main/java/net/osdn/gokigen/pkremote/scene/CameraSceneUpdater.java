@@ -9,7 +9,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.calendar.CalendarFragment;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
-import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IStatusViewDrawer;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecognizer;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;

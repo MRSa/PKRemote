@@ -1,10 +1,14 @@
 package net.osdn.gokigen.pkremote.calendar;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.provider.CalendarContract;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Gravity;
@@ -482,7 +486,7 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
             calendar.set(currentYear, currentMonth - 1, 1);
             int week = getStartCalendarIndex(calendar);
             calendar.set(currentYear, currentMonth, 0);
-            int lastDay = calendar.get(Calendar.DATE);
+            //int lastDay = calendar.get(Calendar.DATE);
 
             // テキストで 年/月 を表示する
             DateFormat dateF = new SimpleDateFormat("yyyy/MM", Locale.ENGLISH);
@@ -821,7 +825,7 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
             if (dateLabel.length() > 1)
             {
                 Log.v(TAG, "LONG SELECTED : " + dateLabel);
-
+                getCalendarData(dateLabel);
                 return (true);
             }
         }
@@ -830,5 +834,41 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
             ex.printStackTrace();
         }
         return false;
+    }
+
+
+    /**
+     *    カレンダーを開いてみる
+     *
+     */
+    private void getCalendarData(String dateLabel)
+    {
+        //  時刻...
+        Date date = new Date();
+        try
+        {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
+            date = dateFormat.parse(dateLabel);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        try
+        {
+            long startMillis = date.getTime();
+
+            Uri.Builder builder = CalendarContract.CONTENT_URI.buildUpon();
+            builder.appendPath("time");
+            ContentUris.appendId(builder, startMillis);
+            Intent intent = new Intent(Intent.ACTION_VIEW)
+                    .setData(builder.build());
+            startActivity(intent);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 }
