@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_photo_library:
-                    //
                     scenceUpdater.changeScenceToImageList();
                     return (true);
                 case R.id.navigation_calendar:
@@ -66,6 +65,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return (false);
         }
     };
+
+    /**
+     *
+     *
+     */
+    @Override
+    public void onBackPressed()
+    {
+        //Log.v(TAG, "onBackPressed()");
+        super.onBackPressed();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run()
+            {
+                if (scenceUpdater != null)
+                {
+                    scenceUpdater.updateBottomNavigationMenu();
+                }
+            }
+        });
+    }
 
     /**
      *

@@ -18,4 +18,5 @@ public interface IChangeScene
     void exitApplication();
     void reloadRemoteImageContents();
     void setAnotherStatusReceiver(ICameraStatusReceiver statusReceiver);
+    void updateBottomNavigationMenu();
 }

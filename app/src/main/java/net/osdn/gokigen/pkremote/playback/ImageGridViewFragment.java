@@ -74,6 +74,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	private ImageGridViewAdapter adapter = null;
 	private String filterLabel = null;
 	private int currentSelectedIndex = 0;
+	private boolean fragmentIsActive = false;
 
 
 	public static ImageGridViewFragment newInstance(@NonNull IInterfaceProvider interfaceProvider)
@@ -179,6 +180,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	{
 		super.onResume();
 		Log.v(TAG, "onResume() Start");
+        fragmentIsActive = true;
 		AppCompatActivity activity = (AppCompatActivity)getActivity();
 		if (activity != null)
 		{
@@ -276,6 +278,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	public void onPause()
 	{
         Log.v(TAG, "onPause() Start");
+        fragmentIsActive = false;
         try
         {
 /*
@@ -309,6 +312,12 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 		super.onPause();
         Log.v(TAG, "onPause() End");
     }
+
+    public boolean isFragmentActive()
+    {
+        return (fragmentIsActive);
+    }
+
 
 	@Override
 	public void onStop()

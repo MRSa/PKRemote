@@ -38,7 +38,6 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     private PreferenceFragmentCompat preferenceFragment = null;
     private LogCatFragment logCatFragment = null;
     private CalendarFragment calendarFragment = null;
-
     private ImageGridViewFragment gridViewFragment = null;
 
     public static CameraSceneUpdater newInstance(@NonNull AppCompatActivity activity)
@@ -239,7 +238,8 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     //  IChangeScene
     @Override
-    public void changeSceneToCameraPropertyList() {
+    public void changeSceneToCameraPropertyList()
+    {
 /*
         try
         {
@@ -285,7 +285,8 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     //  IChangeScene
     @Override
-    public void changeSceneToConfiguration() {
+    public void changeSceneToConfiguration()
+    {
         try {
             if (preferenceFragment == null) {
                 try {
@@ -317,7 +318,8 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     //  IChangeScene
     @Override
-    public void changeCameraConnection() {
+    public void changeCameraConnection()
+    {
         if (interfaceProvider == null) {
             Log.v(TAG, "changeCameraConnection() : interfaceProvider is NULL");
             return;
@@ -342,8 +344,10 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     //  IChangeScene
     @Override
-    public void reloadRemoteImageContents() {
-        try {
+    public void reloadRemoteImageContents()
+    {
+        try
+        {
             ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
             if (recognizer != null) {
                 // カメラ内のコンテンツ一覧を作成するように指示する
@@ -356,7 +360,8 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     //  IChangeScene
     @Override
-    public void changeSceneToDebugInformation() {
+    public void changeSceneToDebugInformation()
+    {
         if (logCatFragment == null) {
             logCatFragment = LogCatFragment.newInstance();
         }
@@ -369,7 +374,8 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     //  IChangeScene
     @Override
-    public void changeSceneToApiList() {
+    public void changeSceneToApiList()
+    {
 /*
         if (sonyApiListFragmentSony == null)
         {
@@ -385,8 +391,10 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     //  IChangeScene
     @Override
-    public void changeSceneToCalendar() {
-        if (calendarFragment == null) {
+    public void changeSceneToCalendar()
+    {
+        if (calendarFragment == null)
+        {
             calendarFragment = CalendarFragment.newInstance(activity, this, interfaceProvider);
         }
         FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
@@ -451,6 +459,32 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
                 connection.disconnect(true);
             }
             activity.finish();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateBottomNavigationMenu()
+    {
+        try
+        {
+            // ナビゲーション部分の選択状態をしたい...
+            int changeId = 0;
+            if (calendarFragment.isFragmentActive())
+            {
+                changeId = R.id.navigation_calendar;
+            }
+            else if (gridViewFragment.isFragmentActive())
+            {
+                changeId = R.id.navigation_photo_library;
+            }
+            if ((bottomNavigationView != null)&&(changeId != 0))
+            {
+                bottomNavigationView.setSelectedItemId(changeId);
+            }
         }
         catch (Exception e)
         {

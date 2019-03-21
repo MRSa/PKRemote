@@ -277,7 +277,6 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
     public void onResume()
     {
         super.onResume();
-
         fragmentIsActive = true;
     }
 
