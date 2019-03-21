@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Gravity;
@@ -14,13 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecognizer;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
@@ -32,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -469,11 +465,30 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
             TextView field = view.findViewById(R.id.showDayYear);
             field.setText(yearMonth);
 
-            int day = 1;
-            int index = 0;
+
+            calendar.set(currentYear, currentMonth - 1, 1);
+            calendar.add(Calendar.DATE, week * (-1));
+
+            int day = calendar.get(Calendar.DATE);
+            //int day = 1;
+            //int index = 0;
             for (int id : dayLabelList)
             {
                 TextView area = view.findViewById(id);
+                try
+                {
+                    area.setText(String.format(Locale.ENGLISH, "%02d", day));
+                    area.setGravity(Gravity.CENTER_HORIZONTAL);
+                    calendar.add(Calendar.DATE,1);
+                    day = calendar.get(Calendar.DATE);
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+
+/*
+
                 if ((index >= week)&&(day <= lastDay))
                 {
                     area.setText(String.format(Locale.ENGLISH, "%02d", day));
@@ -486,6 +501,7 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
                     area.setGravity(Gravity.CENTER_HORIZONTAL);
                 }
                 index++;
+*/
             }
             view.invalidate();
         }
