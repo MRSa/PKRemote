@@ -46,6 +46,20 @@
             android:summary="@string/pref_summary_auto_connect_camera" />
     </PreferenceCategory>
 
+<!--
+    <PreferenceCategory
+        android:title="@string/pref_cat_camera">
+
+        <ListPreference
+            android:title="@string/pref_download_small_picture_size"
+            android:entryValues="@array/picture_quality_value"
+            android:entries="@array/picture_quality"
+            android:key="download_small_picture_size"
+            android:defaultValue="1600"/>
+
+    </PreferenceCategory>
+-->
+
     <PreferenceCategory
         android:title="@string/pref_cat_others">
 <!--

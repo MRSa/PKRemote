@@ -1,5 +1,7 @@
 package net.osdn.gokigen.pkremote.camera.vendor.olympus.wrapper.playback;
 
+import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
@@ -14,12 +16,14 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.playback.CameraContentInfo;
 import net.osdn.gokigen.pkremote.camera.playback.CameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.playback.ProgressEvent;
+import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
 import jp.co.olympus.camerakit.OLYCamera;
 import jp.co.olympus.camerakit.OLYCameraFileInfo;
 
@@ -27,11 +31,13 @@ public class OlyCameraPlaybackControl implements IPlaybackControl
 {
     private final String TAG = toString();
     private final OLYCamera camera;
+    private final Activity activity;
     //private List<OLYCamera> list;
 
-    public OlyCameraPlaybackControl(@NonNull OLYCamera camera)
+    public OlyCameraPlaybackControl(@NonNull OLYCamera camera, @NonNull Activity activity)
     {
         this.camera = camera;
+        this.activity = activity;
     }
 
     @Override
@@ -190,14 +196,46 @@ public class OlyCameraPlaybackControl implements IPlaybackControl
         try
         {
             changeRunModePlayback();
-            if (path.toLowerCase().endsWith(".jpg"))
+
+            String downloadPath = path.toLowerCase();
+            float imageSize = OLYCamera.IMAGE_RESIZE_NONE;
+            if (isSmallSize)
             {
-                // JPEGはスモールサイズで取得する
-                downloadJpegContent(path, isSmallSize, callback);
+                try
+                {
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+                    String smallSize = preferences.getString(IPreferencePropertyAccessor.SMALL_PICTURE_SIZE, IPreferencePropertyAccessor.SMALL_PICTURE_SIZE_DEFAULT_VALUE);
+                    switch (smallSize)
+                    {
+                        case "1600":
+                            imageSize = OLYCamera.IMAGE_RESIZE_1600;
+                            break;
+                        case "1920":
+                            imageSize = OLYCamera.IMAGE_RESIZE_1920;
+                            break;
+                        case "2048":
+                            imageSize = OLYCamera.IMAGE_RESIZE_2048;
+                            break;
+                        case "1024":
+                        default:
+                            imageSize = OLYCamera.IMAGE_RESIZE_1024;
+                            break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    imageSize = OLYCamera.IMAGE_RESIZE_1600;
+                }
+            }
+            if (downloadPath.endsWith(".jpg"))
+            {
+                // JPEGファイルの取得
+                downloadJpegContent(downloadPath, imageSize, callback);
             }
             else
             {
-                downloadLargeContent(path, callback);
+                downloadLargeContent(downloadPath, callback);
             }
         }
         catch (Exception e)
@@ -207,10 +245,8 @@ public class OlyCameraPlaybackControl implements IPlaybackControl
         }
     }
 
-    private void downloadJpegContent(@NonNull String path, boolean isSmallSize, @NonNull final IDownloadContentCallback callback)
+    private void downloadJpegContent(@NonNull String path, float imageSize, @NonNull final IDownloadContentCallback callback)
     {
-        float imageSize = (isSmallSize) ? OLYCamera.IMAGE_RESIZE_1600 : OLYCamera.IMAGE_RESIZE_NONE;
-
         camera.downloadImage(path, imageSize, new OLYCamera.DownloadImageCallback()
         {
             @Override

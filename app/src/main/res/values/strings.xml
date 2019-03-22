@@ -99,6 +99,7 @@
     <string name="camera_reset_required">The camera reset operation is required.</string>
 
     <string name="pref_camera_sound_volume">Shutter Sound</string>
+    <string name="pref_download_small_picture_size">Small picture size to download</string>
     <string name="pref_take_raw">Take Raw</string>
 
     <string name="pref_cat_live_view">Live View Settings</string>

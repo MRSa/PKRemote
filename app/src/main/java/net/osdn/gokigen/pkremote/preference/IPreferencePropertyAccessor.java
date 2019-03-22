@@ -21,6 +21,9 @@ public interface IPreferencePropertyAccessor
     String LIVE_VIEW_QUALITY = "live_view_quality";
     String LIVE_VIEW_QUALITY_DEFAULT_VALUE = "VGA";
 
+    String SMALL_PICTURE_SIZE = "download_small_picture_size";
+    String SMALL_PICTURE_SIZE_DEFAULT_VALUE = "1600";
+
     String CAMERAKIT_VERSION = "camerakit_version";
 
     String SHOW_GRID_STATUS = "show_grid";

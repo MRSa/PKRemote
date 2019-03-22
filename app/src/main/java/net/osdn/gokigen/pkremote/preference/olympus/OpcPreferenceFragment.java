@@ -152,6 +152,9 @@ public class OpcPreferenceFragment extends PreferenceFragmentCompat implements S
         if (!items.containsKey(IPreferencePropertyAccessor.PENTAX_CAPTURE_AFTER_AF)) {
             editor.putBoolean(IPreferencePropertyAccessor.PENTAX_CAPTURE_AFTER_AF, false);
         }
+        if (!items.containsKey(IPreferencePropertyAccessor.SMALL_PICTURE_SIZE)) {
+            editor.putString(IPreferencePropertyAccessor.SMALL_PICTURE_SIZE, IPreferencePropertyAccessor.SMALL_PICTURE_SIZE_DEFAULT_VALUE);
+        }
         editor.apply();
     }
 
@@ -195,6 +198,16 @@ public class OpcPreferenceFragment extends PreferenceFragmentCompat implements S
                 }
             });
             connectionMethod.setSummary(connectionMethod.getValue() + " ");
+
+            ListPreference smallPictureSize = (ListPreference) findPreference(IPreferencePropertyAccessor.SMALL_PICTURE_SIZE);
+            smallPictureSize.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    preference.setSummary(newValue + " ");
+                    return (true);
+                }
+            });
+            smallPictureSize.setSummary(smallPictureSize.getValue() + " ");
         }
         findPreference("exit_application").setOnPreferenceClickListener(powerOffController);
         findPreference("debug_info").setOnPreferenceClickListener(logCatViewer);

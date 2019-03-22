@@ -16,10 +16,18 @@
             android:defaultValue="OPC"/>
 
     </PreferenceCategory>
-<!--
+
     <PreferenceCategory
         android:title="@string/pref_cat_camera">
 
+    <ListPreference
+        android:title="@string/pref_download_small_picture_size"
+        android:entryValues="@array/picture_quality_value"
+        android:entries="@array/picture_quality"
+        android:key="download_small_picture_size"
+        android:defaultValue="1600"/>
+
+<!--
         <ListPreference
             android:title="@string/pref_camera_sound_volume"
             android:entryValues="@array/sound_volume_level_value"
@@ -34,9 +42,8 @@
         <CheckBoxPreference
             android:key="capture_both_camera_and_live_view"
             android:title="@string/pref_capture_both_camera_and_live_view" />
-
-    </PreferenceCategory>
 -->
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/pref_cat_others">
