@@ -35,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_gravity="bottom"
-                android:layout_weight="8"
+                android:layout_weight="7"
                 android:gravity="center_horizontal|center_vertical"
                 android:text="@string/blank"
                 android:textAlignment="center"
@@ -61,13 +61,18 @@
             </ImageButton>
         </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
         <LinearLayout
             android:id="@+id/week_label"
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/background_translucent_dark"
+            android:background="@color/background_translucent_white"
             >
 
             <TextView
@@ -158,10 +163,15 @@
                 android:layout_gravity="center_horizontal"
                 android:gravity="center"
                 android:text="@string/saturdayLabel"
-                android:textSize="7pt"
+                android:textSize="6pt"
                 >
             </TextView>
         </LinearLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
 
         <LinearLayout
             android:id="@+id/week_one_row_label"
@@ -169,7 +179,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/background_translucent_dark"
+            android:background="@color/background_translucent_white"
             >
 
             <TextView
@@ -265,6 +275,11 @@
             </TextView>
         </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
         <LinearLayout
             android:id="@+id/week_one_row"
             android:orientation="horizontal"
@@ -359,13 +374,18 @@
             </ImageButton>
         </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
         <LinearLayout
             android:id="@+id/week_two_row_label"
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/background_translucent_dark"
+            android:background="@color/background_translucent_white"
             >
 
             <TextView
@@ -461,6 +481,11 @@
             </TextView>
         </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
         <LinearLayout
             android:id="@+id/week_two_row"
             android:orientation="horizontal"
@@ -555,13 +580,18 @@
             </ImageButton>
         </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
         <LinearLayout
             android:id="@+id/week_three_row_label"
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/background_translucent_dark"
+            android:background="@color/background_translucent_white"
             >
 
             <TextView
@@ -657,6 +687,11 @@
             </TextView>
         </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
         <LinearLayout
             android:id="@+id/week_three_row"
             android:orientation="horizontal"
@@ -751,13 +786,18 @@
             </ImageButton>
         </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
         <LinearLayout
             android:id="@+id/week_four_row_label"
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/background_translucent_dark"
+            android:background="@color/background_translucent_white"
             >
 
             <TextView
@@ -853,6 +893,11 @@
             </TextView>
         </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
         <LinearLayout
             android:id="@+id/week_four_row"
             android:orientation="horizontal"
@@ -947,13 +992,18 @@
             </ImageButton>
         </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
         <LinearLayout
             android:id="@+id/week_five_row_label"
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/background_translucent_dark"
+            android:background="@color/background_translucent_white"
             >
 
             <TextView
@@ -1049,6 +1099,10 @@
             </TextView>
         </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
 
         <LinearLayout
             android:id="@+id/week_five_row"
@@ -1144,13 +1198,18 @@
             </ImageButton>
         </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
         <LinearLayout
             android:id="@+id/week_six_row_label"
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/background_translucent_dark"
+            android:background="@color/background_translucent_white"
             >
 
             <TextView
@@ -1246,6 +1305,11 @@
             </TextView>
         </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
         <LinearLayout
             android:id="@+id/week_six_row"
             android:orientation="horizontal"
@@ -1339,5 +1403,11 @@
                 >
             </ImageButton>
         </LinearLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
     </LinearLayout>
 </ScrollView>
