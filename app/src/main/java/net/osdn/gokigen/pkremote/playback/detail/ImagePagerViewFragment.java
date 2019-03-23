@@ -79,7 +79,7 @@ public class ImagePagerViewFragment extends Fragment
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		imageCache = new LruCache<>(5);
+		imageCache = new LruCache<>(7);
 		setHasOptionsMenu(true);
 	}
 

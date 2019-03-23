@@ -1,0 +1,178 @@
+<resources>
+    <string name="app_name">A01DL</string>
+    <string name="app_name2">AirA01a</string>
+    <string name="blank"> </string>
+    <string name="dummy">--</string>
+    <string name="button">ボタン</string>
+
+    <string name="configuration">設定</string>
+    <string name="restore">展開</string>
+    <string name="icon">アイコン</string>
+
+    <string name="title_home">ホーム</string>
+    <string name="title_calendar">日付</string>
+    <string name="title_notifications">通知</string>
+    <string name="title_settings">設定</string>
+    <string name="title_photo_library">画像</string>
+
+
+    <string name="dialog_title_confirmation">確認</string>
+    <string name="dialog_positive_execute">OK</string>
+    <string name="dialog_negative_cancel">Cancel</string>
+
+    <string name="action_refresh">更新</string>
+    <string name="finish_refresh">更新終了</string>
+
+    <string name="dialog_confirm_title_output_log">ログの共有</string>
+    <string name="dialog_confirm_message_output_log">ログを共有します。</string>
+
+    <string name="dialog_message_power_off">カメラの電源を切り、アプリケーションを終了します。</string>
+
+    <string name="camera_disconnected">カメラ切断</string>
+    <string name="only_opc_feature">この機能はOlympus Air専用です。</string>
+
+    <string name="pref_cat_application_control">アプリ制御</string>
+    <string name="pref_exit_power_off">アプリ終了(と電源OFF)</string>
+    <string name="pref_connection_method">接続方式(変更時 要再起動)</string>
+
+    <string name="pref_cat_camera">カメラ</string>
+
+    <string name="pref_capture_both_camera_and_live_view">撮影時ライブビュー画像も保存</string>
+
+    <string name="pref_cat_initialize">開始時の処理</string>
+    <string name="pref_auto_connect_camera">カメラに自動接続</string>
+    <string name="pref_summary_auto_connect_camera">通常、ONのままでご使用ください。</string>
+
+    <string name="pref_gr2_display_mode">表示モード</string>
+    <string name="pref_gr2_display_camera_view">カメラ画像をそのまま表示</string>
+    <string name="pref_gr2_display_camera_view_summary">GR2専用:カメラ画像をそのまま表示します。</string>
+    <string name="pref_gr2_lcd_sleep">接続中カメラ画面OFF</string>
+    <string name="pref_gr2_lcd_sleep_summary">GR2専用:カメラ接続時にカメラ画面をOFFにします。</string>
+
+    <string name="pref_cat_others">その他</string>
+    <string name="pref_call_share_after_save">保存後共有</string>
+    <string name="pref_use_playback_menu">画像一覧に操作メニューを表示</string>
+    <string name="pref_summary_use_playback_menu">通常、ONのままでご使用ください。</string>
+
+    <string name="pref_use_gr2_special_command">GR2専用コマンドを使用</string>
+    <string name="summary_use_gr2_special_command">カメラ制御にGR2専用のコマンドを使用します。</string>
+
+    <string name="pref_pentax_capture_after_auto_focus">AF駆動後に撮影(PENTAX)</string>
+    <string name="summary_pentax_capture_after_auto_focus">要再起動:PENTAX一眼機でAF駆動後に撮影します。</string>
+
+    <string name="pref_cat_gokigen">GOKIGEN</string>
+    <string name="pref_instruction_manual">A01DL操作説明</string>
+    <string name="pref_privacy_policy">プライバシーポリシー</string>
+
+    <string name="pref_degug_info">デバッグ情報</string>
+    <string name="pref_summary_debug_info">LogCat情報を表示します。</string>
+
+    <string name="dialog_title_connect_failed">接続失敗</string>
+    <string name="dialog_title_button_retry">再接続</string>
+    <string name="dialog_title_button_network_settings">WiFi設定</string>
+
+    <string name="save_props">保存</string>
+    <string name="hint_save_props">ラベル</string>
+    <string name="saved_my_props">保存しました : </string>
+    <string name="auto_save_props">(自動保存)</string>
+    <string name="title_tab_title_load">読出</string>
+    <string name="title_tab_title_save">保存</string>
+    <string name="title_my_settings">お気に入り設定</string>
+
+    <string name="dialog_title_loading_properties">カメラ設定の読み出し中</string>
+    <string name="dialog_message_loading_properties">お待ちください&#8230;</string>
+
+    <string name="dialog_start_save_property_message">お待ちください</string>
+    <string name="dialog_start_save_property_title">カメラ設定の設定中&#8230;</string>
+    <string name="dialog_start_load_property_message">お待ちください</string>
+    <string name="dialog_start_load_property_title">カメラ設定の読み出し中&#8230;</string>
+    <string name="restored_my_props">設定しました : </string>
+    <string name="dialog_message_restore_camera_property">カメラ設定の展開</string>
+
+    <string name="camera_not_found">接続先カメラが見つかりません&#8230;</string>
+    <string name="connect_connected">接続完了</string>
+    <string name="network_connection_timeout">接続タイムアウト</string>
+    <string name="connect_check_wifi">WIFI確認中</string>
+    <string name="connect_start">開始</string>
+    <string name="connect_change_run_mode">動作モード変更</string>
+    <string name="fatal_cannot_use_camera">Olympus Camera Kitが動作しないモードのため、カメラのリセットが必要です。電源ボタンを8秒以上長押しして、カメラをリセットしてください。</string>
+    <string name="camera_reset_required">カメラ側のリセット操作をお願いします。</string>
+
+    <string name="pref_camera_sound_volume">音量</string>
+    <string name="pref_download_small_picture_size">スモール画像サイズ(横幅)</string>
+    <string name="pref_take_raw">RAW撮影</string>
+
+    <string name="pref_cat_live_view">ライブビュー設定</string>
+    <string name="pref_live_view_quality">ライブビュー画質</string>
+    <string name="pref_cat_info">情報</string>
+    <string name="pref_focal_length">焦点距離</string>
+    <string name="pref_lens_status">レンズ状態</string>
+    <string name="pref_media_status">SDカード状態</string>
+    <string name="pref_camera_version">カメラバージョン</string>
+    <string name="pref_camerakit_version">Camera kitバージョン</string>
+
+    <string name="now">今月</string>
+    <string name="sundayLabel">日</string>
+    <string name="mondayLabel">月</string>
+    <string name="tuesdayLabel">火</string>
+    <string name="wednesdayLabel">水</string>
+    <string name="thursdayLabel">木</string>
+    <string name="fridayLabel">金</string>
+    <string name="saturdayLabel">土</string>
+
+
+    <string name="time_picker_year_month_separator">/</string>
+    <string name="time_picker_minute_separator">:</string>
+    <string name="time_picker_end_separator"> </string>
+    <string name="information_month_picker">年・月を指定</string>
+
+    <string name="get_camera_contents_wait">画像確認中&#8230;お待ちください</string>
+    <string name="get_camera_contents_error">画像確認&#8230; エラー</string>
+    <string name="get_camera_contents_finished">画像数 </string>
+    <string name="get_camera_contents_error_retry">再実行しますか?</string>
+    <string name="get_camera_contents_is_nothing">画像が見つかりませんでした。</string>
+
+    <string name="action_synchroize_datetime">時刻同期</string>
+    <string name="action_info">情報</string>
+
+    <string name="action_download">取得</string>
+    <string name="action_download_movie">取得</string>
+    <string name="action_download_original_movie">オリジナルサイズ</string>
+    <string name="action_delete_movie">削除</string>
+    <string name="action_get_information">画像情報</string>
+    <string name="action_download_original_size">オリジナルサイズ</string>
+    <string name="action_download_2048x1536">2048 x 1536</string>
+    <string name="action_download_1920x1440">1920 x 1440</string>
+    <string name="action_download_1600x1200">1600 x 1200</string>
+    <string name="action_download_1024x768">1024 x 768</string>
+    <string name="action_download_640x480">スモールサイズ</string>
+    <string name="action_download_raw">RAW</string>
+    <string name="action_delete_picture">削除</string>
+
+    <string name="dialog_get_information_title">画像情報</string>
+    <string name="download_control_get_information_title">情報</string>
+    <string name="download_control_download_failed">取得失敗</string>
+    <string name="download_control_save_failed">保存失敗</string>
+    <string name="download_control_get_information_failed">画像情報の取得に失敗</string>
+    <string name="dialog_download_file_title">ファイルの取得</string>
+    <string name="dialog_download_title">画像の取得</string>
+    <string name="dialog_download_message">ファイル名:</string>
+    <string name="download_control_save_success">保存しました</string>
+
+    <string name="select_radio_date">日付</string>
+    <string name="select_radio_path">パス</string>
+
+    <string name="action_download_with_raw">RAWも取得</string>
+    <string name="dialog_title_batch_download">一括取得(サイズの選択)</string>
+    <string name="dialog_positive_download">ダウンロード</string>
+    <string name="dialog_label_batch_download">選択 : </string>
+    <string name="dialog_label_select_size"> </string>
+    <string name="message_download_finished_pics">画像数 : </string>
+    <string name="message_download_finished_pics_with_failure">(一部失敗)画像数 : </string>
+    <string name="message_download_failure_count">失敗 : </string>
+    <string name="message_download_finished_but_failed">取得失敗&#8230; </string>
+
+    <string name="action_batch_download_640x480">スモールサイズ(JPEG)</string>
+    <string name="action_batch_download_raw">オリジナルサイズ(RAWも取得)</string>
+    <string name="action_select_all">全選択/全解除</string>
+</resources>

@@ -89,7 +89,7 @@
     <string name="restored_my_props">Restored Property : </string>
     <string name="dialog_message_restore_camera_property">Restore Camera Property</string>
 
-    <string name="camera_not_found">Not Found&#8230;</string>
+    <string name="camera_not_found">Cannot connect the camera&#8230;</string>
     <string name="connect_connected">connected</string>
     <string name="network_connection_timeout">Connection time out</string>
     <string name="connect_check_wifi">check WIFI</string>
