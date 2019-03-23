@@ -31,6 +31,7 @@
         android:layout_height="0dp"
         android:text="@string/blank"
         android:textSize="8pt"
+        android:gravity="bottom"
         app:layout_constraintBottom_toTopOf="@+id/navigation"
         app:layout_constraintEnd_toStartOf="@+id/button_reload"
         app:layout_constraintStart_toStartOf="parent"
