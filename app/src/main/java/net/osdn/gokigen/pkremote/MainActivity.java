@@ -54,11 +54,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     scenceUpdater.changeScenceToImageList();
                     return (true);
                 case R.id.navigation_calendar:
-                    //
                     scenceUpdater.changeSceneToCalendar();
                     return (true);
+                case R.id.navigation_auto_transfer:
+                    scenceUpdater.changeSceneToAutoTransfer();
+                    return (true);
                 case R.id.navigation_settings:
-                    //
                     scenceUpdater.changeSceneToConfiguration();
                     return (true);
             }

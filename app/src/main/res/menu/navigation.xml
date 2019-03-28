@@ -8,6 +8,11 @@
         android:id="@+id/navigation_photo_library"
         android:icon="@drawable/ic_photo_library_black_24dp"
         android:title="@string/title_photo_library" />
+
+    <item
+        android:id="@+id/navigation_auto_transfer"
+        android:icon="@drawable/ic_file_download_black_24dp"
+        android:title="@string/title_auto_transfer" />
     <item
         android:id="@+id/navigation_settings"
         android:icon="@drawable/ic_settings_black_24dp"

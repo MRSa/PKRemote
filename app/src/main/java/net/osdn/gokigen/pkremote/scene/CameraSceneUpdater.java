@@ -16,6 +16,7 @@ import net.osdn.gokigen.pkremote.logcat.LogCatFragment;
 import net.osdn.gokigen.pkremote.playback.ImageGridViewFragment;
 import net.osdn.gokigen.pkremote.preference.olympus.OpcPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.ricohgr2.RicohGr2PreferenceFragment;
+import net.osdn.gokigen.pkremote.transfer.AutoTransferFragment;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,6 +40,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     private LogCatFragment logCatFragment = null;
     private CalendarFragment calendarFragment = null;
     private ImageGridViewFragment gridViewFragment = null;
+    private AutoTransferFragment autoTransferFragment = null;
 
     public static CameraSceneUpdater newInstance(@NonNull AppCompatActivity activity)
     {
@@ -391,6 +393,21 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
 
     //  IChangeScene
     @Override
+    public void changeSceneToAutoTransfer()
+    {
+        if (autoTransferFragment == null)
+        {
+            autoTransferFragment = AutoTransferFragment.newInstance(activity, this, interfaceProvider);
+        }
+        FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment1, autoTransferFragment);
+        // backstackに追加
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    //  IChangeScene
+    @Override
     public void changeSceneToCalendar()
     {
         if (calendarFragment == null)
@@ -424,6 +441,10 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
         changeScenceToImageList(null);
     }
 
+    /**
+     *
+     *
+     */
     private void changeScenceToImageList(String filterLabel)
     {
         Log.v(TAG, "changeScenceToImageList() : " + filterLabel);

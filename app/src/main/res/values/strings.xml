@@ -14,6 +14,7 @@
     <string name="title_notifications">Notifications</string>
     <string name="title_settings">Settings</string>
     <string name="title_photo_library">Photo Library</string>
+    <string name="title_auto_transfer">Auto Transfer</string>
 
 
     <string name="dialog_title_confirmation">Confirmation</string>
@@ -175,4 +176,8 @@
     <string name="action_batch_download_640x480">Small Size(JPEG)</string>
     <string name="action_batch_download_raw">Original Size(with RAW)</string>
     <string name="action_select_all">Select All/Unselect All</string>
+
+    <string name="button_transfer_start">TRANSFER START</string>
+    <string name="button_transfer_stop">TRANSFER STOP</string>
+
 </resources>

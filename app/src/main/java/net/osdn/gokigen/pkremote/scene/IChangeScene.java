@@ -15,6 +15,7 @@ public interface IChangeScene
     void changeSceneToApiList();
     void changeScenceDateSelected(String filterLabel);
     void changeScenceToImageList();
+    void changeSceneToAutoTransfer();
     void exitApplication();
     void reloadRemoteImageContents();
     void setAnotherStatusReceiver(ICameraStatusReceiver statusReceiver);
