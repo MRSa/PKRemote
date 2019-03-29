@@ -1,6 +1,7 @@
 package net.osdn.gokigen.pkremote.transfer;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
@@ -10,7 +11,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
@@ -22,14 +25,20 @@ import androidx.fragment.app.Fragment;
 
 import static android.content.Context.VIBRATOR_SERVICE;
 
-public class AutoTransferFragment extends Fragment implements View.OnClickListener
+/**
+ *   自動転送クラス
+ *
+ */
+public class AutoTransferFragment extends Fragment implements View.OnClickListener, ITransferMessage
 {
     private final String TAG = this.toString();
 
-    private IInterfaceProvider interfaceProvider = null;
-    private IChangeScene changeScene = null;
+    private static final int SLEEP_MS = 3000;   // 待機時間
+
     private AppCompatActivity activity = null;
+    private FileAutoTransferMain transferMain = null;
     private View myView = null;
+    private boolean transferThreadIsRunning = false;
 
     public static AutoTransferFragment newInstance(@NonNull AppCompatActivity context, IChangeScene sceneSelector, @NonNull IInterfaceProvider provider)
     {
@@ -45,17 +54,14 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
         return (instance);
     }
 
-
     /**
      *
      */
     private void prepare(@NonNull AppCompatActivity activity, IChangeScene sceneSelector, IInterfaceProvider interfaceProvider)
     {
         Log.v(TAG, "prepare()");
-
         this.activity = activity;
-        this.changeScene = sceneSelector;
-        this.interfaceProvider = interfaceProvider;
+        transferMain = new FileAutoTransferMain(activity, sceneSelector, interfaceProvider, this);
     }
 
     /**
@@ -120,8 +126,11 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
     {
         super.onPause();
 
-        // 画面を抜ける時には、自動転送を停止させる
-        finishTransfer();
+        // 画面を抜ける時に転送モードであった場合は、自動転送を停止させる
+        if (transferThreadIsRunning)
+        {
+            finishTransfer();
+        }
     }
 
     private void prepare(@NonNull View view)
@@ -146,19 +155,76 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
         }
     }
 
+    /**
+     *   転送開始
+     *
+     */
     private void startTransfer()
     {
+        if (activity == null)
+        {
+            //  activityがない場合は動かない。
+            Log.v(TAG, "ACTIVITY IS NULL...");
+            return;
+        }
         try
         {
-            // STARTボタンを無効化
+            // STARTボタンを無効化してぶるぶるする...
             controlButton(false);
-
-            // ぶるぶるする
             Vibrator vibrator = (activity != null) ? (Vibrator) activity.getSystemService(VIBRATOR_SERVICE) : null;
             if (vibrator != null)
             {
                 vibrator.vibrate(50);
             }
+
+            // 画面上にある自動転送の設定を取得
+            CheckBox raw = activity.findViewById(R.id.check_auto_download_raw);
+            CheckBox original = activity.findViewById(R.id.check_auto_download_original);
+            final boolean isRaw = raw.isChecked();
+            final boolean isSmallSize = !original.isChecked();  // 画面上のチェックとは逆にする...
+
+            Thread thread = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    int count = 0;
+                    if (transferMain != null)
+                    {
+                        // 前処理...
+                        transferMain.start(isRaw, isSmallSize);
+                    }
+                    while (transferThreadIsRunning)
+                    {
+                        try
+                        {
+                            if (transferMain != null)
+                            {
+                                // チェックして追加ファイルがあったらダウンロード
+                                transferMain.downloadFiles();
+                            }
+                            count++;
+                            Log.v(TAG, "TRANSFER LOOP : " + count);
+
+                            // ちょっと待機...
+                            Thread.sleep(SLEEP_MS);
+                        }
+                        catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (transferMain != null)
+                    {
+                        // 後処理...
+                        transferMain.finish();
+                    }
+                }
+            });
+
+            // 転送の開始
+            transferThreadIsRunning = true;
+            thread.start();
         }
         catch (Exception e)
         {
@@ -167,10 +233,17 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
     }
 
 
+    /**
+     *   転送終了
+     *
+     */
     private void finishTransfer()
     {
         try
         {
+            // 転送モードを止める
+            transferThreadIsRunning = false;
+
             // STARTボタンを有効化
             controlButton(true);
 
@@ -187,6 +260,10 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
         }
     }
 
+    /**
+     *   画面上のボタンを制御する
+     *
+     */
     private void controlButton(boolean isStartButtonEnable)
     {
         try
@@ -198,6 +275,7 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                 start.setEnabled(isStartButtonEnable);
                 stop.setEnabled(!isStartButtonEnable);
                 CheckBox check = activity.findViewById(R.id.check_auto_download_raw);
+                CheckBox original = activity.findViewById(R.id.check_auto_download_original);
                 ProgressBar bar = activity.findViewById(R.id.auto_transfer_progress_bar);
                 ImageButton reload = activity.findViewById(R.id.button_reload);
                 ImageButton connect = activity.findViewById(R.id.button_wifi_connect);
@@ -210,6 +288,10 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                     if (check != null)
                     {
                         check.setEnabled(true);
+                    }
+                    if (original != null)
+                    {
+                        original.setEnabled(true);
                     }
                     if (reload != null)
                     {
@@ -232,6 +314,10 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                     {
                         check.setEnabled(false);
                     }
+                    if (original != null)
+                    {
+                        original.setEnabled(false);
+                    }
                     if (reload != null)
                     {
                         reload.setEnabled(false);
@@ -251,6 +337,10 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
         }
     }
 
+    /**
+     *
+     *
+     */
     @Override
     public void onClick(View v)
     {
@@ -265,6 +355,67 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
         {
             Log.v(TAG, "TRANSFER FINISH");
             finishTransfer();
+        }
+    }
+
+    /**
+     *
+     *
+     */
+    @Override
+    public void storedImage(@NonNull final String filename, final Bitmap picture)
+    {
+        if (activity != null)
+        {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run()
+                {
+                    TextView textView = activity.findViewById(R.id.image_view_information);
+                    if (textView != null)
+                    {
+                        textView.setText(filename);
+                    }
+                    try
+                    {
+                        if (picture != null)
+                        {
+                            ImageView imageView = activity.findViewById(R.id.image_view_area);
+                            if (imageView != null)
+                            {
+                                imageView.setImageBitmap(picture);
+                            }
+                        }
+                    }
+                    catch (Throwable t)
+                    {
+                        t.printStackTrace();
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     *
+     *
+     */
+    @Override
+    public void showInformation(@NonNull final String message)
+    {
+        if (activity != null)
+        {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run()
+                {
+                    TextView textView = activity.findViewById(R.id.auto_download_information_text);
+                    if (textView != null)
+                    {
+                        textView.setText(message);
+                    }
+                }
+            });
         }
     }
 }

@@ -163,7 +163,9 @@
     <string name="select_radio_date">Date</string>
     <string name="select_radio_path">Path</string>
 
-    <string name="action_download_with_raw">Download with RAW</string>
+    <string name="action_auto_download_original_size">Download Original Size</string>
+    <string name="action_download_with_raw">Download with RAW/MOV</string>
+
     <string name="dialog_title_batch_download">Batch Download(select size)</string>
     <string name="dialog_positive_download">Download</string>
     <string name="dialog_label_batch_download">Selected : </string>
@@ -179,5 +181,6 @@
 
     <string name="button_transfer_start">TRANSFER START</string>
     <string name="button_transfer_stop">TRANSFER STOP</string>
+    <string name="image_checking">Image checking&#8230;</string>
 
 </resources>

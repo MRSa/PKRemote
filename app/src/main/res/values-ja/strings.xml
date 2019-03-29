@@ -163,7 +163,9 @@
     <string name="select_radio_date">日付</string>
     <string name="select_radio_path">パス</string>
 
-    <string name="action_download_with_raw">RAWも取得</string>
+    <string name="action_auto_download_original_size">オリジナルサイズを取得</string>
+    <string name="action_download_with_raw">RAWや動画も取得</string>
+
     <string name="dialog_title_batch_download">一括取得(サイズの選択)</string>
     <string name="dialog_positive_download">ダウンロード</string>
     <string name="dialog_label_batch_download">選択 : </string>
@@ -179,5 +181,6 @@
 
     <string name="button_transfer_start">転送開始</string>
     <string name="button_transfer_stop">転送終了</string>
+    <string name="image_checking">撮影画像確認中&#8230;</string>
 
 </resources>
