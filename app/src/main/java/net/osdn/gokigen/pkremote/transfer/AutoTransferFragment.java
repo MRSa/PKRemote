@@ -33,7 +33,7 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
     private final String TAG = this.toString();
 
     private static final int SLEEP_MS = 300;         // 動作チェック待ち時間
-    private static final int SLEEP_WAIT_MS = 3500;  // 一覧確認の待機時間 (3.5秒おき)
+    private static final int SLEEP_WAIT_MS = 4500;  // 一覧確認の待機時間 (4.5秒おき)
 
     private AppCompatActivity activity = null;
     private FileAutoTransferMain transferMain = null;
@@ -188,7 +188,7 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                 @Override
                 public void run()
                 {
-                    int count = 0;
+                    //int count = 0;
                     if (transferMain != null)
                     {
                         // 前処理...
@@ -218,8 +218,8 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                                     Thread.sleep(SLEEP_WAIT_MS - checkTime);
                                 }
                             }
-                            count++;
-                            Log.v(TAG, "TRANSFER LOOP : " + count);
+                            //count++;
+                            //Log.v(TAG, "TRANSFER LOOP : " + count);
                         }
                         catch (Exception e)
                         {

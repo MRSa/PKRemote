@@ -213,11 +213,11 @@ class FileAutoTransferMain implements ICameraContentListCallback
                 {
                     firstContent = false;
 
-                    //  初期データを突っ込んでおく...
+                    //  初期データをHashMapに突っ込んでおく...
                     for (ICameraContent content : baseContentList)
                     {
                         String key = (content.getContentPath() + "/" + content.getContentName()).toLowerCase();
-                        Log.v(TAG, "FILE : " + key);
+                        //Log.v(TAG, "FILE : " + key);
                         contentHashMap.put(key, content);
                     }
                 }
