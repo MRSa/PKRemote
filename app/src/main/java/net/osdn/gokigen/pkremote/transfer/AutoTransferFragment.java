@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
-import net.osdn.gokigen.pkremote.scene.IChangeScene;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,10 +39,10 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
     private View myView = null;
     private boolean transferThreadIsRunning = false;
 
-    public static AutoTransferFragment newInstance(@NonNull AppCompatActivity context, IChangeScene sceneSelector, @NonNull IInterfaceProvider provider)
+    public static AutoTransferFragment newInstance(@NonNull AppCompatActivity context, @NonNull IInterfaceProvider provider)
     {
         AutoTransferFragment instance = new AutoTransferFragment();
-        instance.prepare(context, sceneSelector, provider);
+        instance.prepare(context, provider);
 
         // パラメータはBundleにまとめておく
         Bundle arguments = new Bundle();
@@ -57,11 +56,11 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
     /**
      *
      */
-    private void prepare(@NonNull AppCompatActivity activity, IChangeScene sceneSelector, IInterfaceProvider interfaceProvider)
+    private void prepare(@NonNull AppCompatActivity activity, @NonNull IInterfaceProvider interfaceProvider)
     {
         Log.v(TAG, "prepare()");
         this.activity = activity;
-        transferMain = new FileAutoTransferMain(activity, sceneSelector, interfaceProvider, this);
+        transferMain = new FileAutoTransferMain(activity, interfaceProvider, this);
     }
 
     /**

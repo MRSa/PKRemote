@@ -182,5 +182,7 @@
     <string name="button_transfer_start">TRANSFER START</string>
     <string name="button_transfer_stop">TRANSFER STOP</string>
     <string name="image_checking">Image checking&#8230;</string>
+    <string name="add_image_pics">Detect Image : </string>
+    <string name="image_download_done">Transfer Finished.</string>
 
 </resources>

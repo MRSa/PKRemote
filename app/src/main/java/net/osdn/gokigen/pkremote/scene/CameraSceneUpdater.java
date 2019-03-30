@@ -397,7 +397,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     {
         if (autoTransferFragment == null)
         {
-            autoTransferFragment = AutoTransferFragment.newInstance(activity, this, interfaceProvider);
+            autoTransferFragment = AutoTransferFragment.newInstance(activity, interfaceProvider);
         }
         FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment1, autoTransferFragment);

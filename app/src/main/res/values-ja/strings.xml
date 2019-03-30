@@ -182,5 +182,7 @@
     <string name="button_transfer_start">転送開始</string>
     <string name="button_transfer_stop">転送終了</string>
     <string name="image_checking">撮影画像確認中&#8230;</string>
+    <string name="add_image_pics">追加画像 : </string>
+    <string name="image_download_done">転送終了</string>
 
 </resources>
