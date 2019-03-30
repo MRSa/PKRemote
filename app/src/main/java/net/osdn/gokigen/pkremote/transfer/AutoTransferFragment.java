@@ -32,7 +32,8 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
 {
     private final String TAG = this.toString();
 
-    private static final int SLEEP_MS = 3000;   // 待機時間
+    private static final int SLEEP_MS = 300;         // 動作チェック待ち時間
+    private static final int SLEEP_WAIT_MS = 3500;  // 一覧確認の待機時間 (3.5秒おき)
 
     private AppCompatActivity activity = null;
     private FileAutoTransferMain transferMain = null;
@@ -199,14 +200,26 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                         {
                             if (transferMain != null)
                             {
+                                // 現在時刻を取得する
+                                long checkStartTime = System.currentTimeMillis();
+
                                 // チェックして追加ファイルがあったらダウンロード
-                                transferMain.downloadFiles();
+                                transferMain.checkFiles();
+
+                                // 画像数確認と画像取得が終わるまで、ちょっと待機...
+                                while (transferMain.isChecking())
+                                {
+                                    Thread.sleep(SLEEP_MS);
+                                }
+                                long checkTime = Math.abs(System.currentTimeMillis() - checkStartTime);
+                                if (checkTime < SLEEP_WAIT_MS)
+                                {
+                                    // 画像数確認の時間が規定時間よりも短い場合は、しばらく待つ
+                                    Thread.sleep(SLEEP_WAIT_MS - checkTime);
+                                }
                             }
                             count++;
                             Log.v(TAG, "TRANSFER LOOP : " + count);
-
-                            // ちょっと待機...
-                            Thread.sleep(SLEEP_MS);
                         }
                         catch (Exception e)
                         {

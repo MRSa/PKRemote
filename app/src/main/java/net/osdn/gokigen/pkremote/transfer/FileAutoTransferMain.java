@@ -33,6 +33,7 @@ class FileAutoTransferMain implements ICameraContentListCallback
     private HashMap<String, ICameraContent> contentHashMap;
     private boolean getRaw = false;
     private boolean smallSize = false;
+    private boolean isChecking = false;
 
 
     FileAutoTransferMain(@NonNull AppCompatActivity context, @NonNull IInterfaceProvider provider, @NonNull ITransferMessage messageInterface)
@@ -77,15 +78,21 @@ class FileAutoTransferMain implements ICameraContentListCallback
         }
     }
 
+    boolean isChecking()
+    {
+        return (isChecking);
+    }
+
     /**
      *   画像の自動転送  本処理
      *
      */
-    void downloadFiles()
+    void checkFiles()
     {
         try
         {
             Log.v(TAG, "CHECK FILE");
+            isChecking = true;
             interfaceProvider.getPlaybackControl().getCameraContentList(this);
         }
         catch (Exception e)
@@ -251,6 +258,7 @@ class FileAutoTransferMain implements ICameraContentListCallback
         {
             e.printStackTrace();
         }
+        isChecking = false;
     }
 
     // ICameraContentListCallback
@@ -259,5 +267,6 @@ class FileAutoTransferMain implements ICameraContentListCallback
     {
         Log.v(TAG, "RECEIVE FAILURE...");
         e.printStackTrace();
+        isChecking = false;
     }
 }
