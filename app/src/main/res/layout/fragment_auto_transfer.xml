@@ -12,14 +12,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
-        <ImageView
-            android:id="@+id/image_view_area"
-            android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:src="@null"
-            android:scaleType="fitCenter"
-            tools:ignore="ContentDescription" />
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
 
         <TextView
             android:id="@+id/image_view_information"
@@ -31,11 +27,21 @@
             android:focusable="true"
             android:text="@string/blank"
             android:textColor="@color/background_dark"
-            android:textSize="9pt" />
+            android:textSize="8pt" />
+
+        <ImageView
+            android:id="@+id/image_view_area"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_marginTop="2dp"
+            android:src="@null"
+            android:scaleType="fitCenter"
+            tools:ignore="ContentDescription" />
 
         <View
             android:layout_width="fill_parent"
             android:layout_height="1dp"
+            android:layout_marginTop="2dp"
             android:background="@android:color/darker_gray"/>
 
         <LinearLayout

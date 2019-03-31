@@ -29,7 +29,6 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecog
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.playback.detail.CameraContentEx;
 import net.osdn.gokigen.pkremote.playback.detail.ImagePagerViewFragment;
-import net.osdn.gokigen.pkremote.playback.detail.MyContentDownloader;
 import net.osdn.gokigen.pkremote.playback.grid.ImageGridViewAdapter;
 
 import java.util.ArrayList;
@@ -92,7 +91,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         Activity activity = getActivity();
         if (activity != null)
         {
-            this.contentDownloader = new MyContentDownloader(getActivity(), playbackControl);
+            this.contentDownloader = new MyContentDownloader(getActivity(), playbackControl, null);
         }
         else
         {
@@ -541,7 +540,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
                     // activityが取れない時には終わる。
                     return;
                 }
-                this.contentDownloader = new MyContentDownloader(getActivity(), playbackControl);
+                this.contentDownloader = new MyContentDownloader(getActivity(), playbackControl, null);
             }
             Thread thread = new Thread(new Runnable()
             {

@@ -1,4 +1,4 @@
-package net.osdn.gokigen.pkremote.playback.detail;
+package net.osdn.gokigen.pkremote.playback;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -28,6 +28,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.preference.PreferenceManager;
 
 /**
@@ -39,6 +40,7 @@ public class MyContentDownloader implements IDownloadContentCallback
     private final String TAG = toString();
     private final Activity activity;
     private final IPlaybackControl playbackControl;
+    private final IContentDownloadNotify receiver;
     private static final String RAW_SUFFIX_1 = ".DNG";
     private static final String RAW_SUFFIX_2 = ".ORF";
     private static final String RAW_SUFFIX_3 = ".PEF";
@@ -55,10 +57,11 @@ public class MyContentDownloader implements IDownloadContentCallback
      *   コンストラクタ
      *
      */
-    public MyContentDownloader(@NonNull Activity activity, @NonNull final IPlaybackControl playbackControl)
+    public MyContentDownloader(@NonNull Activity activity, @NonNull final IPlaybackControl playbackControl, @Nullable IContentDownloadNotify receiver)
     {
         this.activity = activity;
         this.playbackControl = playbackControl;
+        this.receiver = receiver;
     }
 
     /**
@@ -234,18 +237,29 @@ public class MyContentDownloader implements IDownloadContentCallback
                 final Uri content = resolver.insert(mediaValue, values);
                 try
                 {
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-                    if (preferences.getBoolean(IPreferencePropertyAccessor.SHARE_AFTER_SAVE, false))
-                    {
                         activity.runOnUiThread(new Runnable()
                         {
                             @Override
                             public void run()
                             {
-                                shareContent(content, mimeType);
+                                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+                                if (preferences.getBoolean(IPreferencePropertyAccessor.SHARE_AFTER_SAVE, false))
+                                {
+                                    shareContent(content, mimeType);
+                                }
+                                try
+                                {
+                                    if (receiver != null)
+                                    {
+                                        receiver.downloadedImage(targetFileName, content);
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    e.printStackTrace();
+                                }
                             }
                         });
-                    }
                 }
                 catch (Exception e)
                 {

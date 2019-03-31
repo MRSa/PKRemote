@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import net.osdn.gokigen.pkremote.camera.CameraInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 import net.osdn.gokigen.pkremote.scene.CameraSceneUpdater;
 
@@ -150,6 +151,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         prepareClass();
         onReadyClass();
+    }
+
+    /**
+     *
+     */
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        try
+        {
+            ICameraConnection connection = interfaceProvider.getCameraConnection();
+            if (connection != null)
+            {
+                connection.stopWatchWifiStatus(this);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     /**

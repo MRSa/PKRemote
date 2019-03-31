@@ -2,6 +2,7 @@ package net.osdn.gokigen.pkremote.transfer;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
+import net.osdn.gokigen.pkremote.playback.IContentDownloadNotify;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,7 +30,7 @@ import static android.content.Context.VIBRATOR_SERVICE;
  *   自動転送クラス
  *
  */
-public class AutoTransferFragment extends Fragment implements View.OnClickListener, ITransferMessage
+public class AutoTransferFragment extends Fragment implements View.OnClickListener, ITransferMessage, IContentDownloadNotify
 {
     private final String TAG = this.toString();
 
@@ -39,6 +41,7 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
     private FileAutoTransferMain transferMain = null;
     private View myView = null;
     private boolean transferThreadIsRunning = false;
+    private boolean startTransferReceived = false;
 
     public static AutoTransferFragment newInstance(@NonNull AppCompatActivity context, @NonNull IInterfaceProvider provider)
     {
@@ -61,7 +64,7 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
     {
         Log.v(TAG, "prepare()");
         this.activity = activity;
-        transferMain = new FileAutoTransferMain(activity, interfaceProvider, this);
+        transferMain = new FileAutoTransferMain(activity, interfaceProvider, this, this);
     }
 
     /**
@@ -169,6 +172,14 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
         }
         try
         {
+            // とにかく転送スレッドを止める指示を出す
+            transferThreadIsRunning = false;
+            while (startTransferReceived)
+            {
+                // すでにコマンドは発行状態...終わるまで待つ
+                Thread.sleep(SLEEP_MS);
+            }
+
             // STARTボタンを無効化してぶるぶるする...
             controlButton(false);
             Vibrator vibrator = (activity != null) ? (Vibrator) activity.getSystemService(VIBRATOR_SERVICE) : null;
@@ -176,6 +187,11 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
             {
                 vibrator.vibrate(50);
             }
+            startTransferReceived = true;
+
+            // 画像を初期データにする
+            ImageView imageView = activity.findViewById(R.id.image_view_area);
+            imageView.setImageResource(R.drawable.ic_satellite_grey_24dp);
 
             // 画面上にある自動転送の設定を取得
             CheckBox raw = activity.findViewById(R.id.check_auto_download_raw);
@@ -200,8 +216,8 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                         {
                             if (transferMain != null)
                             {
-                                // 現在時刻を取得する
-                                long checkStartTime = System.currentTimeMillis();
+                                //// 現在時刻を取得する
+                                //long checkStartTime = System.currentTimeMillis();
 
                                 // チェックして追加ファイルがあったらダウンロード
                                 transferMain.checkFiles();
@@ -211,12 +227,15 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                                 {
                                     Thread.sleep(SLEEP_MS);
                                 }
-                                long checkTime = Math.abs(System.currentTimeMillis() - checkStartTime);
-                                if (checkTime < SLEEP_WAIT_MS)
-                                {
-                                    // 画像数確認の時間が規定時間よりも短い場合は、しばらく待つ
-                                    Thread.sleep(SLEEP_WAIT_MS - checkTime);
-                                }
+                                //long checkTime = Math.abs(System.currentTimeMillis() - checkStartTime);
+                                //if (checkTime < SLEEP_WAIT_MS)
+                                //{
+                                //    // 画像数確認の時間が規定時間よりも短い場合は、しばらく待つ
+                                //    Thread.sleep(SLEEP_WAIT_MS - checkTime);
+                                //}
+
+                                // 一定時間しばらく待つ (急ぎすぎると、GR2の電源が落ちる...
+                                Thread.sleep(SLEEP_WAIT_MS);
                             }
                             //count++;
                             //Log.v(TAG, "TRANSFER LOOP : " + count);
@@ -231,6 +250,7 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                         // 後処理...
                         transferMain.finish();
                     }
+                    startTransferReceived = false;
                 }
             });
 
@@ -425,6 +445,37 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                     if (textView != null)
                     {
                         textView.setText(message);
+                    }
+                }
+            });
+        }
+    }
+
+    // IContentDownloadNotify
+    @Override
+    public void downloadedImage(final String contentInfo, final Uri content)
+    {
+        if (activity != null)
+        {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ImageView imageView = activity.findViewById(R.id.image_view_area);
+                    TextView textView = activity.findViewById(R.id.image_view_information);
+                    try
+                    {
+                        if ((imageView != null)&&(content != null))
+                        {
+                            imageView.setImageURI(content);
+                        }
+                        if ((textView != null)&&(contentInfo != null))
+                        {
+                            textView.setText(contentInfo);
+                        }
+                    }
+                    catch (Throwable t)
+                    {
+                        t.printStackTrace();
                     }
                 }
             });

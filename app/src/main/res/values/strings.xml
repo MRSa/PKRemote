@@ -184,5 +184,6 @@
     <string name="image_checking">Image checking&#8230;</string>
     <string name="add_image_pics">Detect Image : </string>
     <string name="image_download_done">Transfer Finished.</string>
-
+    <string name="get_image_list">Get Image List&#8230;</string>
+    <string name="get_image_list_done">Get Image List&#8230;DONE.</string>
 </resources>

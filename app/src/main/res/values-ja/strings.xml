@@ -184,5 +184,7 @@
     <string name="image_checking">撮影画像確認中&#8230;</string>
     <string name="add_image_pics">追加画像 : </string>
     <string name="image_download_done">転送終了</string>
+    <string name="get_image_list">画像一覧取得中&#8230;</string>
+    <string name="get_image_list_done">画像一覧取得中&#8230;完了</string>
 
 </resources>

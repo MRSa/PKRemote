@@ -433,7 +433,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
                     for (int fileIndex = 0; fileIndex < nofFiles; fileIndex++)
                     {
                         String fileName = filesArray.getString(fileIndex);
-                        Log.v(TAG, "FILE : " + fileName);
+                        //Log.v(TAG, "FILE : " + fileName);
                         ICameraContent cameraContent = new CameraContentInfo(cameraId, "sd1", dirName, fileName, new Date());
                         cameraContent.setCapturedDate(getCameraContentDate(cameraContent));
                         fileList.add(cameraContent);

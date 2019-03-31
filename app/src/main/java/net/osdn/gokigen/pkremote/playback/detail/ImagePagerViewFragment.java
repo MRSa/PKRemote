@@ -20,6 +20,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IContentInfoCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
+import net.osdn.gokigen.pkremote.playback.MyContentDownloader;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -516,7 +517,7 @@ public class ImagePagerViewFragment extends Fragment
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        MyContentDownloader contentDownloader = new MyContentDownloader(activity, playbackControl);
+                        MyContentDownloader contentDownloader = new MyContentDownloader(activity, playbackControl, null);
                         CameraContentEx infoEx = contentList.get(contentIndex);
                         if (infoEx != null)
                         {

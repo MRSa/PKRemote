@@ -6,7 +6,8 @@ import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
-import net.osdn.gokigen.pkremote.playback.detail.MyContentDownloader;
+import net.osdn.gokigen.pkremote.playback.IContentDownloadNotify;
+import net.osdn.gokigen.pkremote.playback.MyContentDownloader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,12 +37,12 @@ class FileAutoTransferMain implements ICameraContentListCallback
     private boolean isChecking = false;
 
 
-    FileAutoTransferMain(@NonNull AppCompatActivity context, @NonNull IInterfaceProvider provider, @NonNull ITransferMessage messageInterface)
+    FileAutoTransferMain(@NonNull AppCompatActivity context, @NonNull IInterfaceProvider provider, @NonNull ITransferMessage messageInterface, @NonNull IContentDownloadNotify receiver)
     {
         this.activity = context;
         this.interfaceProvider = provider;
         this.messageInterface = messageInterface;
-        this.downloader = new MyContentDownloader(context, provider.getPlaybackControl());
+        this.downloader = new MyContentDownloader(context, provider.getPlaybackControl(), receiver);
         this.contentHashMap = new HashMap<>();
     }
 
@@ -92,6 +93,7 @@ class FileAutoTransferMain implements ICameraContentListCallback
         try
         {
             Log.v(TAG, "CHECK FILE");
+            messageInterface.showInformation(activity.getString(R.string.get_image_list));
             isChecking = true;
             interfaceProvider.getPlaybackControl().getCameraContentList(this);
         }
@@ -206,6 +208,7 @@ class FileAutoTransferMain implements ICameraContentListCallback
         Log.v(TAG, "RECEIVE CONTENT LIST");
         try
         {
+            messageInterface.showInformation(activity.getString(R.string.get_image_list_done));
             if (firstContent)
             {
                 baseContentList = contentList;
@@ -259,14 +262,15 @@ class FileAutoTransferMain implements ICameraContentListCallback
             e.printStackTrace();
         }
         isChecking = false;
+        Log.v(TAG, "CHECK FILE DONE.");
     }
 
     // ICameraContentListCallback
     @Override
     public void onErrorOccurred(Exception e)
     {
-        Log.v(TAG, "RECEIVE FAILURE...");
         e.printStackTrace();
         isChecking = false;
+        Log.v(TAG, "CHECK FILE DONE(WITH ERROR).");
     }
 }
