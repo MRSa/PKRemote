@@ -186,4 +186,24 @@
     <string name="image_download_done">Transfer Finished.</string>
     <string name="get_image_list">Get Image List&#8230;</string>
     <string name="get_image_list_done">Get Image List&#8230;DONE.</string>
+
+
+    <string name="camera_status_title">Camera Status</string>
+    <string name="update_status">Update</string>
+
+    <string name="dialog_fujix_command_title_command">Send Message</string>
+    <string name="dialog_title_command">Command</string>
+    <string name="dialog_command_id_hint">0x####</string>
+    <string name="dialog_message_type_name">Message Type</string>
+    <string name="dialog_title_body_length">Body Length</string>
+    <string name="dialog_message_body1_hint">0x########</string>
+    <string name="dialog_message_body2_hint">0x########</string>
+    <string name="dialog_title_message_body">Message Body</string>
+    <string name="dialog_send_message">Send</string>
+    <string name="dialog_button_liveview">to LiveView</string>
+    <string name="dialog_button_playback">to Playback</string>
+
+    <string name="connect_connecting">connecting&#8230;</string>
+    <string name="connect_receive_unknown_message">RECEIVED UNKNOWN ID MESSAGE</string>
+
 </resources>
