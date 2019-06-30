@@ -205,4 +205,19 @@
     <string name="connect_connecting">接続中&#8230;</string>
     <string name="connect_receive_unknown_message">知らないメッセージを受信</string>
 
+
+    <string name="pref_special_thanks">Special Thanks to</string>
+
+    <string name="pref_exit_power_off_fujix">アプリ終了</string>
+    <string name="pref_fujix_display_camera_view">LVをカメラでも表示</string>
+    <string name="pref_fujix_display_camera_view_summary">お試し：ライブビューをカメラ画面で同時表示します</string>
+    <string name="pref_fujix_focus_xy">フォーカス点数 (default: 7,7)</string>
+    <string name="pref_summary_fujix_focus_xy">フォーカス点数を指定します</string>
+    <string name="pref_fujix_liveview_wait">LV画像受信待ち間隔(default: 80)</string>
+    <string name="pref_summary_fujix_liveview_wait">ライブビュー画像受信間隔を指定します</string>
+    <string name="pref_fujix_command_polling_wait">コマンド間隔(default: 500)</string>
+    <string name="pref_summary_fujix_command_polling_wait">カメラ状態の確認間隔を調整します</string>
+    <string name="pref_fujix_connection_for_read">画像転送用の接続シーケンス</string>
+    <string name="pref_fujix_connection_for_read_summary">テスト用です</string>
+
 </resources>

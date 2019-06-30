@@ -206,4 +206,18 @@
     <string name="connect_connecting">connecting&#8230;</string>
     <string name="connect_receive_unknown_message">RECEIVED UNKNOWN ID MESSAGE</string>
 
+    <string name="pref_special_thanks">Special Thanks to</string>
+
+    <string name="pref_exit_power_off_fujix">Exit Application</string>
+    <string name="pref_fujix_display_camera_view">Use Camera Display</string>
+    <string name="pref_fujix_display_camera_view_summary">EXPERIMENTAL: Shows liveview screen both camera and smartphone.</string>
+    <string name="pref_fujix_focus_xy">Number of Focus Point X,Y (default: 7,7)</string>
+    <string name="pref_summary_fujix_focus_xy"> </string>
+    <string name="pref_fujix_liveview_wait">Liveview receive wait (default: 80)</string>
+    <string name="pref_summary_fujix_liveview_wait"> </string>
+    <string name="pref_fujix_command_polling_wait">Status polling wait (default: 500)</string>
+    <string name="pref_summary_fujix_command_polling_wait"> </string>
+    <string name="pref_fujix_connection_for_read">Connect for transfer connection mode.</string>
+    <string name="pref_fujix_connection_for_read_summary">Test: for picture transfer connection.</string>
+
 </resources>

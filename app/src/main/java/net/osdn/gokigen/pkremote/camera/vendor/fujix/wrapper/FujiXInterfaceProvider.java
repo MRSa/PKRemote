@@ -5,7 +5,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
+import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICaptureControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.IFocusingControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.IFocusingModeNotify;
@@ -16,6 +18,8 @@ import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IDisplayInjector;
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IIndicatorControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ILiveViewControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ILiveViewListener;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
+import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraHardwareStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraInformation;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
@@ -43,6 +47,9 @@ public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplay
     private static final String CAMERA_IP = "192.168.0.1";
 
     private final Activity activity;
+    private final FujiXRunMode runmode;
+    private final FujiXHardwareStatus hardwareStatus;
+    private FujiXButtonControl fujiXButtonControl;
     private FujiXConnection fujiXConnection;
     private FujiXCommandPublisher commandPublisher;
     private FujiXLiveViewControl liveViewControl;
@@ -52,6 +59,7 @@ public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplay
     private FujiXFocusingControl focusingControl;
     private FujiXStatusChecker statusChecker;
     private ICameraStatusUpdateNotify statusListener;
+    private FujiXPlaybackControl playbackControl;
 
     public FujiXInterfaceProvider(@NonNull Activity context, @NonNull ICameraStatusReceiver provider, @NonNull ICameraStatusUpdateNotify statusListener)
     {
@@ -63,6 +71,10 @@ public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplay
         zoomControl = new FujiXZoomControl();
         statusChecker = new FujiXStatusChecker(activity, commandPublisher);
         this.statusListener = statusListener;
+        this.runmode = new FujiXRunMode();
+        this.hardwareStatus = new FujiXHardwareStatus();
+        this.fujiXButtonControl = new FujiXButtonControl();
+        this.playbackControl = new FujiXPlaybackControl(this);
     }
 
     @Override
@@ -146,7 +158,7 @@ public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplay
     }
 
     @Override
-    public ICameraStatusWatcher getStatusWatcher()
+    public ICameraStatusWatcher getCameraStatusWatcher()
     {
         return (statusChecker);
     }
@@ -158,9 +170,33 @@ public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplay
     }
 
     @Override
-    public ICameraStatus getCameraStatus()
+    public ICameraStatus getCameraStatusListHolder()
     {
         return (statusChecker);
+    }
+
+    @Override
+    public ICameraButtonControl getButtonControl()
+    {
+        return (fujiXButtonControl);
+    }
+
+    @Override
+    public IPlaybackControl getPlaybackControl()
+    {
+        return (playbackControl);
+    }
+
+    @Override
+    public ICameraHardwareStatus getHardwareStatus()
+    {
+        return (hardwareStatus);
+    }
+
+    @Override
+    public ICameraRunMode getCameraRunMode()
+    {
+        return (runmode);
     }
 
     @Override

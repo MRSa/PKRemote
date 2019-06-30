@@ -14,6 +14,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.logcat.LogCatFragment;
 import net.osdn.gokigen.pkremote.playback.ImageGridViewFragment;
+import net.osdn.gokigen.pkremote.preference.fujix.FujiXPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.olympus.OpcPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.ricohgr2.RicohGr2PreferenceFragment;
 import net.osdn.gokigen.pkremote.transfer.AutoTransferFragment;
@@ -289,31 +290,43 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     @Override
     public void changeSceneToConfiguration()
     {
-        try {
-            if (preferenceFragment == null) {
-                try {
-                    preferenceFragment = RicohGr2PreferenceFragment.newInstance(activity, this);
+        try
+        {
+            if (preferenceFragment == null)
+            {
+                try
+                {
+                    //preferenceFragment = RicohGr2PreferenceFragment.newInstance(activity, this);
                     ICameraConnection.CameraConnectionMethod connectionMethod = interfaceProvider.getCammeraConnectionMethod();
-                    if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH) {
+                    if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
+                    {
                         preferenceFragment = RicohGr2PreferenceFragment.newInstance(activity, this);
+                    }
+                    else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+                    {
+                        preferenceFragment = FujiXPreferenceFragment.newInstance(activity, this);
                         //} else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY) {
                         //    preferenceFragment = SonyPreferenceFragment.newInstance(this, this);
-                    } else //  if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
+                    }
+                    else //  if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
                     {
                         preferenceFragment = OpcPreferenceFragment.newInstance(activity, interfaceProvider, this);
                     }
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     e.printStackTrace();
                     //preferenceFragment = SonyPreferenceFragment.newInstance(this, this);
                 }
             }
-
             FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment1, preferenceFragment);
             // backstackに追加
             transaction.addToBackStack(null);
             transaction.commit();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
@@ -322,16 +335,20 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     @Override
     public void changeCameraConnection()
     {
-        if (interfaceProvider == null) {
+        if (interfaceProvider == null)
+        {
             Log.v(TAG, "changeCameraConnection() : interfaceProvider is NULL");
             return;
         }
-        try {
+        try
+        {
             interfaceProvider.resetCameraConnectionMethod();
             ICameraConnection connection = interfaceProvider.getCameraConnection();
-            if (connection != null) {
+            if (connection != null)
+            {
                 ICameraConnection.CameraConnectionStatus status = connection.getConnectionStatus();
-                if (status == ICameraConnection.CameraConnectionStatus.CONNECTED) {
+                if (status == ICameraConnection.CameraConnectionStatus.CONNECTED)
+                {
                     // 接続中のときには切断する
                     connection.disconnect(false);
                     return;
@@ -339,7 +356,9 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
                 // 接続中でない時は、接続中にする
                 connection.startWatchWifiStatus(activity);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
