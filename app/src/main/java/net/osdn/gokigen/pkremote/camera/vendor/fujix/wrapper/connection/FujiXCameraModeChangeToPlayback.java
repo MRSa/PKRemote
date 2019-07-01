@@ -14,12 +14,14 @@ import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.messages.ch
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.messages.changemode.ChangeToPlayback2nd;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.messages.changemode.ChangeToPlayback3rd;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.messages.changemode.ChangeToPlayback4th;
+import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.status.IFujiXRunModeHolder;
 
 public class FujiXCameraModeChangeToPlayback implements View.OnClickListener, IFujiXCommandCallback, IFujiXMessages
 {
     private final String TAG = toString();
     private final IFujiXCommandPublisher publisher;
     private final IFujiXCommandCallback callback;
+    private IFujiXRunModeHolder runModeHolder = null;
 
     public FujiXCameraModeChangeToPlayback(@NonNull IFujiXCommandPublisher publisher, @Nullable IFujiXCommandCallback callback)
     {
@@ -27,18 +29,29 @@ public class FujiXCameraModeChangeToPlayback implements View.OnClickListener, IF
         this.callback = callback;
     }
 
-    @Override
-    public void onClick(View v)
+    public void startModeChange(IFujiXRunModeHolder runModeHolder)
     {
-        Log.v(TAG, "onClick");
         try
         {
+            if (runModeHolder != null)
+            {
+                this.runModeHolder = runModeHolder;
+                this.runModeHolder.transitToPlaybackMode(false);
+            }
             publisher.enqueueCommand(new ChangeToPlayback1st(this));
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+    }
+
+
+    @Override
+    public void onClick(View v)
+    {
+        Log.v(TAG, "onClick");
+        startModeChange(null);
     }
 
     @Override
@@ -70,6 +83,10 @@ public class FujiXCameraModeChangeToPlayback implements View.OnClickListener, IF
                     if (callback != null)
                     {
                         callback.receivedMessage(id, rx_body);
+                    }
+                    if (runModeHolder != null)
+                    {
+                        runModeHolder.transitToPlaybackMode(true);
                     }
                     Log.v(TAG, "CHANGED PLAYBACK MODE : DONE.");
                     break;

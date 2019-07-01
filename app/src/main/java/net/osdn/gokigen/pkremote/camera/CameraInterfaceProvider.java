@@ -21,6 +21,8 @@ import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ILiveViewControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.IZoomLensControl;
 import net.osdn.gokigen.pkremote.camera.playback.CameraContentsRecognizer;
+import net.osdn.gokigen.pkremote.camera.utils.CameraStatusListener;
+import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.FujiXInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.olympus.IOlympusInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.olympus.wrapper.OlympusInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ricoh.wrapper.RicohGr2InterfaceProvider;
@@ -39,9 +41,11 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     //private final SonyCameraWrapper sony;
     private final OlympusInterfaceProvider olympus;
     private final RicohGr2InterfaceProvider ricohGr2;
+    private final FujiXInterfaceProvider fujiX;
     private final IInformationReceiver informationReceiver;
     private final CameraContentsRecognizer cameraContentsRecognizer;
     private final AppCompatActivity context;
+    //private final CameraStatusListener statusListener;
     private ICameraConnection.CameraConnectionMethod connectionMethod = ICameraConnection.CameraConnectionMethod.UNKNOWN;
 
     public static IInterfaceProvider newInstance(@NonNull AppCompatActivity context, @NonNull ICameraStatusReceiver provider, @NonNull IInformationReceiver informationReceiver)
@@ -56,8 +60,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     private CameraInterfaceProvider(@NonNull AppCompatActivity context, @NonNull ICameraStatusReceiver provider, @NonNull IInformationReceiver informationReceiver)
     {
         this.context = context;
+        CameraStatusListener statusListener = new CameraStatusListener();
         olympus = new OlympusInterfaceProvider(context, provider);
         ricohGr2 = new RicohGr2InterfaceProvider(context, provider);
+        fujiX = new FujiXInterfaceProvider(context, provider, statusListener);
         //sony = new SonyCameraWrapper(context, provider);
         this.informationReceiver = informationReceiver;
         this.cameraContentsRecognizer = new CameraContentsRecognizer(context, this);
@@ -83,6 +89,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (olympus.getOlyCameraConnection());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getFujiXCameraConnection());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getRicohGr2CameraConnection());
@@ -104,6 +114,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getButtonControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getButtonControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -127,6 +141,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (olympus.getDisplayInjector());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getDisplayInjector());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getDisplayInjector());
@@ -148,6 +166,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getLiveViewControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getLiveViewControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -171,6 +193,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (olympus.getLiveViewListener());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getLiveViewListener());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getLiveViewListener());
@@ -192,6 +218,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getFocusingControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getFocusingControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -215,6 +245,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (olympus.getCameraInformation());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getCameraInformation());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCameraInformation());
@@ -236,6 +270,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getZoomLensControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getZoomLensControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -259,6 +297,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (olympus.getCaptureControl());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getCaptureControl());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCaptureControl());
@@ -280,6 +322,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getCameraStatusListHolder());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getCameraStatusListHolder());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -303,6 +349,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (olympus.getCameraStatusWatcher());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getCameraStatusWatcher());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCameraStatusWatcher());
@@ -324,6 +374,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getPlaybackControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getPlaybackControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -347,6 +401,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (olympus.getHardwareStatus());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getHardwareStatus());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getHardwareStatus());
@@ -368,6 +426,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
             {
                 return (olympus.getCameraRunMode());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
+            {
+                return (fujiX.getCameraRunMode());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -435,6 +497,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             if (connectionMethod.contains("RICOH"))
             {
                 ret = ICameraConnection.CameraConnectionMethod.RICOH;
+            }
+            else if (connectionMethod.contains("FUJI_X"))
+            {
+                ret = ICameraConnection.CameraConnectionMethod.FUJI_X;
             }
             else // if (connectionMethod.contains("OPC"))
             {
