@@ -36,6 +36,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.IFujiXCommu
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.connection.FujiXConnection;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.liveview.FujiXLiveViewControl;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.status.FujiXStatusChecker;
+import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.status.IFujiXRunModeHolder;
 
 public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplayInjector
 {
@@ -131,6 +132,17 @@ public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplay
     public IDisplayInjector getDisplayInjector()
     {
         return (this);
+    }
+
+    @Override
+    public IFujiXRunModeHolder getRunModeHolder()
+    {
+        return (runmode);
+    }
+
+    @Override
+    public IFujiXCommandCallback getStatusHolder() {
+        return (statusChecker);
     }
 
     @Override

@@ -220,6 +220,8 @@ public class FujiXConnection implements ICameraConnection
         connectionStatus = CameraConnectionStatus.CONNECTING;
         try
         {
+            cameraExecutor.execute(new FujiXCameraConnectSequenceForPlayback(context, statusReceiver, this, interfaceProvider));
+            /*
             boolean isReadOnly = false;
             interfaceProvider.getCommandPublisher();
             try
@@ -232,6 +234,7 @@ public class FujiXConnection implements ICameraConnection
                 e.printStackTrace();
             }
             cameraExecutor.execute((!isReadOnly)? new FujiXCameraConnectSequence(context, statusReceiver, this, interfaceProvider) : new FujiXCameraConnectSequenceForRead(context, statusReceiver, this, interfaceProvider));
+            */
         }
         catch (Exception e)
         {

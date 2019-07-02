@@ -20,6 +20,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.IFujiXCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.IFujiXCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.IFujiXCommunication;
+import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.status.IFujiXRunModeHolder;
 
 public interface IFujiXInterfaceProvider
 {
@@ -32,6 +33,8 @@ public interface IFujiXInterfaceProvider
     ICaptureControl getCaptureControl();
     IDisplayInjector getDisplayInjector();
 
+    IFujiXRunModeHolder getRunModeHolder();
+    IFujiXCommandCallback getStatusHolder();
     IFujiXCommandPublisher getCommandPublisher();
     IFujiXCommunication getLiveviewCommunication();
     IFujiXCommunication getAsyncEventCommunication();
