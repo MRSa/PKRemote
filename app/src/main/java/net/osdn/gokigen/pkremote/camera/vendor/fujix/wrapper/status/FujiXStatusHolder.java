@@ -70,7 +70,7 @@ class FujiXStatusHolder implements IFujiXCameraProperties
         {
             int value = ((((int) data3) & 0xff) << 24) + ((((int) data2) & 0xff) << 16) + ((((int) data1) & 0xff) << 8) + (((int) data0) & 0xff);
             int currentValue = statusHolder.get(id, -1);
-            //Log.v(TAG, "STATUS  ID: " + id + "  value : " + value + " (" + currentValue + ")");
+            Log.v(TAG, "STATUS  ID: " + id + "  value : " + value + " (" + currentValue + ")");
             statusHolder.put(id, value);
             if (currentValue != value)
             {
@@ -168,14 +168,16 @@ class FujiXStatusHolder implements IFujiXCameraProperties
         try
         {
             int strIndex = key.indexOf("x");
-            if (strIndex > 1)
+            Log.v(TAG, "getItemStatus() : " + key + " [" + strIndex + "]");
+            if (strIndex >= 1)
             {
                 key = key.substring(strIndex + 1);
                 try
                 {
                     int id = Integer.parseInt(key, 16);
                     int value = statusHolder.get(id);
-                    return (String.format(Locale.US,"0x%08x (%d)", value, value));
+                    Log.v(TAG, "getItemStatus() value : " + value);
+                    return (value + "");
                 }
                 catch (Exception e)
                 {
@@ -190,7 +192,7 @@ class FujiXStatusHolder implements IFujiXCameraProperties
                 if (key.contentEquals(strKey))
                 {
                     int value = statusHolder.get(id);
-                    return (String.format(Locale.US,"0x%08x (%d)", value, value));
+                    return (value + "");
                 }
             }
         }

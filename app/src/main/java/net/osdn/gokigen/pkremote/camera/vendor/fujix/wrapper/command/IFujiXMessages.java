@@ -31,4 +31,8 @@ public interface IFujiXMessages
     int SEQ_FOCUS_UNLOCK = 23;
     int SEQ_CAPTURE = 24;
 
+    int SEQ_IMAGE_INFO = 25;
+    int SEQ_THUMBNAIL = 26;
+    int SEQ_FULL_IMAGE = 27;
+
 }
