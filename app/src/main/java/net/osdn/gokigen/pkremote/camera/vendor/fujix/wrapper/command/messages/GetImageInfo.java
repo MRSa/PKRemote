@@ -7,11 +7,13 @@ import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.IFujiXComma
 public class GetImageInfo extends FujiXCommandBase
 {
     private final IFujiXCommandCallback callback;
+    private final int id;
     private final byte lower;
     private final byte upper;
 
-    public GetImageInfo(int indexNumber, @NonNull IFujiXCommandCallback callback)
+    public GetImageInfo(int id, int indexNumber, @NonNull IFujiXCommandCallback callback)
     {
+        this.id = id;
         this.lower = ((byte) (0x000000ff & indexNumber));
         this.upper = ((byte)((0x0000ff00 & indexNumber) >> 8));
         this.callback = callback;
@@ -26,7 +28,7 @@ public class GetImageInfo extends FujiXCommandBase
     @Override
     public int getId()
     {
-        return (SEQ_IMAGE_INFO);
+        return (id);
     }
 
     @Override
