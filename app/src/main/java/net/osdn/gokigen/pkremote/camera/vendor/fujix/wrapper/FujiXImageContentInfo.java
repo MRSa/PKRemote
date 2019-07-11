@@ -5,7 +5,6 @@ import android.util.Log;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.IFujiXCommandCallback;
 
-import java.util.Arrays;
 import java.util.Date;
 
 public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallback
@@ -13,7 +12,8 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
     private final String TAG = toString();
     private final int indexNumber;
     private boolean isReceived = false;
-    byte[] rx_body;
+    private Date date = null;
+    private byte[] rx_body;
     FujiXImageContentInfo(int indexNumber, byte[] rx_body)
     {
         this.indexNumber = indexNumber;
@@ -27,25 +27,29 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
     @Override
     public String getCameraId()
     {
-        return null;
+        return ("FujiX");
     }
 
     @Override
     public String getCardId()
     {
-        return null;
+        return ("sd1");
     }
 
     @Override
     public String getContentPath()
     {
-        return null;
+        return ("");
     }
 
     @Override
     public String getContentName()
     {
-        return null;
+        if (isReceived)
+        {
+            return ("" + indexNumber + ".JPG");
+        }
+        return ("" + indexNumber + ".JPG");
     }
 
     @Override
@@ -53,14 +57,22 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
     {
         if (isReceived)
         {
+            return (new Date());
         }
-        return null;
+        return (new Date());
     }
 
     @Override
     public void setCapturedDate(Date date)
     {
-
+        try
+        {
+            this.date = date;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -69,6 +81,5 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
         Log.v(TAG, "RX : " + indexNumber + "(" + id + ") " + rx_body.length + " bytes.");
         this.rx_body = rx_body;
         isReceived = true;
-
     }
 }

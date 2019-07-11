@@ -1,5 +1,6 @@
 package net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper;
 
+import android.app.Activity;
 import android.util.Log;
 
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
@@ -14,6 +15,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.IFujiXCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.IFujiXCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.messages.GetImageInfo;
+import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.messages.GetThumbNail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +25,15 @@ import static net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.status.IFuji
 public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCallback
 {
     private final String TAG = toString();
+    private final Activity activity;
     private final FujiXInterfaceProvider provider;
     private List<ICameraContent> imageInfo;
     private int indexNumber = 0;
     private ICameraContentListCallback finishedCallback = null;
 
-    FujiXPlaybackControl(FujiXInterfaceProvider provider)
+    FujiXPlaybackControl(Activity activity, FujiXInterfaceProvider provider)
     {
+        this.activity = activity;
         this.provider = provider;
         this.imageInfo = new ArrayList<>();
     }
@@ -59,22 +63,48 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
     }
 
     @Override
-    public void downloadContentScreennail(String path, IDownloadThumbnailImageCallback callback) {
+    public void downloadContentScreennail(String path, IDownloadThumbnailImageCallback callback)
+    {
+        // Thumbnail と同じ画像を表示する
+        downloadContentThumbnail(path, callback);
+    }
+
+    @Override
+    public void downloadContentThumbnail(String path, IDownloadThumbnailImageCallback callback)
+    {
+        try
+        {
+            int start = 0;
+            if (path.indexOf("/") == 0)
+            {
+                start = 1;
+            }
+            String indexStr = path.substring(start, path.indexOf("."));
+            Log.v(TAG, "downloadContentThumbnail() : " + path + " " + indexStr);
+            int index = Integer.parseInt(indexStr);
+            if ((index > 0)&&(index <= imageInfo.size()))
+            {
+                IFujiXCommandPublisher publisher = provider.getCommandPublisher();
+                ICameraContent contentInfo = imageInfo.get(index - 1);
+                publisher.enqueueCommand(new GetImageInfo(indexNumber, indexNumber, (FujiXImageContentInfo) contentInfo));
+                publisher.enqueueCommand(new GetThumbNail(index, new FujiXThumbnailImageReceiver(activity, callback)));
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void downloadContent(String path, boolean isSmallSize, IDownloadContentCallback callback)
+    {
 
     }
 
     @Override
-    public void downloadContentThumbnail(String path, IDownloadThumbnailImageCallback callback) {
-
-    }
-
-    @Override
-    public void downloadContent(String path, boolean isSmallSize, IDownloadContentCallback callback) {
-
-    }
-
-    @Override
-    public void getCameraContentList(final ICameraContentListCallback callback) {
+    public void getCameraContentList(final ICameraContentListCallback callback)
+    {
         if (callback == null) {
             return;
         }
@@ -135,7 +165,8 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
             for (int index = 1; index <= nofFiles; index++)
             {
                 FujiXImageContentInfo info = new FujiXImageContentInfo(index, null);
-                publisher.enqueueCommand(new GetImageInfo(index, index, info));
+                //ファイル名などを取得する
+                //publisher.enqueueCommand(new GetImageInfo(index, index, info));
                 imageInfo.add(info);
             }
 

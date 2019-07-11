@@ -49,4 +49,9 @@ public class GetImageInfo extends FujiXCommandBase
                 lower, upper, (byte)0x00, (byte)0x00,
         });
     }
+    @Override
+    public boolean dumpLog()
+    {
+        return (false);
+    }
 }

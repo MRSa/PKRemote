@@ -18,6 +18,15 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:title="@string/pref_cat_initialize">
+
+        <CheckBoxPreference
+            android:key="auto_connect_to_camera"
+            android:title="@string/pref_auto_connect_camera"
+            android:summary="@string/pref_summary_auto_connect_camera" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="@string/pref_cat_camera">
 
         <CheckBoxPreference

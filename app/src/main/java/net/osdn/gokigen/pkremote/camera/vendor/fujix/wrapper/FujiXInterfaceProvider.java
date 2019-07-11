@@ -75,7 +75,7 @@ public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplay
         this.runmode = new FujiXRunMode();
         this.hardwareStatus = new FujiXHardwareStatus();
         this.fujiXButtonControl = new FujiXButtonControl();
-        this.playbackControl = new FujiXPlaybackControl(this);
+        this.playbackControl = new FujiXPlaybackControl(activity, this);
     }
 
     @Override
