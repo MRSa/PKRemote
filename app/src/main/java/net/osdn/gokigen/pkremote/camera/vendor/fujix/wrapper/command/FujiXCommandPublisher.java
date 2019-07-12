@@ -288,7 +288,7 @@ public class FujiXCommandPublisher implements IFujiXCommandPublisher, IFujiXComm
                     if (receiveAgain)
                     {
                         int length = ((((int) byte_array[3]) & 0xff) << 24) + ((((int) byte_array[2]) & 0xff) << 16) + ((((int) byte_array[1]) & 0xff) << 8) + (((int) byte_array[0]) & 0xff);
-                        if ((length > read_bytes)||((length == read_bytes)&&((int) byte_array[4] == 0x02)))
+                        while ((length > read_bytes)||((length == read_bytes)&&((int) byte_array[4] == 0x02)))
                         {
                             // データについて、もう一回受信が必要な場合...
                             if (isDumpReceiveLog)
@@ -300,6 +300,15 @@ public class FujiXCommandPublisher implements IFujiXCommandPublisher, IFujiXComm
                             if (read_bytes2 > 0)
                             {
                                 read_bytes = read_bytes + read_bytes2;
+                            }
+                            else
+                            {
+                                // よみだし
+                                break;
+                            }
+                            if (callback != null)
+                            {
+                                callback.onReceiveProgress(read_bytes, length);
                             }
                         }
                     }

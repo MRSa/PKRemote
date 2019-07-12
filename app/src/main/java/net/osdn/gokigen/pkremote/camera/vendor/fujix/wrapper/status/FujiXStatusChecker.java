@@ -49,6 +49,12 @@ public class FujiXStatusChecker implements IFujiXCommandCallback, ICameraStatusW
     }
 
     @Override
+    public void onReceiveProgress(int currentBytes, int totalBytes)
+    {
+        Log.v(TAG, " " + currentBytes + "/" + totalBytes);
+    }
+
+    @Override
     public void receivedMessage(int id, byte[] data)
     {
         try

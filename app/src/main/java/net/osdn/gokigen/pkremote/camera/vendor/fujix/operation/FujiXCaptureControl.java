@@ -48,4 +48,10 @@ public class FujiXCaptureControl implements ICaptureControl, IFujiXCommandCallba
         Log.v(TAG, "Response Received.");
         frameDisplay.hideFocusFrame();
     }
+
+    @Override
+    public void onReceiveProgress(int currentBytes, int totalBytes)
+    {
+        Log.v(TAG, " " + currentBytes + "/" + totalBytes);
+    }
 }

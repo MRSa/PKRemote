@@ -93,6 +93,12 @@ public class FujiXCameraConnectSequenceForRead implements Runnable, IFujiXComman
     }
 
     @Override
+    public void onReceiveProgress(int currentBytes, int totalBytes)
+    {
+        Log.v(TAG, " " + currentBytes + "/" + totalBytes);
+    }
+
+    @Override
     public void receivedMessage(int id, byte[] rx_body)
     {
         //Log.v(TAG, "receivedMessage : " + id + "[" + rx_body.length + " bytes]");

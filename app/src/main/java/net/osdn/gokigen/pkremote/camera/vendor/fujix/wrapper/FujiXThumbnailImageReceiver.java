@@ -46,4 +46,10 @@ public class FujiXThumbnailImageReceiver implements IFujiXCommandCallback
             }
         }
     }
+
+    @Override
+    public void onReceiveProgress(int currentBytes, int totalBytes)
+    {
+        Log.v(TAG, " " + currentBytes + "/" + totalBytes);
+    }
 }

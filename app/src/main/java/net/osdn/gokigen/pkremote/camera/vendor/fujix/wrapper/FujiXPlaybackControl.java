@@ -14,6 +14,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.IFujiXCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.IFujiXCommandPublisher;
+import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.messages.GetFullImage;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.messages.GetImageInfo;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.messages.GetThumbNail;
 
@@ -53,6 +54,7 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
     @Override
     public void getContentInfo(String path, String name, IContentInfoCallback callback)
     {
+        // showFileInformation
 
     }
 
@@ -99,7 +101,26 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
     @Override
     public void downloadContent(String path, boolean isSmallSize, IDownloadContentCallback callback)
     {
-
+        try
+        {
+            int start = 0;
+            if (path.indexOf("/") == 0)
+            {
+                start = 1;
+            }
+            String indexStr = path.substring(start, path.indexOf("."));
+            Log.v(TAG, "FujiX::downloadContent() : " + path + " " + indexStr);
+            int index = Integer.parseInt(indexStr);
+            if ((index > 0)&&(index <= imageInfo.size()))
+            {
+                IFujiXCommandPublisher publisher = provider.getCommandPublisher();
+                publisher.enqueueCommand(new GetFullImage(index, new FujiXFullImageReceiver(activity, callback)));
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -198,6 +219,12 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
         {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onReceiveProgress(int currentBytes, int totalBytes)
+    {
+        Log.v(TAG, " " + currentBytes + "/" + totalBytes);
     }
 
     @Override

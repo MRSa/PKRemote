@@ -204,6 +204,7 @@
 
     <string name="connect_connecting">接続中&#8230;</string>
     <string name="connect_receive_unknown_message">知らないメッセージを受信</string>
+    <string name="connect_error_message">接続失敗</string>
 
 
     <string name="pref_special_thanks">Special Thanks to</string>

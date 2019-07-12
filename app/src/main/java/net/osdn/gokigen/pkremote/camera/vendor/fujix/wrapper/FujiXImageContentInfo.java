@@ -76,6 +76,12 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
     }
 
     @Override
+    public void onReceiveProgress(int currentBytes, int totalBytes)
+    {
+        Log.v(TAG, " " + currentBytes + "/" + totalBytes);
+    }
+
+    @Override
     public void receivedMessage(int id, byte[] rx_body)
     {
         Log.v(TAG, "RX : " + indexNumber + "(" + id + ") " + rx_body.length + " bytes.");

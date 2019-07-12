@@ -98,6 +98,12 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
     }
 
     @Override
+    public void onReceiveProgress(int currentBytes, int totalBytes)
+    {
+        Log.v(TAG, " " + currentBytes + "/" + totalBytes);
+    }
+
+    @Override
     public void receivedMessage(int id, byte[] rx_body)
     {
         //Log.v(TAG, "receivedMessage : " + id + "[" + rx_body.length + " bytes]");
@@ -109,6 +115,10 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
                 if (checkRegistrationMessage(rx_body))
                 {
                     commandIssuer.enqueueCommand(new StartMessage(this));
+                }
+                else
+                {
+                    onConnectError(context.getString(R.string.connect_error_message));
                 }
                 break;
 
@@ -216,6 +226,12 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
 
     private boolean checkRegistrationMessage(byte[] receiveData)
     {
+        // データがないときにはエラー
+        if ((receiveData == null)||(receiveData.length < 8))
+        {
+            return (false);
+        }
+
         // 応答エラーかどうかをチェックする
         if (receiveData.length == 8)
         {
