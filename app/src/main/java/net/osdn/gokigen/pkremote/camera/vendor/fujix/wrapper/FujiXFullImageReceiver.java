@@ -1,6 +1,5 @@
 package net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper;
 
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -9,18 +8,16 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentCall
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IProgressEvent;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.IFujiXCommandCallback;
 
-import java.util.Arrays;
-
 public class FujiXFullImageReceiver implements IFujiXCommandCallback
 {
     private final String TAG = toString();
-    private final Context context;
     private final IDownloadContentCallback callback;
+    private int receivedLength;
 
-    FujiXFullImageReceiver(Context context, @NonNull IDownloadContentCallback callback)
+    FujiXFullImageReceiver( @NonNull IDownloadContentCallback callback)
     {
-        this.context = context;
         this.callback = callback;
+        this.receivedLength = 0;
     }
 
     @Override
@@ -28,31 +25,8 @@ public class FujiXFullImageReceiver implements IFujiXCommandCallback
     {
         try
         {
-            Log.v(TAG, " receivedMessage() " + id + " / " + rx_body.length + " bytes.");
-            int offset = 12;
-            if (rx_body.length > offset)
-            {
-                callback.onProgress(Arrays.copyOfRange(rx_body, offset, (rx_body.length - offset)), rx_body.length, new IProgressEvent() {
-                    @Override
-                    public float getProgress() {
-                        return (1.0f);
-                    }
-
-                    @Override
-                    public boolean isCancellable() {
-                        return (false);
-                    }
-
-                    @Override
-                    public void requestCancellation() { }
-                });
-                callback.onCompleted();
-            }
-            else
-            {
-                Log.v(TAG, "ERROR RESPONSE... : " + rx_body.length);
-                callback.onErrorOccurred(new NullPointerException());
-            }
+            Log.v(TAG, " receivedMessage() : onCompleted. " + id + " (" + receivedLength + " bytes.)");
+            callback.onCompleted();
         }
         catch (Exception e)
         {
@@ -64,16 +38,17 @@ public class FujiXFullImageReceiver implements IFujiXCommandCallback
     }
 
     @Override
-    public void onReceiveProgress(final int currentBytes, final int totalBytes)
+    public void onReceiveProgress(final int currentBytes, final int totalBytes, byte[] body)
     {
         try
         {
-            Log.v(TAG, " onReceiveProgress() " + currentBytes + "/" + totalBytes);
+            receivedLength = receivedLength + currentBytes;
+            //Log.v(TAG, " onReceiveProgress() " + receivedLength + "/" + totalBytes);
 
-            callback.onProgress(null, currentBytes, new IProgressEvent() {
+            callback.onProgress(body, currentBytes, new IProgressEvent() {
                 @Override
                 public float getProgress() {
-                    return( (float) currentBytes / (float) totalBytes);
+                    return( (float) receivedLength / (float) totalBytes);
                 }
 
                 @Override
@@ -92,6 +67,10 @@ public class FujiXFullImageReceiver implements IFujiXCommandCallback
         }
     }
 
-
+    @Override
+    public boolean isReceiveMulti()
+    {
+        return (true);
+    }
 
 }

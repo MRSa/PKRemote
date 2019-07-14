@@ -277,18 +277,26 @@ public class FujiXCommandPublisher implements IFujiXCommandPublisher, IFujiXComm
         try
         {
             sleep(delayMs);
-            byte[] byte_array = new byte[BUFFER_SIZE];
+            boolean isFirstTime = true;
+            int totalReadBytes;
+            int receive_message_buffer_size = BUFFER_SIZE;
+            byte[] byte_array = new byte[receive_message_buffer_size];
             InputStream is = socket.getInputStream();
             if (is != null)
             {
-                int read_bytes = is.read(byte_array, 0, BUFFER_SIZE);
+                int read_bytes = is.read(byte_array, 0, receive_message_buffer_size);
                 byte[] receive_body;
                 if (read_bytes > 4)
                 {
                     if (receiveAgain)
                     {
                         int length = ((((int) byte_array[3]) & 0xff) << 24) + ((((int) byte_array[2]) & 0xff) << 16) + ((((int) byte_array[1]) & 0xff) << 8) + (((int) byte_array[0]) & 0xff);
-                        while ((length > read_bytes)||((length == read_bytes)&&((int) byte_array[4] == 0x02)))
+                        if (length > receive_message_buffer_size)
+                        {
+                            Log.v(TAG, "+++++ TOTAL RECEIVE MESSAGE SIZE IS " + length + " +++++");
+                        }
+                        totalReadBytes = read_bytes;
+                        while ((length > totalReadBytes)||((length == read_bytes)&&((int) byte_array[4] == 0x02)))
                         {
                             // データについて、もう一回受信が必要な場合...
                             if (isDumpReceiveLog)
@@ -296,19 +304,37 @@ public class FujiXCommandPublisher implements IFujiXCommandPublisher, IFujiXComm
                                 Log.v(TAG, "--- RECEIVE AGAIN --- [" + length + "(" + read_bytes + ") " + byte_array[4]+ "] ");
                             }
                             sleep(delayMs);
-                            int read_bytes2 = is.read(byte_array, read_bytes, BUFFER_SIZE - read_bytes);
+                            int read_bytes2 = is.read(byte_array, read_bytes, receive_message_buffer_size - read_bytes);
                             if (read_bytes2 > 0)
                             {
                                 read_bytes = read_bytes + read_bytes2;
+                                totalReadBytes = totalReadBytes + read_bytes2;
                             }
                             else
                             {
-                                // よみだし
+                                // よみだし終了。
+                                Log.v(TAG, "FINISHED RECEIVE... ");
                                 break;
                             }
                             if (callback != null)
                             {
-                                callback.onReceiveProgress(read_bytes, length);
+                                if (callback.isReceiveMulti())
+                                {
+                                    int offset = 0;
+                                    if (isFirstTime)
+                                    {
+                                        // 先頭のヘッダ部分をカットして送る
+                                        offset = 12;
+                                        isFirstTime = false;
+                                        //Log.v(TAG, " FIRST TIME : " + read_bytes + " " + offset);
+                                    }
+                                    callback.onReceiveProgress(read_bytes - offset, length, Arrays.copyOfRange(byte_array, offset, read_bytes));
+                                    read_bytes = 0;
+                                }
+                                else
+                                {
+                                    callback.onReceiveProgress(read_bytes, length, null);
+                                }
                             }
                         }
                     }
@@ -321,16 +347,23 @@ public class FujiXCommandPublisher implements IFujiXCommandPublisher, IFujiXComm
                 if (isDumpReceiveLog)
                 {
                     // ログに受信メッセージを出力する
-                    Log.v(TAG, "receive_from_camera() : " + read_bytes + " bytes.");
+                    Log.v(TAG, "receive_from_camera() : " + read_bytes + " bytes. [" + receive_message_buffer_size + "]");
                     dump_bytes("RECV[" + receive_body.length + "] ", receive_body);
                 }
                if (callback != null)
                 {
-                    callback.receivedMessage(id, receive_body);
+                    if (callback.isReceiveMulti())
+                    {
+                        callback.receivedMessage(id, null);
+                    }
+                    else
+                    {
+                        callback.receivedMessage(id, receive_body);
+                    }
                 }
             }
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             e.printStackTrace();
         }

@@ -114,7 +114,7 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
             if ((index > 0)&&(index <= imageInfo.size()))
             {
                 IFujiXCommandPublisher publisher = provider.getCommandPublisher();
-                publisher.enqueueCommand(new GetFullImage(index, new FujiXFullImageReceiver(activity, callback)));
+                publisher.enqueueCommand(new GetFullImage(index, new FujiXFullImageReceiver(callback)));
             }
         }
         catch (Exception e)
@@ -182,7 +182,7 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
         try
         {
             imageInfo.clear();
-            IFujiXCommandPublisher publisher = provider.getCommandPublisher();
+            //IFujiXCommandPublisher publisher = provider.getCommandPublisher();
             for (int index = 1; index <= nofFiles; index++)
             {
                 FujiXImageContentInfo info = new FujiXImageContentInfo(index, null);
@@ -222,9 +222,15 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
     }
 
     @Override
-    public void onReceiveProgress(int currentBytes, int totalBytes)
+    public void onReceiveProgress(int currentBytes, int totalBytes, byte[] body)
     {
         Log.v(TAG, " " + currentBytes + "/" + totalBytes);
+    }
+
+    @Override
+    public boolean isReceiveMulti()
+    {
+        return (false);
     }
 
     @Override

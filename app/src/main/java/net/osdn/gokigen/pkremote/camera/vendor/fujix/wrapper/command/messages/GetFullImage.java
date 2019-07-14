@@ -43,8 +43,13 @@ public class GetFullImage  extends FujiXCommandBase
                 // sequence number
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
 
-                // data ...
+                // data ... (index number)
                 lower, upper, (byte)0x00, (byte)0x00,
+
+                // 現物合わせ１  : 0～　
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
+                // 現物合わせ２  : ～0x01000000 bytes
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x01,
         });
     }
     @Override

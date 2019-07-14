@@ -186,9 +186,15 @@ public class FujiXFocusingControl implements IFocusingControl, IFujiXCommandCall
     }
 
     @Override
-    public void onReceiveProgress(int currentBytes, int totalBytes)
+    public void onReceiveProgress(int currentBytes, int totalBytes, byte[] body)
     {
         Log.v(TAG, " " + currentBytes + "/" + totalBytes);
+    }
+
+    @Override
+    public boolean isReceiveMulti()
+    {
+        return (false);
     }
 
     @Override
