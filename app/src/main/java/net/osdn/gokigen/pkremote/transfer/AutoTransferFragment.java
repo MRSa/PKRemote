@@ -1,6 +1,7 @@
 package net.osdn.gokigen.pkremote.transfer;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,10 +20,12 @@ import android.widget.TextView;
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.playback.IContentDownloadNotify;
+import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 
 import static android.content.Context.VIBRATOR_SERVICE;
 
@@ -122,6 +125,7 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
     public void onResume()
     {
         super.onResume();
+        controlButton(true);
     }
 
     @Override
@@ -359,6 +363,51 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                     {
                         connect.setEnabled(false);
                         connect.setVisibility(View.INVISIBLE);
+                    }
+                }
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+                if (preferences != null)
+                {
+                    TextView textView = activity.findViewById(R.id.auto_download_information_text);
+                    String connectionMethod = preferences.getString(IPreferencePropertyAccessor.CONNECTION_METHOD, "RICOH");
+                    if (connectionMethod.contains("FUJI_X"))
+                    {
+                        // FUJI Xシリーズの場合は、この画面の操作系統は、すべて無効化する
+                        start.setEnabled(false);
+                        stop.setEnabled(false);
+                        if (bar != null)
+                        {
+                            bar.setVisibility(View.GONE);
+                        }
+                        if (check != null)
+                        {
+                            check.setEnabled(false);
+                        }
+                        if (original != null)
+                        {
+                            original.setEnabled(false);
+                        }
+                        if (reload != null)
+                        {
+                            reload.setVisibility(View.VISIBLE);
+                            reload.setEnabled(true);
+                        }
+                        if (connect != null)
+                        {
+                            connect.setVisibility(View.VISIBLE);
+                            connect.setEnabled(true);
+                        }
+                        if (textView != null)
+                        {
+                            textView.setText(R.string.does_note_support_fujix);
+                        }
+                    }
+                    else
+                    {
+                        if (textView != null)
+                        {
+                            textView.setText("");
+                        }
                     }
                 }
             }
