@@ -220,6 +220,6 @@
     <string name="pref_summary_fujix_command_polling_wait"> </string>
     <string name="pref_fujix_connection_for_read">Connect for transfer connection mode.</string>
     <string name="pref_fujix_connection_for_read_summary">Test: for picture transfer connection.</string>
-    <string name="does_note_support_fujix">This feature DOES NOT support for FUJI X Series&#8230;</string>
+    <string name="does_not_support_this_feature">This feature DOES NOT support for these cameras&#8230;</string>
 
 </resources>

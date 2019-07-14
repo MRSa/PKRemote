@@ -370,9 +370,9 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                 {
                     TextView textView = activity.findViewById(R.id.auto_download_information_text);
                     String connectionMethod = preferences.getString(IPreferencePropertyAccessor.CONNECTION_METHOD, "RICOH");
-                    if (connectionMethod.contains("FUJI_X"))
+                    if (!connectionMethod.contains("RICOH"))
                     {
-                        // FUJI Xシリーズの場合は、この画面の操作系統は、すべて無効化する
+                        // FUJI Xシリーズ/OPCの場合は、この画面の操作系統は、すべて無効化する
                         start.setEnabled(false);
                         stop.setEnabled(false);
                         if (bar != null)
@@ -399,7 +399,7 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                         }
                         if (textView != null)
                         {
-                            textView.setText(R.string.does_note_support_fujix);
+                            textView.setText(R.string.does_not_support_this_feature);
                         }
                     }
                     else

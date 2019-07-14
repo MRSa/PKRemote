@@ -220,5 +220,5 @@
     <string name="pref_summary_fujix_command_polling_wait">カメラ状態の確認間隔を調整します</string>
     <string name="pref_fujix_connection_for_read">画像転送用の接続シーケンス</string>
     <string name="pref_fujix_connection_for_read_summary">テスト用です</string>
-    <string name="does_note_support_fujix">この機能はFUJI Xシリーズでは使用できません&#8230;</string>
+    <string name="does_not_support_this_feature">この機能はこの接続方式では使用できません&#8230;</string>
 </resources>
