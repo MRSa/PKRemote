@@ -372,7 +372,7 @@ public class AutoTransferFragment extends Fragment implements View.OnClickListen
                     String connectionMethod = preferences.getString(IPreferencePropertyAccessor.CONNECTION_METHOD, "RICOH");
                     if (!connectionMethod.contains("RICOH"))
                     {
-                        // FUJI Xシリーズ/OPCの場合は、この画面の操作系統は、すべて無効化する
+                        // FUJI Xシリーズ/OPCの場合(逆に言うと RICOH 以外)は、この画面の操作系統をすべて無効化する
                         start.setEnabled(false);
                         stop.setEnabled(false);
                         if (bar != null)
