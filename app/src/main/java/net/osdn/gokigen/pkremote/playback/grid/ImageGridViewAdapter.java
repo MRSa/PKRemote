@@ -67,11 +67,19 @@ public class ImageGridViewAdapter extends BaseAdapter implements AbsListView.OnS
     @Override
     public Object getItem(int position)
     {
-        if (getItemList() == null)
+        try
         {
-            return null;
+            if (getItemList() == null)
+            {
+                return (null);
+            }
+            return (getItemList().get(position));
         }
-        return (getItemList().get(position));
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (null);
     }
 
     @Override

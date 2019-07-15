@@ -4,7 +4,10 @@ import android.util.Log;
 
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.IFujiXCommandCallback;
+
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallback
 {
@@ -12,6 +15,7 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
     private final int indexNumber;
     private boolean isReceived = false;
     private Date date = null;
+    private String realFileName = null;
     private byte[] rx_body;
     FujiXImageContentInfo(int indexNumber, byte[] rx_body)
     {
@@ -19,7 +23,11 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
         this.rx_body = rx_body;
         if (this.rx_body != null)
         {
-            isReceived = true;
+            updateInformation(rx_body);
+        }
+        else
+        {
+            date = new Date();
         }
     }
 
@@ -44,9 +52,16 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
     @Override
     public String getContentName()
     {
-        if (isReceived)
+        try
         {
-            return ("" + indexNumber + ".JPG");
+            if ((realFileName != null)&&(realFileName.contains(".MOV")))
+            {
+                return ("" + indexNumber + ".MOV");
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
         return ("" + indexNumber + ".JPG");
     }
@@ -54,11 +69,7 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
     @Override
     public Date getCapturedDate()
     {
-        if (isReceived)
-        {
-            return (new Date());
-        }
-        return (new Date());
+        return (date);
     }
 
     @Override
@@ -91,22 +102,34 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
     {
         Log.v(TAG, "RX : " + indexNumber + "(" + id + ") " + rx_body.length + " bytes.");
         this.rx_body = rx_body;
-        isReceived = true;
-        updateCapturedDate(rx_body);
+        updateInformation(rx_body);
 
     }
 
-    private void updateCapturedDate(byte[] rx_body)
+    public int getId()
+    {
+        return (indexNumber);
+    }
+
+    public boolean isReceived()
+    {
+        return (isReceived);
+    }
+
+    private void updateInformation(byte[] rx_body)
     {
         try
         {
             if (rx_body.length >= 166)
             {
                 // データの切り出し
-                String fileNameString = new String(pickupString(rx_body, 65, 12));
+                realFileName = new String(pickupString(rx_body, 65, 12));
                 String dateString = new String(pickupString(rx_body, 92, 15));
                 //char orientation = Character.(rx_body[151]);
-                Log.v(TAG, "[" + indexNumber + "] FILE NAME : " + fileNameString + "  DATE : '" + dateString + "'");
+                Log.v(TAG, "[" + indexNumber + "] FILE NAME : " + realFileName + "  DATE : '" + dateString + "'");
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.ENGLISH);
+                date = dateFormat.parse(dateString);
+                isReceived = true;
             }
         }
         catch (Exception e)
@@ -128,5 +151,4 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
         }
         return (result);
     }
-
 }

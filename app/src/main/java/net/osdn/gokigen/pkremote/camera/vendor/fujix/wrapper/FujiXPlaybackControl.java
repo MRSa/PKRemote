@@ -2,6 +2,7 @@ package net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper;
 
 import android.app.Activity;
 import android.util.Log;
+import android.util.SparseArray;
 
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
@@ -28,7 +29,8 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
     private final String TAG = toString();
     private final Activity activity;
     private final FujiXInterfaceProvider provider;
-    private List<ICameraContent> imageInfo;
+    //private List<ICameraContent> imageInfo;
+    private SparseArray<FujiXImageContentInfo> imageContentInfo;
     private int indexNumber = 0;
     private ICameraContentListCallback finishedCallback = null;
 
@@ -36,9 +38,8 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
     {
         this.activity = activity;
         this.provider = provider;
-        this.imageInfo = new ArrayList<>();
+        this.imageContentInfo = new SparseArray<>();
     }
-
 
     @Override
     public String getRawFileSuffix() {
@@ -48,7 +49,7 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
     @Override
     public void downloadContentList(IDownloadContentListCallback callback)
     {
-
+        // なにもしない。(未使用)
     }
 
     @Override
@@ -61,7 +62,7 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
     @Override
     public void updateCameraFileInfo(ICameraFileInfo info)
     {
-
+        //  なにもしない
     }
 
     @Override
@@ -84,11 +85,14 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
             String indexStr = path.substring(start, path.indexOf("."));
             Log.v(TAG, "downloadContentThumbnail() : " + path + " " + indexStr);
             int index = Integer.parseInt(indexStr);
-            if ((index > 0)&&(index <= imageInfo.size()))
+            if ((index > 0)&&(index <= imageContentInfo.size()))
             {
                 IFujiXCommandPublisher publisher = provider.getCommandPublisher();
-                ICameraContent contentInfo = imageInfo.get(index - 1);
-                publisher.enqueueCommand(new GetImageInfo(indexNumber, indexNumber, (FujiXImageContentInfo) contentInfo));
+                FujiXImageContentInfo contentInfo = imageContentInfo.get(index);
+                if (!contentInfo.isReceived())
+                {
+                    publisher.enqueueCommand(new GetImageInfo(index, index, contentInfo));
+                }
                 publisher.enqueueCommand(new GetThumbNail(index, new FujiXThumbnailImageReceiver(activity, callback)));
             }
         }
@@ -111,7 +115,8 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
             String indexStr = path.substring(start, path.indexOf("."));
             Log.v(TAG, "FujiX::downloadContent() : " + path + " " + indexStr);
             int index = Integer.parseInt(indexStr);
-            if ((index > 0)&&(index <= imageInfo.size()))
+            //FujiXImageContentInfo contentInfo = imageContentInfo.get(index);   // 特にデータを更新しないから大丈夫か？
+            if ((index > 0)&&(index <= imageContentInfo.size()))
             {
                 IFujiXCommandPublisher publisher = provider.getCommandPublisher();
                 publisher.enqueueCommand(new GetFullImage(index, new FujiXFullImageReceiver(callback)));
@@ -162,6 +167,7 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
             }
             else
             {
+                // 件数が不明だったら、１件づつインデックスの情報を取得する
                 checkImageFileAll();
             }
         }
@@ -181,19 +187,21 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
     {
         try
         {
-            imageInfo.clear();
+            imageContentInfo.clear();
             //IFujiXCommandPublisher publisher = provider.getCommandPublisher();
+            //for (int index = nofFiles; index > 0; index--)
             for (int index = 1; index <= nofFiles; index++)
             {
-                FujiXImageContentInfo info = new FujiXImageContentInfo(index, null);
-                //ファイル名などを取得する
+                // ファイル数分、仮のデータを生成する
+                imageContentInfo.append(index, new FujiXImageContentInfo(index, null));
+
+                //ファイル名などを取得する (メッセージを積んでおく...でも遅くなるので、ここではやらない方がよいかな。）
                 //publisher.enqueueCommand(new GetImageInfo(index, index, info));
-                imageInfo.add(info);
             }
 
             // インデックスデータがなくなったことを検出...データがそろったとして応答する。
-            Log.v(TAG, "IMAGE LIST : " + imageInfo.size() + " (" + nofFiles + ")");
-            finishedCallback.onCompleted(imageInfo);
+            Log.v(TAG, "IMAGE LIST : " + imageContentInfo.size() + " (" + nofFiles + ")");
+            finishedCallback.onCompleted(getCameraContentList());
             finishedCallback = null;
         }
         catch (Exception e)
@@ -210,7 +218,7 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
     {
         try
         {
-            imageInfo.clear();
+            imageContentInfo.clear();
             indexNumber = 1;
             IFujiXCommandPublisher publisher = provider.getCommandPublisher();
             publisher.enqueueCommand(new GetImageInfo(indexNumber, indexNumber, this));
@@ -240,8 +248,8 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
         if (rx_body.length < 16)
         {
             // インデックスデータがなくなったことを検出...データがそろったとして応答する。
-            Log.v(TAG, "IMAGE LIST : " + imageInfo.size());
-            finishedCallback.onCompleted(imageInfo);
+            Log.v(TAG, "IMAGE LIST : " + imageContentInfo.size());
+            finishedCallback.onCompleted(getCameraContentList());
             finishedCallback = null;
             return;
         }
@@ -250,7 +258,7 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
             Log.v(TAG, "RECEIVED IMAGE INFO : " + indexNumber);
 
             // 受信データを保管しておく
-            imageInfo.add(new FujiXImageContentInfo(indexNumber, rx_body));
+            imageContentInfo.append(indexNumber, new FujiXImageContentInfo(indexNumber, rx_body));
 
             // 次のインデックスの情報を要求する
             indexNumber++;
@@ -261,8 +269,21 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
         {
             // エラーになったら、そこで終了にする
             e.printStackTrace();
-            finishedCallback.onCompleted(imageInfo);
+            finishedCallback.onCompleted(getCameraContentList());
             finishedCallback = null;
         }
     }
+
+    private List<ICameraContent> getCameraContentList()
+    {
+        /// ダサいけど...コンテナクラスを詰め替えて応答する
+        List<ICameraContent> contentList = new ArrayList<>();
+        int listSize = imageContentInfo.size();
+        for(int index = 0; index < listSize; index++)
+        {
+            contentList.add(imageContentInfo.valueAt(index));
+        }
+        return (contentList);
+    }
+
 }
