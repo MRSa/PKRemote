@@ -359,6 +359,7 @@ public class FujiXCommandPublisher implements IFujiXCommandPublisher, IFujiXComm
                     else
                     {
                         callback.receivedMessage(id, receive_body);
+                        //callback.receivedMessage(id, Arrays.copyOfRange(receive_body, 0, receive_body.length));
                     }
                 }
             }
