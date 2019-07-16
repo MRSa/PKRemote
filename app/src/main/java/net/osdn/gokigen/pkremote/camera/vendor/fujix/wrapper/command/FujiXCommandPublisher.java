@@ -70,7 +70,10 @@ public class FujiXCommandPublisher implements IFujiXCommandPublisher, IFujiXComm
         // ストリームを全部閉じる
         try
         {
-            dos.close();
+            if (dos != null)
+            {
+                dos.close();
+            }
         }
         catch (Exception e)
         {
@@ -80,7 +83,10 @@ public class FujiXCommandPublisher implements IFujiXCommandPublisher, IFujiXComm
 
         try
         {
-            bufferedReader.close();
+            if (bufferedReader != null)
+            {
+                bufferedReader.close();
+            }
         }
         catch (Exception e)
         {
@@ -90,7 +96,10 @@ public class FujiXCommandPublisher implements IFujiXCommandPublisher, IFujiXComm
 
         try
         {
-            socket.close();
+            if (socket != null)
+            {
+                socket.close();
+            }
         }
         catch (Exception e)
         {

@@ -58,7 +58,9 @@ public class FujiXConnection implements ICameraConnection
      */
     private void onReceiveBroadcastOfConnection(Context context, Intent intent)
     {
+        interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_check_wifi), false, false, 0);
         statusReceiver.onStatusNotify(context.getString(R.string.connect_check_wifi));
+
         Log.v(TAG, context.getString(R.string.connect_check_wifi));
 
         String action = intent.getAction();
@@ -102,6 +104,7 @@ public class FujiXConnection implements ICameraConnection
     public void startWatchWifiStatus(Context context)
     {
         Log.v(TAG, "startWatchWifiStatus()");
+        interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_prepare), false, false, 0);
         statusReceiver.onStatusNotify("prepare");
 
         IntentFilter filter = new IntentFilter();
@@ -145,6 +148,7 @@ public class FujiXConnection implements ICameraConnection
                     @Override
                     public void onClick(DialogInterface dialog, int which)
                     {
+                        disconnect(false);
                         connect();
                     }
                 })

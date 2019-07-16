@@ -2,6 +2,7 @@ package net.osdn.gokigen.pkremote.camera.vendor.fujix;
 
 import androidx.annotation.NonNull;
 
+import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode;
@@ -49,6 +50,8 @@ public interface IFujiXInterfaceProvider
     IPlaybackControl getPlaybackControl();
     ICameraHardwareStatus getHardwareStatus();
     ICameraRunMode getCameraRunMode();
+
+    IInformationReceiver getInformationReceiver();
 
     void setAsyncEventReceiver(@NonNull IFujiXCommandCallback receiver);
 }

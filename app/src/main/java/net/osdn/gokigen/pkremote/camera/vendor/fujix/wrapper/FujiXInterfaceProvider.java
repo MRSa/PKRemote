@@ -5,6 +5,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode;
@@ -61,8 +62,9 @@ public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplay
     private FujiXStatusChecker statusChecker;
     private ICameraStatusUpdateNotify statusListener;
     private FujiXPlaybackControl playbackControl;
+    private IInformationReceiver informationReceiver;
 
-    public FujiXInterfaceProvider(@NonNull Activity context, @NonNull ICameraStatusReceiver provider, @NonNull ICameraStatusUpdateNotify statusListener)
+    public FujiXInterfaceProvider(@NonNull Activity context, @NonNull ICameraStatusReceiver provider, @NonNull ICameraStatusUpdateNotify statusListener, @NonNull IInformationReceiver informationReceiver)
     {
         this.activity = context;
         commandPublisher = new FujiXCommandPublisher(CAMERA_IP, CONTROL_PORT);
@@ -76,6 +78,7 @@ public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplay
         this.hardwareStatus = new FujiXHardwareStatus();
         this.fujiXButtonControl = new FujiXButtonControl();
         this.playbackControl = new FujiXPlaybackControl(activity, this);
+        this.informationReceiver = informationReceiver;
     }
 
     @Override
@@ -209,6 +212,13 @@ public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplay
     public ICameraRunMode getCameraRunMode()
     {
         return (runmode);
+    }
+
+    @Override
+    public IInformationReceiver getInformationReceiver()
+    {
+        // ちょっとこの引き回しは気持ちがよくない...
+        return (informationReceiver);
     }
 
     @Override

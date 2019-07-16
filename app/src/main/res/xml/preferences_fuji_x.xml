@@ -26,6 +26,7 @@
             android:summary="@string/pref_summary_auto_connect_camera" />
     </PreferenceCategory>
 
+<!--
     <PreferenceCategory
         android:title="@string/pref_cat_camera">
 
@@ -62,7 +63,7 @@
             android:summary="@string/pref_fujix_connection_for_read_summary"/>
 
     </PreferenceCategory>
-
+-->
 
     <PreferenceCategory
         android:title="@string/pref_cat_others">

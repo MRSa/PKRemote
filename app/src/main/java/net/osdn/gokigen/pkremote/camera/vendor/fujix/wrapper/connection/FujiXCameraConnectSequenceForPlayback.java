@@ -2,6 +2,7 @@ package net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.connection;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -29,6 +30,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.messages.st
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.command.messages.start.StartMessage5th;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.status.IFujiXRunModeHolder;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
+
 
 public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCommandCallback, IFujiXMessages
 {
@@ -74,9 +76,14 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
                 if (!interfaceProvider.getCommandCommunication().connect())
                 {
                     // 接続失敗...
+                    interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.dialog_title_connect_failed), false, true, Color.RED);
                     onConnectError(context.getString(R.string.dialog_title_connect_failed));
                     return;
                 }
+            }
+            else
+            {
+                Log.v(TAG, "SOCKET IS ALREADY CONNECTED...");
             }
             // コマンドタスクの実行開始
             issuer.start();
@@ -88,6 +95,7 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
         catch (Exception e)
         {
             e.printStackTrace();
+            interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.dialog_title_connect_failed), false, true, Color.RED);
             onConnectError(e.getLocalizedMessage());
         }
     }
@@ -129,10 +137,12 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
                 break;
 
             case SEQ_START:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting1), false, false, 0);
                 commandIssuer.enqueueCommand(new StartMessage2ndRead(this));
                 break;
 
             case SEQ_START_2ND_READ:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting2), false, false, 0);
                 cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_connecting));
                 if (rx_body.length == (int)rx_body[0])
                 {
@@ -148,14 +158,17 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
                 break;
 
             case SEQ_START_2ND_RECEIVE:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting3), false, false, 0);
                 commandIssuer.enqueueCommand(new StartMessage3rd(this));
                 break;
 
             case SEQ_START_3RD:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting4), false, false, 0);
                 commandIssuer.enqueueCommand(new StartMessage4th(this));
                 break;
 
             case SEQ_START_4TH:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting5), false, false, 0);
                 if (isBothLiveView)
                 {
                     // カメラのLCDと遠隔のライブビューを同時に表示する場合...
@@ -168,15 +181,18 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
                 break;
 
             case SEQ_START_5TH:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting6), false, false, 0);
                 commandIssuer.enqueueCommand(new QueryCameraCapabilities(this));
                 //commandIssuer.enqueueCommand(new StatusRequestMessage(this));
                 break;
 
             case SEQ_QUERY_CAMERA_CAPABILITIES:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting7), false, false, 0);
                 commandIssuer.enqueueCommand(new CameraRemoteMessage(this));
                 break;
 
             case SEQ_CAMERA_REMOTE:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting8), false, false, 0);
                 commandIssuer.enqueueCommand(new ChangeToPlayback1st(this));
                 runModeHolder = interfaceProvider.getRunModeHolder();
                 if (runModeHolder != null)
@@ -187,22 +203,27 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
                 break;
 
             case SEQ_CHANGE_TO_PLAYBACK_1ST:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting9), false, false, 0);
                 commandIssuer.enqueueCommand(new ChangeToPlayback2nd(this));
                 break;
 
             case SEQ_CHANGE_TO_PLAYBACK_2ND:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting10), false, false, 0);
                 commandIssuer.enqueueCommand(new ChangeToPlayback3rd(this));
                 break;
 
             case SEQ_CHANGE_TO_PLAYBACK_3RD:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting11), false, false, 0);
                 commandIssuer.enqueueCommand(new ChangeToPlayback4th(this));
                 break;
 
             case SEQ_CHANGE_TO_PLAYBACK_4TH:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting12), false, false, 0);
                 commandIssuer.enqueueCommand(new StatusRequestMessage(this));
                 break;
 
             case SEQ_STATUS_REQUEST:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connect_finished), false, false, 0);
                 IFujiXCommandCallback callback = interfaceProvider.getStatusHolder();
                 if (callback != null)
                 {
@@ -226,6 +247,7 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
 
     private void sendRegistrationMessage()
     {
+        interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_start), false, false, 0);
         cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_start));
         commandIssuer.enqueueCommand(new RegistrationMessage(this));
     }
@@ -244,10 +266,13 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
             if ((receiveData[0] == 0x05) && (receiveData[1] == 0x00) && (receiveData[2] == 0x00) && (receiveData[3] == 0x00) &&
                     (receiveData[4] == 0x19) && (receiveData[5] == 0x20) && (receiveData[6] == 0x00) && (receiveData[7] == 0x00)) {
                 // 応答エラー...
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.error_reply_from_camera), false, true, Color.RED);
                 return (false);
             }
+            interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.other_error_reply_from_camera), false, true, Color.RED);
             return (false);
         }
+        interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.registration_reply_from_camera), false, false, 0);
         return (true);
     }
 
@@ -256,10 +281,18 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
     {
         try
         {
+            // 接続成功のメッセージを出す
+            interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connected), false, false, 0);
+
             // ちょっと待つ
             Thread.sleep(1000);
+
             interfaceProvider.getAsyncEventCommunication().connect();
             //interfaceProvider.getCameraStatusWatcher().startStatusWatch(interfaceProvider.getStatusListener());  ステータスの定期確認は実施しない
+
+            // 接続成功！のメッセージを出す
+            interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connected), false, false, 0);
+
             onConnectNotify();
         }
         catch (Exception e)
