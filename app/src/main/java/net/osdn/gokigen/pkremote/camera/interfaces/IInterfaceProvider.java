@@ -17,6 +17,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraInformation;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher;
 import net.osdn.gokigen.pkremote.camera.vendor.olympus.IOlympusInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.vendor.sony.ISonyInterfaceProvider;
 
 /**
  *
@@ -43,6 +44,7 @@ public interface IInterfaceProvider
     ICameraRunMode getCameraRunMode();
 
     IOlympusInterfaceProvider getOlympusInterfaceProvider();
+    ISonyInterfaceProvider getSonyInterface();
 
     ICameraConnection.CameraConnectionMethod getCammeraConnectionMethod();
     void resetCameraConnectionMethod();

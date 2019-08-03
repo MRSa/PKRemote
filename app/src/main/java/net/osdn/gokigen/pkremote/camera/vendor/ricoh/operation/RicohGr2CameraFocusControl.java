@@ -68,4 +68,10 @@ public class RicohGr2CameraFocusControl implements IFocusingControl
     {
         afControl.unlockAutoFocus();
     }
+
+    @Override
+    public void halfPressShutter(boolean isPressed)
+    {
+
+    }
 }

@@ -28,6 +28,8 @@
     <string name="dialog_confirm_message_output_log">ログを共有します。</string>
 
     <string name="dialog_message_power_off">カメラの電源を切り、アプリケーションを終了します。</string>
+    <string name="dialog_message_exit_application">アプリケーションを終了します。</string>
+
 
     <string name="camera_disconnected">カメラ切断</string>
     <string name="only_opc_feature">この機能はOlympus Air専用です。</string>
@@ -239,4 +241,24 @@
     <string name="connect_connecting11">接続中&#8230;(11/12)</string>
     <string name="connect_connecting12">接続中&#8230;(12/12)</string>
     <string name="connect_connect_finished">カメラと接続</string>
+
+    <string name="dialog_panasonic_command_title_command">メッセージ送信(Panasonic)</string>
+    <string name="panasonic_service_string">cam.cgi</string>
+
+    <string name="camera_search_request">カメラ検索</string>
+    <string name="camera_wait_reply">応答待ち</string>
+    <string name="camera_received_reply">応答受信</string>
+    <string name="camera_found">発見 : </string>
+    <string name="camera_rejected">接続に失敗&#8230;</string>
+    <string name="camera_detected">発見 : </string>
+    <string name="pref_sony_api_list">カメラAPI一覧</string>
+    <string name="dialog_title_reply">応答</string>
+    <string name="dialog_parameter_hint">(parameter)</string>
+    <string name="dialog_version_hint">1.0</string>
+    <string name="dialog_command_hint">(command)</string>
+    <string name="dialog_service_hint">(service)</string>
+    <string name="action_share">共有</string>
+
+
+
 </resources>

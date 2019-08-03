@@ -5,8 +5,11 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ICameraStatusUpdateNotify;
+import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraChangeListener;
 
-public class CameraStatusListener implements ICameraStatusUpdateNotify
+import java.util.List;
+
+public class CameraStatusListener implements ICameraStatusUpdateNotify, ICameraChangeListener
 {
     private  final String TAG = toString();
     private ICameraStatusUpdateNotify updateReceiver = null;
@@ -92,5 +95,53 @@ public class CameraStatusListener implements ICameraStatusUpdateNotify
     public void updateStorageStatus(String status)
     {
         Log.v(TAG, "updateStorageStatus() : " + status);
+    }
+
+    @Override
+    public void onApiListModified(List<String> apis)
+    {
+        Log.v(TAG, "onApiListModified() : ");
+    }
+
+    @Override
+    public void onCameraStatusChanged(String status)
+    {
+        Log.v(TAG, "onCameraStatusChanged() : " + status);
+    }
+
+    @Override
+    public void onLiveviewStatusChanged(boolean status)
+    {
+        Log.v(TAG, "onLiveviewStatusChanged() : " + status);
+    }
+
+    @Override
+    public void onShootModeChanged(String shootMode)
+    {
+        Log.v(TAG, "onShootModeChanged() : " + shootMode);
+    }
+
+    @Override
+    public void onZoomPositionChanged(int zoomPosition)
+    {
+        Log.v(TAG, "onZoomPositionChanged() : " + zoomPosition);
+    }
+
+    @Override
+    public void onStorageIdChanged(String storageId)
+    {
+        Log.v(TAG, "onStorageIdChanged() : " + storageId);
+    }
+
+    @Override
+    public void onFocusStatusChanged(String focusStatus)
+    {
+        Log.v(TAG, "onFocusStatusChanged() : " + focusStatus);
+    }
+
+    @Override
+    public void onResponseError()
+    {
+        Log.v(TAG, "onResponseError() : ");
     }
 }

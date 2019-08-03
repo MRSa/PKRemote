@@ -28,6 +28,7 @@
     <string name="dialog_confirm_message_output_log">Share the debug log, OK?</string>
 
     <string name="dialog_message_power_off">Power Off</string>
+    <string name="dialog_message_exit_application">Exit Application</string>
 
     <string name="camera_disconnected">Disconnected</string>
     <string name="only_opc_feature">This feature is only available for a OPC Camera.</string>
@@ -240,4 +241,23 @@
     <string name="connect_connecting11">Connecting&#8230;(11/12)</string>
     <string name="connect_connecting12">Connecting&#8230;(12/12)</string>
     <string name="connect_connect_finished">Connect Finished.</string>
+
+    <string name="dialog_panasonic_command_title_command">Send Message(Panasonic)</string>
+    <string name="panasonic_service_string">cam.cgi</string>
+
+    <string name="camera_search_request">Search Camera</string>
+    <string name="camera_wait_reply">Wait Reply</string>
+    <string name="camera_received_reply">Received.</string>
+    <string name="camera_found">Found : </string>
+    <string name="camera_rejected">Rejected&#8230;</string>
+    <string name="camera_detected">Detected : </string>
+
+    <string name="pref_sony_api_list">Sony Camera Api List</string>
+    <string name="dialog_title_reply">Reply</string>
+    <string name="dialog_parameter_hint">(parameter)</string>
+    <string name="dialog_version_hint">1.0</string>
+    <string name="dialog_command_hint">(command)</string>
+    <string name="dialog_service_hint">(service)</string>
+    <string name="action_share">Share</string>
+
 </resources>

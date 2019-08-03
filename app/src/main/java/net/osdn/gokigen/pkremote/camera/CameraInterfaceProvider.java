@@ -25,7 +25,10 @@ import net.osdn.gokigen.pkremote.camera.utils.CameraStatusListener;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.FujiXInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.olympus.IOlympusInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.olympus.wrapper.OlympusInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.PanasonicCameraWrapper;
 import net.osdn.gokigen.pkremote.camera.vendor.ricoh.wrapper.RicohGr2InterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.vendor.sony.ISonyInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.vendor.sony.wrapper.SonyCameraWrapper;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 import androidx.annotation.NonNull;
@@ -38,10 +41,11 @@ import androidx.preference.PreferenceManager;
  */
 public class CameraInterfaceProvider implements IInterfaceProvider
 {
-    //private final SonyCameraWrapper sony;
+    private final SonyCameraWrapper sony;
     private final OlympusInterfaceProvider olympus;
     private final RicohGr2InterfaceProvider ricohGr2;
     private final FujiXInterfaceProvider fujiX;
+    private final PanasonicCameraWrapper panasonic;
     private final IInformationReceiver informationReceiver;
     private final CameraContentsRecognizer cameraContentsRecognizer;
     private final AppCompatActivity context;
@@ -64,7 +68,8 @@ public class CameraInterfaceProvider implements IInterfaceProvider
         olympus = new OlympusInterfaceProvider(context, provider);
         ricohGr2 = new RicohGr2InterfaceProvider(context, provider);
         fujiX = new FujiXInterfaceProvider(context, provider, statusListener, informationReceiver);
-        //sony = new SonyCameraWrapper(context, provider);
+        sony = new SonyCameraWrapper(context, provider, statusListener);
+        panasonic = new PanasonicCameraWrapper(context, provider, statusListener);
         this.informationReceiver = informationReceiver;
         this.cameraContentsRecognizer = new CameraContentsRecognizer(context, this);
     }
@@ -73,6 +78,12 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     public IOlympusInterfaceProvider getOlympusInterfaceProvider()
     {
         return (olympus);
+    }
+
+    @Override
+    public ISonyInterfaceProvider getSonyInterface()
+    {
+        return (sony);
     }
 
     /**
