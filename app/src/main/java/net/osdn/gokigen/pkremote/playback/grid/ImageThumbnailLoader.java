@@ -58,7 +58,7 @@ public class ImageThumbnailLoader implements Runnable
                             public void run() {
                                 viewHolder.getImageView().setImageBitmap(thumbnail);
                                 if (isMovie) {
-                                    viewHolder.getIconView().setImageResource(R.drawable.ic_videocam_black_24dp);
+                                    viewHolder.getIconView().setImageResource(R.drawable.ic_videocam_grey_24dp);
                                 } else if (hasRaw) {
                                     viewHolder.getIconView().setImageResource(R.drawable.ic_raw_black_1x);
                                 } else {

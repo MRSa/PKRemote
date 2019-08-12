@@ -9,8 +9,8 @@ import java.util.Date;
 public class PanasonicImageContentInfo implements ICameraContent
 {
     private final String TAG = toString();
-    private String targetUrl = "";
-    private Date date = null;
+    private String targetUrl;
+    private Date date;
 
     PanasonicImageContentInfo(String targetUrl)
     {

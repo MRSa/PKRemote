@@ -17,6 +17,7 @@
 
     </PreferenceCategory>
 
+<!--
     <PreferenceCategory
         android:title="@string/pref_cat_camera">
 
@@ -25,6 +26,7 @@
             android:title="@string/pref_capture_both_camera_and_live_view" />
 
     </PreferenceCategory>
+-->
 
     <PreferenceCategory
         android:title="@string/pref_cat_initialize">

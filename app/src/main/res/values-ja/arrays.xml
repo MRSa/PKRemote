@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="connection_method">
-        <item>Ricoh GRシリーズ / PENTAX一眼</item>
+        <item>Ricoh GR / PENTAX一眼</item>
         <item>OPC(Olympus Air)</item>
         <item>Fuji X Series</item>
         <item>Panasonic</item>

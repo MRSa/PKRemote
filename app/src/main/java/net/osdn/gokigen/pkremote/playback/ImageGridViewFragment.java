@@ -56,10 +56,13 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	private final String TAG = this.toString();
 
     private static final String MOVIE_SUFFIX = ".mov";
+    private static final String MOVIE_SUFFIX_MP4 = ".mp4";
     private static final String JPEG_SUFFIX = ".jpg";
     private static final String DNG_RAW_SUFFIX = ".dng";
 	private static final String OLYMPUS_RAW_SUFFIX = ".orf";
 	private static final String PENTAX_RAW_PEF_SUFFIX = ".pef";
+    private static final String PANASONIC_RAW_SUFFIX = ".rw2";
+
 
     private MyContentDownloader contentDownloader;
     private GridView gridView;
@@ -436,7 +439,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         {
             //Log.v(TAG, "......contents : [" + item.getContentName() + "]");
             String path = item.getContentName().toLowerCase(Locale.getDefault());
-            if ((path.endsWith(JPEG_SUFFIX))||(path.endsWith(MOVIE_SUFFIX)))
+            if ((path.endsWith(JPEG_SUFFIX))||(path.endsWith(MOVIE_SUFFIX))||(path.endsWith(MOVIE_SUFFIX_MP4)))
             {
                 contentItems.add(new CameraContentEx(item, false, ""));
             }
@@ -451,6 +454,10 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
             else if (path.endsWith(PENTAX_RAW_PEF_SUFFIX))
             {
                 contentItems.add(new CameraContentEx(item, true, PENTAX_RAW_PEF_SUFFIX));
+            }
+            else if (path.endsWith(PANASONIC_RAW_SUFFIX))
+            {
+                contentItems.add(new CameraContentEx(item, true, PANASONIC_RAW_SUFFIX));
             }
         }
 

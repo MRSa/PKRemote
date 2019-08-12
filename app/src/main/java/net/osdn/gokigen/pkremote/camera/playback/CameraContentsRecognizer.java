@@ -138,7 +138,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
                 });
 
                 //// とりあえず、できたコンテンツ一覧をログにダンプしてみる。
-                // dumpCameraContentList();
+                //dumpCameraContentList();
             }
             catch (Exception e)
             {

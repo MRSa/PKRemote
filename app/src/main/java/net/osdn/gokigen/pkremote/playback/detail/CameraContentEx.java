@@ -8,6 +8,8 @@ public class CameraContentEx
 {
     private final ICameraContent fileInfo;
     private static final String MOVIE_SUFFIX = ".mov";
+    private static final String MOVIE_SUFFIX_MP4 = ".mp4";
+
     private String rawSuffix;
     private boolean hasRaw;
     private boolean isSelected;
@@ -39,7 +41,7 @@ public class CameraContentEx
     public boolean isMovie()
     {
         String contentName = fileInfo.getContentName().toLowerCase(Locale.ENGLISH);
-        return (contentName.endsWith(MOVIE_SUFFIX));
+        return ((contentName.endsWith(MOVIE_SUFFIX))||(contentName.endsWith(MOVIE_SUFFIX_MP4)));
     }
 
     public boolean isSelected()

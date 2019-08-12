@@ -13,6 +13,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentCall
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
+import net.osdn.gokigen.pkremote.camera.playback.ProgressEvent;
 import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
 import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera;
 
@@ -86,7 +87,7 @@ public class PanasonicPlaybackControl implements IPlaybackControl
     public void getContentInfo(String path, String name, IContentInfoCallback callback)
     {
         Log.v(TAG, "getContentInfo() : " + path + " / " + name);
-
+        //　画像の情報を取得する
 
     }
 
@@ -104,13 +105,16 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         commandQueue.add(new DownloadScreennailRequest(path, callback));
     }
 
+    /**
+     *   スクリーンネイルを取得するロジック
+     *
+     */
     private void getScreenNailService()
     {
-        final boolean isStart = true;
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (isStart)
+                while (true)
                 {
                     try
                     {
@@ -144,7 +148,7 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         {
             path = path.substring(1);
         }
-        String requestUrl =  panasonicCamera.getPictureUrl() + "DL" + path.substring(2);
+        String requestUrl =  panasonicCamera.getPictureUrl() + "DL" + path.substring(2, path.lastIndexOf(".")) + ".JPG";
         Log.v(TAG, " downloadContentScreennail() : " + requestUrl + "  ");
         try
         {
@@ -167,7 +171,7 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         {
             path = path.substring(1);
         }
-        String requestUrl =  panasonicCamera.getPictureUrl() + "DT" + path.substring(2);
+        String requestUrl =  panasonicCamera.getPictureUrl() + "DT" + path.substring(2, path.lastIndexOf(".")) + ".JPG";
         Log.v(TAG, " downloadContentThumbnail() : " + path + "  [" +  requestUrl + "]");
         try
         {
@@ -184,11 +188,44 @@ public class PanasonicPlaybackControl implements IPlaybackControl
     }
 
     @Override
-    public void downloadContent(String path, boolean isSmallSize, IDownloadContentCallback callback)
+    public void downloadContent(String path, boolean isSmallSize, final IDownloadContentCallback callback)
     {
-        Log.v(TAG, "downloadContent() : " + path + "  [" + isSmallSize + "]");
+        if (path.startsWith("/"))
+        {
+            path = path.substring(1);
+        }
+        String url =  panasonicCamera.getPictureUrl() + path;
+        if (isSmallSize)
+        {
+            url =  panasonicCamera.getPictureUrl() + "DL" + path.substring(2, path.lastIndexOf(".")) + ".JPG";
+        }
+        Log.v(TAG, "downloadContent()  PATH : " + path + " GET URL : " + url + "  [" + isSmallSize + "]");
 
+        try
+        {
+            SimpleHttpClient.httpGetBytes(url, timeoutMs, new SimpleHttpClient.IReceivedMessageCallback() {
+                @Override
+                public void onCompleted() {
+                    callback.onCompleted();
+                }
 
+                @Override
+                public void onErrorOccurred(Exception e) {
+                    callback.onErrorOccurred(e);
+                }
+
+                @Override
+                public void onReceive(int readBytes, int length, int size, byte[] data) {
+                    float percent = (length == 0) ? 0.0f : ((float) readBytes / (float) length);
+                    ProgressEvent event = new ProgressEvent(percent, null);
+                    callback.onProgress(data, size, event);
+                }
+            });
+        }
+        catch (Throwable e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -198,6 +235,11 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         contentList.clear();
         try
         {
+            if (getObjectLists == null)
+            {
+                //何もしないで終了する
+                return;
+            }
             String checkUrl = panasonicCamera.getPictureUrl();
             int maxIndex = getObjectLists.length() - checkUrl.length();
             int index = 0;
@@ -210,22 +252,20 @@ public class PanasonicPlaybackControl implements IPlaybackControl
                 {
                     int lastIndex = getObjectLists.indexOf("&", index);
                     String picUrl = getObjectLists.substring(index + checkUrl.length(), lastIndex);
-                    // Log.v(TAG, " pic : " + picUrl);
                     if (picUrl.startsWith("DO"))
                     {
                         // DO(オリジナル), DL(スクリーンネイル?), DT(サムネイル?)
+                        //Log.v(TAG, " pic : " + picUrl);
                         PanasonicImageContentInfo contentInfo = new PanasonicImageContentInfo(picUrl);
                         contentList.add(contentInfo);
                     }
                     index = lastIndex;
                 }
             }
-
             if (callback != null)
             {
                 callback.onCompleted(contentList);
             }
-
         }
         catch (Exception e)
         {
@@ -237,6 +277,9 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         }
     }
 
+    /**
+     *   スクリーンネイルの取得キューで使用するクラス
+     */
     private class DownloadScreennailRequest
     {
         private final String path;
@@ -251,7 +294,6 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         {
             return (path);
         }
-
         IDownloadThumbnailImageCallback getCallback()
         {
             return (callback);
