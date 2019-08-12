@@ -16,17 +16,22 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
 import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Queue;
 
 public class PanasonicPlaybackControl implements IPlaybackControl
 {
     private final String TAG = toString();
+    private static final int COMMAND_POLL_QUEUE_MS = 50;
     private IPanasonicCamera panasonicCamera = null;
     private int timeoutMs = 50000;
     private String getObjectLists;
     private List<ICameraContent> contentList;
+    private Queue<DownloadScreennailRequest> commandQueue;
+
 
     public PanasonicPlaybackControl()
     {
@@ -38,6 +43,8 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         Log.v(TAG, "setCamera() " + panasonicCamera.getFriendlyName());
         this.panasonicCamera = panasonicCamera;
         this.timeoutMs = timeoutMs;
+        this.commandQueue = new ArrayDeque<>();
+        commandQueue.clear();
     }
 
     public void preprocessPlaymode()
@@ -54,8 +61,11 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         String reply = SimpleHttpClient.httpPostWithHeader(url, postData, "SOAPACTION", "urn:schemas-upnp-org:service:ContentDirectory:1#Browse", "text/xml; charset=\"utf-8\"", timeoutMs);
         getObjectLists = reply;
         String matches = reply.substring(reply.indexOf("<TotalMatches>") + 14, reply.indexOf("</TotalMatches>"));
-        String returned = reply.substring(reply.indexOf("<NumberReturned>") + 16, reply.indexOf("</NumberReturned>"));;
+        String returned = reply.substring(reply.indexOf("<NumberReturned>") + 16, reply.indexOf("</NumberReturned>"));
         Log.v(TAG, "REPLY DATA : (" + matches + ") [" + returned + "] " + " " + reply.length() + "bytes");
+
+        // スクリーンネイルを１こづつ取得するように変更
+        getScreenNailService();
     }
 
     @Override
@@ -90,6 +100,45 @@ public class PanasonicPlaybackControl implements IPlaybackControl
 
     @Override
     public void downloadContentScreennail(String path, IDownloadThumbnailImageCallback callback)
+    {
+        commandQueue.add(new DownloadScreennailRequest(path, callback));
+    }
+
+    private void getScreenNailService()
+    {
+        final boolean isStart = true;
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (isStart)
+                {
+                    try
+                    {
+                        DownloadScreennailRequest request = commandQueue.poll();
+                        if (request != null)
+                        {
+                            downloadContentScreennailImpl(request.getPath(), request.getCallback());
+                        }
+                        Thread.sleep(COMMAND_POLL_QUEUE_MS);
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        try
+        {
+            thread.start();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void downloadContentScreennailImpl(String path, IDownloadThumbnailImageCallback callback)
     {
         if (path.startsWith("/"))
         {
@@ -185,6 +234,27 @@ public class PanasonicPlaybackControl implements IPlaybackControl
             {
                 callback.onErrorOccurred(e);
             }
+        }
+    }
+
+    private class DownloadScreennailRequest
+    {
+        private final String path;
+        private final IDownloadThumbnailImageCallback callback;
+        DownloadScreennailRequest(String path, IDownloadThumbnailImageCallback callback)
+        {
+            this.path = path;
+            this.callback = callback;
+        }
+
+        String getPath()
+        {
+            return (path);
+        }
+
+        IDownloadThumbnailImageCallback getCallback()
+        {
+            return (callback);
         }
     }
 }
