@@ -44,7 +44,9 @@ public class MyContentDownloader implements IDownloadContentCallback
     private static final String RAW_SUFFIX_1 = ".DNG";
     private static final String RAW_SUFFIX_2 = ".ORF";
     private static final String RAW_SUFFIX_3 = ".PEF";
+    private static final String RAW_SUFFIX_4 = ".RW2";
     private static final String MOVIE_SUFFIX = ".MOV";
+    private static final String MOVIE_SUFFIX_MP4 = ".MP4";
     private static final String JPEG_SUFFIX = ".JPG";
     private ProgressDialog downloadDialog = null;
     private FileOutputStream outputStream = null;
@@ -103,7 +105,17 @@ public class MyContentDownloader implements IDownloadContentCallback
                 mimeType = "image/x-pentax-pef";
                 isSmallSize = false;
             }
+            else if (targetFileName.toUpperCase().contains(RAW_SUFFIX_4))
+            {
+                mimeType = "image/x-panasonic-raw2";
+                isSmallSize = false;
+            }
             else if (targetFileName.toUpperCase().contains(MOVIE_SUFFIX))
+            {
+                mimeType =  "video/mp4";
+                isSmallSize = false;
+            }
+            else if (targetFileName.toUpperCase().contains(MOVIE_SUFFIX_MP4))
             {
                 mimeType =  "video/mp4";
                 isSmallSize = false;
