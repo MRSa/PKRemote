@@ -62,6 +62,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	private static final String OLYMPUS_RAW_SUFFIX = ".orf";
 	private static final String PENTAX_RAW_PEF_SUFFIX = ".pef";
     private static final String PANASONIC_RAW_SUFFIX = ".rw2";
+    private static final String SONY_RAW_SUFFIX = ".arw";
 
 
     private MyContentDownloader contentDownloader;
@@ -458,6 +459,10 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
             else if (path.endsWith(PANASONIC_RAW_SUFFIX))
             {
                 contentItems.add(new CameraContentEx(item, true, PANASONIC_RAW_SUFFIX));
+            }
+            else if (path.endsWith(SONY_RAW_SUFFIX))
+            {
+                contentItems.add(new CameraContentEx(item, true, SONY_RAW_SUFFIX));
             }
         }
 
