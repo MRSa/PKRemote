@@ -30,6 +30,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.ricoh.wrapper.RicohGr2InterfacePr
 import net.osdn.gokigen.pkremote.camera.vendor.sony.ISonyInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.sony.wrapper.SonyCameraWrapper;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
+import net.osdn.gokigen.pkremote.preference.panasonic.PanasonicPreferenceFragment;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -104,6 +105,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (fujiX.getFujiXCameraConnection());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getPanasonicCameraConnection());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getRicohGr2CameraConnection());
@@ -129,6 +134,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
             {
                 return (fujiX.getButtonControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getButtonControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -156,6 +165,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (fujiX.getDisplayInjector());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getDisplayInjector());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getDisplayInjector());
@@ -181,6 +194,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
             {
                 return (fujiX.getLiveViewControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getPanasonicLiveViewControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -208,6 +225,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (fujiX.getLiveViewListener());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getLiveViewListener());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getLiveViewListener());
@@ -233,6 +254,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
             {
                 return (fujiX.getFocusingControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getFocusingControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -260,6 +285,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (fujiX.getCameraInformation());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getCameraInformation());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCameraInformation());
@@ -285,6 +314,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
             {
                 return (fujiX.getZoomLensControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getZoomLensControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -312,6 +345,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (fujiX.getCaptureControl());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getCaptureControl());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCaptureControl());
@@ -337,6 +374,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
             {
                 return (fujiX.getCameraStatusListHolder());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getCameraStatusListHolder());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -364,6 +405,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (fujiX.getCameraStatusWatcher());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getCameraStatusWatcher());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCameraStatusWatcher());
@@ -389,6 +434,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
             {
                 return (fujiX.getPlaybackControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getPlaybackControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -416,6 +465,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (fujiX.getHardwareStatus());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getHardwareStatus());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getHardwareStatus());
@@ -441,6 +494,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.FUJI_X)
             {
                 return (fujiX.getCameraRunMode());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+            {
+                return (panasonic.getCameraRunMode());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -512,6 +569,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod.contains("FUJI_X"))
             {
                 ret = ICameraConnection.CameraConnectionMethod.FUJI_X;
+            }
+            else if (connectionMethod.contains("PANASONIC"))
+            {
+                ret = ICameraConnection.CameraConnectionMethod.PANASONIC;
             }
             else // if (connectionMethod.contains("OPC"))
             {

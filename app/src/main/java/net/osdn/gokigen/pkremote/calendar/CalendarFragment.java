@@ -775,7 +775,7 @@ public class CalendarFragment extends Fragment  implements View.OnClickListener,
                             @Override
                             public void run() {
                                 try {
-                                    if ((targetView != null)&&(currentYear == targetYear)&&(currentMonth == targetMonth))
+                                    if ((bitmap != null)&&(targetView != null)&&(currentYear == targetYear)&&(currentMonth == targetMonth))
                                     {
                                         float width = drawWidth;
                                         if (width < 0)

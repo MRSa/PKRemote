@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="connection_method">
-        <item>Ricoh GR II / PENTAX一眼</item>
+        <item>Ricoh GRシリーズ / PENTAX一眼</item>
         <item>OPC(Olympus Air)</item>
-        <item >Fuji X Series</item>
+        <item>Fuji X Series</item>
+        <item>Panasonic</item>
     </string-array>
 
     <string-array name="connection_method_value">
-        <item >RICOH</item>
+        <item>RICOH</item>
         <item>OPC</item>
-        <item >FUJI_X</item>
+        <item>FUJI_X</item>
+        <item>PANASONIC</item>
     </string-array>
 
     <string-array name="sound_volume_level">

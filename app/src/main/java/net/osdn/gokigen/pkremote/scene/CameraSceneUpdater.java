@@ -16,6 +16,7 @@ import net.osdn.gokigen.pkremote.logcat.LogCatFragment;
 import net.osdn.gokigen.pkremote.playback.ImageGridViewFragment;
 import net.osdn.gokigen.pkremote.preference.fujix.FujiXPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.olympus.OpcPreferenceFragment;
+import net.osdn.gokigen.pkremote.preference.panasonic.PanasonicPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.ricohgr2.RicohGr2PreferenceFragment;
 import net.osdn.gokigen.pkremote.transfer.AutoTransferFragment;
 
@@ -307,6 +308,10 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
                         preferenceFragment = FujiXPreferenceFragment.newInstance(activity, this);
                         //} else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY) {
                         //    preferenceFragment = SonyPreferenceFragment.newInstance(this, this);
+                    }
+                    else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
+                    {
+                        preferenceFragment = PanasonicPreferenceFragment.newInstance(activity, this);
                     }
                     else //  if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
                     {

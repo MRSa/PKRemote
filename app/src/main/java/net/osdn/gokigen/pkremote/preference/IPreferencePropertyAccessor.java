@@ -10,6 +10,10 @@ public interface IPreferencePropertyAccessor
     String EXIT_APPLICATION = "exit_application";
 
     String AUTO_CONNECT_TO_CAMERA = "auto_connect_to_camera";
+    String BLE_POWER_ON = "ble_power_on";
+
+    String TAKE_MODE =  "take_mode";
+    String TAKE_MODE_DEFAULT_VALUE =  "P";
 
     String SOUND_VOLUME_LEVEL = "sound_volume_level";
     String SOUND_VOLUME_LEVEL_DEFAULT_VALUE = "OFF";
@@ -30,14 +34,11 @@ public interface IPreferencePropertyAccessor
 
     String SHARE_AFTER_SAVE = "share_after_save";
 
-    String CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW = "capture_both_camera_and_live_view";
-
     String CONNECTION_METHOD = "connection_method";
     String CONNECTION_METHOD_DEFAULT_VALUE = "RICOH";
 
     String GR2_DISPLAY_CAMERA_VIEW = "gr2_display_camera_view";
 
-    String GR2_LCD_SLEEP = "gr2_lcd_sleep";
 
     String USE_GR2_SPECIAL_COMMAND = "use_gr2_special_command";
 
@@ -51,6 +52,17 @@ public interface IPreferencePropertyAccessor
 
     String MAGNIFYING_LIVE_VIEW_SCALE = "magnifying_live_view_scale";
     String MAGNIFYING_LIVE_VIEW_SCALE_DEFAULT_VALUE = "10.0";
+
+    String CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW = "capture_both_camera_and_live_view";
+
+    String OLYCAMERA_BLUETOOTH_SETTINGS = "olympus_air_bt";
+
+    String GR2_DISPLAY_MODE = "gr2_display_mode";
+    String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";
+
+    String GR2_LCD_SLEEP = "gr2_lcd_sleep";
+    String GR2_LIVE_VIEW = "gr2_display_camera_view";
+    String USE_PENTAX_AUTOFOCUS = "use_pentax_autofocus_mode";
 
     String FUJIX_DISPLAY_CAMERA_VIEW = "fujix_display_camera_view";
 

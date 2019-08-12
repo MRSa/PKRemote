@@ -10,5 +10,6 @@ public interface IPanasonicCameraHolder
     void detectedCamera(IPanasonicCamera camera);
     void prepare();
     void startRecMode();
+    void startPlayMode();
     void startEventWatch(@Nullable ICameraChangeListener listener);
 }

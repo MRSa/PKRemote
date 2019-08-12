@@ -57,6 +57,7 @@ public class PanasonicCameraConnectSequence implements Runnable, PanasonicSsdpCl
     {
         try
         {
+            Log.v(TAG, "onDeviceFound() : " + cameraDevice.getFriendlyName());
             cameraStatusReceiver.onStatusNotify(context.getString(R.string.camera_detected) + " " + cameraDevice.getFriendlyName());
             cameraHolder.detectedCamera(cameraDevice);
         }
@@ -80,7 +81,8 @@ public class PanasonicCameraConnectSequence implements Runnable, PanasonicSsdpCl
                     try
                     {
                         cameraHolder.prepare();
-                        cameraHolder.startRecMode();
+                        //cameraHolder.startRecMode();
+                        cameraHolder.startPlayMode();
                         cameraHolder.startEventWatch(listener);
                     }
                     catch (Exception e)

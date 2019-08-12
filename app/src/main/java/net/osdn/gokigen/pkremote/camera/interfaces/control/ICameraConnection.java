@@ -15,6 +15,7 @@ public interface ICameraConnection
         SONY,
         RICOH,
         FUJI_X,
+        PANASONIC,
     }
 
     enum CameraConnectionStatus

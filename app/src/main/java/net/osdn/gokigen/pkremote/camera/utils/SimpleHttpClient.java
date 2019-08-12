@@ -273,7 +273,17 @@ public class SimpleHttpClient
      */
     public static String httpPost(String url, String postData, int timeoutMs)
     {
-        return (httpCommand(url, "POST", postData, timeoutMs));
+        return (httpCommand(url, "POST", postData, null, null, null, timeoutMs));
+    }
+
+    /**
+     *
+     *
+     *
+     */
+    public static String httpPostWithHeader(String url, String postData, String headerKey, String headerValue, String contentType, int timeoutMs)
+    {
+        return (httpCommand(url, "POST", postData, headerKey, headerValue, contentType, timeoutMs));
     }
 
     /**
@@ -283,7 +293,7 @@ public class SimpleHttpClient
      */
     public static String httpPut(String url, String postData, int timeoutMs)
     {
-        return (httpCommand(url, "PUT", postData, timeoutMs));
+        return (httpCommand(url, "PUT", postData, null, null, null, timeoutMs));
     }
 
     /**
@@ -291,7 +301,7 @@ public class SimpleHttpClient
      *
      *
      */
-    private static String httpCommand(String url, String requestMethod, String postData, int timeoutMs)
+    private static String httpCommand(String url, String requestMethod, String postData, String setPropertyKey, String setPropertyValue, String contentType, int timeoutMs)
     {
         HttpURLConnection httpConn = null;
         OutputStream outputStream = null;
@@ -310,6 +320,14 @@ public class SimpleHttpClient
             final URL urlObj = new URL(url);
             httpConn = (HttpURLConnection) urlObj.openConnection();
             httpConn.setRequestMethod(requestMethod);
+            if ((setPropertyKey != null)&&(setPropertyValue != null))
+            {
+                httpConn.setRequestProperty(setPropertyKey, setPropertyValue);
+            }
+            if (contentType != null)
+            {
+                httpConn.setRequestProperty("Content-Type", contentType);
+            }
             httpConn.setConnectTimeout(timeout);
             httpConn.setReadTimeout(timeout);
             httpConn.setDoInput(true);
