@@ -29,6 +29,8 @@ public class PanasonicPlaybackControl implements IPlaybackControl
     private static final int COMMAND_POLL_QUEUE_MS = 50;
     private IPanasonicCamera panasonicCamera = null;
     private int timeoutMs = 50000;
+    private int sequenceNumber = 0;
+    private boolean isStarted = false;
     private String getObjectLists;
     private List<ICameraContent> contentList;
     private Queue<DownloadScreennailRequest> commandQueue;
@@ -48,22 +50,51 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         commandQueue.clear();
     }
 
+    private void getContentList()
+    {
+        if (panasonicCamera == null)
+        {
+            // URLが特定できていないため、送信できないので先に進める
+            return;
+        }
+
+        // PLAYモードに切り替える
+        String requestUrl = this.panasonicCamera.getCmdUrl() + "cam.cgi?mode=camcmd&value=playmode";
+        String reqPlay = SimpleHttpClient.httpGet(requestUrl, this.timeoutMs);
+        if (!reqPlay.contains("ok"))
+        {
+            Log.v(TAG, "CAMERA REPLIED ERROR : CHANGE PLAYMODE.");
+        }
+
+        Log.v(TAG, "  ===== getContentList() " + sequenceNumber + " =====");
+        sequenceNumber++;
+        String url = panasonicCamera.getObjUrl() + "Server0/CDS_control";
+        String postData = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><s:Body>" +
+                "<u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "\" xmlns:pana=\"urn:schemas-panasonic-com:pana\">" +
+                "<ObjectID>0</ObjectID><BrowseFlag>BrowseDirectChildren</BrowseFlag><Filter>*</Filter><StartingIndex>0</StartingIndex><RequestedCount>3500</RequestedCount><SortCriteria></SortCriteria>" +
+                "<pana:X_FromCP>LumixLink2.0</pana:X_FromCP></u:Browse></s:Body></s:Envelope>";
+
+        String reply = SimpleHttpClient.httpPostWithHeader(url, postData, "SOAPACTION", "urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "#Browse", "text/xml; charset=\"utf-8\"", timeoutMs);
+        if (reply.length() < 10)
+        {
+            Log.v(TAG, postData);
+            Log.v(TAG, "ContentDirectory is FAILURE. [" + sequenceNumber + "]");
+            return;
+        }
+        getObjectLists = reply;
+        String matches = reply.substring(reply.indexOf("<TotalMatches>") + 14, reply.indexOf("</TotalMatches>"));
+        String returned = reply.substring(reply.indexOf("<NumberReturned>") + 16, reply.indexOf("</NumberReturned>"));
+        Log.v(TAG, "REPLY DATA : (" + matches + ") [" + returned + "] " + " " + reply.length() + "bytes");
+    }
+
     public void preprocessPlaymode()
     {
         // PLAYBACKモードに切り替わった直後に実行する処理をここに書く。
         Log.v(TAG, "  preprocessPlaymode() : " + panasonicCamera.getObjUrl());
 
-        String url = panasonicCamera.getObjUrl() + "Server0/CDS_control";
-        String postData = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><s:Body>" +
-                "<u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:1\" xmlns:pana=\"urn:schemas-panasonic-com:pana\">" +
-                "<ObjectID>0</ObjectID><BrowseFlag>BrowseDirectChildren</BrowseFlag><Filter>*</Filter><StartingIndex>0</StartingIndex><RequestedCount>1500</RequestedCount><SortCriteria></SortCriteria>" +
-                "<pana:X_FromCP>LumixLink2.0</pana:X_FromCP></u:Browse></s:Body></s:Envelope>";
-
-        String reply = SimpleHttpClient.httpPostWithHeader(url, postData, "SOAPACTION", "urn:schemas-upnp-org:service:ContentDirectory:1#Browse", "text/xml; charset=\"utf-8\"", timeoutMs);
-        getObjectLists = reply;
-        String matches = reply.substring(reply.indexOf("<TotalMatches>") + 14, reply.indexOf("</TotalMatches>"));
-        String returned = reply.substring(reply.indexOf("<NumberReturned>") + 16, reply.indexOf("</NumberReturned>"));
-        Log.v(TAG, "REPLY DATA : (" + matches + ") [" + returned + "] " + " " + reply.length() + "bytes");
+        // 画像情報を取得
+        sequenceNumber = 0;
+        getContentList();
 
         // スクリーンネイルを１こづつ取得するように変更
         getScreenNailService();
@@ -72,21 +103,21 @@ public class PanasonicPlaybackControl implements IPlaybackControl
     @Override
     public String getRawFileSuffix()
     {
-        Log.v(TAG, "getRawFileSuffix()");
+        Log.v(TAG, " getRawFileSuffix()");
         return ("RW2");
     }
 
     @Override
     public void downloadContentList(IDownloadContentListCallback callback)
     {
-        Log.v(TAG, "downloadContentList()");
+        Log.v(TAG, " downloadContentList()");
 
     }
 
     @Override
     public void getContentInfo(String path, String name, IContentInfoCallback callback)
     {
-        Log.v(TAG, "getContentInfo() : " + path + " / " + name);
+        Log.v(TAG, " getContentInfo() : " + path + " / " + name);
         //　画像の情報を取得する
 
     }
@@ -94,7 +125,7 @@ public class PanasonicPlaybackControl implements IPlaybackControl
     @Override
     public void updateCameraFileInfo(@NonNull ICameraFileInfo info)
     {
-        Log.v(TAG, "updateCameraFileInfo() : " + info.getFilename());
+        Log.v(TAG, " updateCameraFileInfo() : " + info.getFilename());
 
 
     }
@@ -111,6 +142,11 @@ public class PanasonicPlaybackControl implements IPlaybackControl
      */
     private void getScreenNailService()
     {
+        if (isStarted)
+        {
+            // すでにスタートしている場合は、スレッドを走らせない
+            return;
+        }
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -134,6 +170,7 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         });
         try
         {
+            isStarted = true;
             thread.start();
         }
         catch (Exception e)
@@ -232,6 +269,10 @@ public class PanasonicPlaybackControl implements IPlaybackControl
     public void getCameraContentList(ICameraContentListCallback callback)
     {
         Log.v(TAG, "  getCameraContentList()");
+
+        // 画像情報を取得
+        getContentList();
+
         contentList.clear();
         try
         {
