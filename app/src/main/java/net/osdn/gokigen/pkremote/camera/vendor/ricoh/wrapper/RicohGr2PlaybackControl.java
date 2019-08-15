@@ -308,8 +308,9 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         {
             e.printStackTrace();
         }
-*/
         return (cameraContent.getCapturedDate());
+*/
+        return (null);
     }
 
 
@@ -434,8 +435,12 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
                     {
                         String fileName = filesArray.getString(fileIndex);
                         //Log.v(TAG, "FILE : " + fileName);
-                        ICameraContent cameraContent = new CameraContentInfo(cameraId, "sd1", dirName, fileName, new Date());
-                        cameraContent.setCapturedDate(getCameraContentDate(cameraContent));
+                        ICameraContent cameraContent = new CameraContentInfo(cameraId, "sd1", dirName, fileName, null);
+                        Date capturedDate = getCameraContentDate(cameraContent);
+                        if (capturedDate != null)
+                        {
+                            cameraContent.setCapturedDate(capturedDate);
+                        }
                         fileList.add(cameraContent);
                     }
                 }

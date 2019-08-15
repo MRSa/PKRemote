@@ -11,6 +11,7 @@ public class CameraContentInfo implements ICameraContent
     private final String contentPath;
     private final String contentName;
     private Date capturedDate;
+    private boolean isDateValid;
 
     public CameraContentInfo(String cameraId, String cardId, String contentPath, String contentName, Date date)
     {
@@ -18,8 +19,16 @@ public class CameraContentInfo implements ICameraContent
         this.cardId = cardId;
         this.contentPath = contentPath;
         this.contentName = contentName;
-        this.capturedDate = date;
-
+        if (date == null)
+        {
+            this.capturedDate = new Date();
+            isDateValid = false;
+        }
+        else
+        {
+            this.capturedDate = date;
+            isDateValid = true;
+        }
     }
 
     @Override
@@ -47,6 +56,12 @@ public class CameraContentInfo implements ICameraContent
     }
 
     @Override
+    public boolean isDateValid()
+    {
+        return (isDateValid);
+    }
+
+    @Override
     public Date getCapturedDate()
     {
         return (capturedDate);
@@ -56,5 +71,6 @@ public class CameraContentInfo implements ICameraContent
     public void setCapturedDate(Date date)
     {
         this.capturedDate = date;
+        isDateValid = true;
     }
 }

@@ -14,6 +14,7 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
     private final String TAG = toString();
     private final int indexNumber;
     private boolean isReceived = false;
+    private boolean isDateValid = false;
     private Date date = null;
     private String realFileName = null;
     private byte[] rx_body;
@@ -28,6 +29,7 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
         else
         {
             date = new Date();
+            isDateValid = false;
         }
     }
 
@@ -67,6 +69,12 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
     }
 
     @Override
+    public boolean isDateValid()
+    {
+        return (isDateValid);
+    }
+
+    @Override
     public Date getCapturedDate()
     {
         return (date);
@@ -78,6 +86,7 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
         try
         {
             this.date = date;
+            isDateValid = true;
         }
         catch (Exception e)
         {
@@ -129,6 +138,7 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
                 Log.v(TAG, "[" + indexNumber + "] FILE NAME : " + realFileName + "  DATE : '" + dateString + "'");
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.ENGLISH);
                 date = dateFormat.parse(dateString);
+                isDateValid = true;
                 isReceived = true;
             }
         }

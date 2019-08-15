@@ -11,6 +11,7 @@ public class PanasonicImageContentInfo implements ICameraContent
     private final String TAG = toString();
     private String targetUrl;
     private Date date;
+    private boolean isDateValid = false;
 
     PanasonicImageContentInfo(String targetUrl)
     {
@@ -43,6 +44,11 @@ public class PanasonicImageContentInfo implements ICameraContent
     }
 
     @Override
+    public boolean isDateValid() {
+        return (isDateValid);
+    }
+
+    @Override
     public Date getCapturedDate()
     {
         return (date);
@@ -53,5 +59,6 @@ public class PanasonicImageContentInfo implements ICameraContent
     {
         Log.v(TAG, "setCapturedDate()");
         this.date = date;
+        isDateValid = true;
     }
 }

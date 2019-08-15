@@ -8,6 +8,7 @@ public interface ICameraContent
     String getCardId();
     String getContentPath();
     String getContentName();
+    boolean isDateValid();
     Date getCapturedDate();
     void setCapturedDate(Date date);
 }
