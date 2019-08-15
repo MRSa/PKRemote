@@ -37,7 +37,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
     private final String TAG = toString();
     private final String getPhotoUrl = "http://192.168.0.1/v1/photos/";
     private final RicohGr2StatusChecker statusChecker;
-    private static final int DEFAULT_TIMEOUT = 7700;
+    private static final int DEFAULT_TIMEOUT = 10000;
     private final boolean useGrCommand;
 
 
