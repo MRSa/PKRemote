@@ -29,9 +29,8 @@ public class PanasonicPlaybackControl implements IPlaybackControl
     private static final int COMMAND_POLL_QUEUE_MS = 50;
     private IPanasonicCamera panasonicCamera = null;
     private int timeoutMs = 50000;
-    private int sequenceNumber = 0;
     private boolean isStarted = false;
-    private String getObjectLists;
+    private StringBuffer getObjectLists = null;
     private List<ICameraContent> contentList;
     private Queue<DownloadScreennailRequest> commandQueue;
 
@@ -66,25 +65,50 @@ public class PanasonicPlaybackControl implements IPlaybackControl
             Log.v(TAG, "CAMERA REPLIED ERROR : CHANGE PLAYMODE.");
         }
 
-        Log.v(TAG, "  ===== getContentList() " + sequenceNumber + " =====");
-        sequenceNumber++;
-        String url = panasonicCamera.getObjUrl() + "Server0/CDS_control";
-        String postData = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><s:Body>" +
-                "<u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "\" xmlns:pana=\"urn:schemas-panasonic-com:pana\">" +
-                "<ObjectID>0</ObjectID><BrowseFlag>BrowseDirectChildren</BrowseFlag><Filter>*</Filter><StartingIndex>0</StartingIndex><RequestedCount>3500</RequestedCount><SortCriteria></SortCriteria>" +
-                "<pana:X_FromCP>LumixLink2.0</pana:X_FromCP></u:Browse></s:Body></s:Envelope>";
-
-        String reply = SimpleHttpClient.httpPostWithHeader(url, postData, "SOAPACTION", "urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "#Browse", "text/xml; charset=\"utf-8\"", timeoutMs);
-        if (reply.length() < 10)
+        ////////////  ある程度の数に区切って送られてくる... 何度か繰り返す必要があるようだ  ////////////
+        getObjectLists = new StringBuffer();
+        int sequenceNumber = 0;
+        int totalCount = 100000;
+        int returnedCount = 0;
+        while (totalCount > returnedCount)
         {
-            Log.v(TAG, postData);
-            Log.v(TAG, "ContentDirectory is FAILURE. [" + sequenceNumber + "]");
-            return;
+            Log.v(TAG, "  ===== getContentList() " + sequenceNumber + " =====");
+            sequenceNumber++;
+            String url = panasonicCamera.getObjUrl() + "Server0/CDS_control";
+            String postData = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><s:Body>" +
+                    "<u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "\" xmlns:pana=\"urn:schemas-panasonic-com:pana\">" +
+                    "<ObjectID>0</ObjectID><BrowseFlag>BrowseDirectChildren</BrowseFlag><Filter>*</Filter><StartingIndex>" + returnedCount + "</StartingIndex><RequestedCount>3500</RequestedCount><SortCriteria></SortCriteria>" +
+                    "<pana:X_FromCP>LumixLink2.0</pana:X_FromCP></u:Browse></s:Body></s:Envelope>";
+
+            String reply = SimpleHttpClient.httpPostWithHeader(url, postData, "SOAPACTION", "urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "#Browse", "text/xml; charset=\"utf-8\"", timeoutMs);
+            if (reply.length() < 10) {
+                Log.v(TAG, postData);
+                Log.v(TAG, "ContentDirectory is FAILURE. [" + sequenceNumber + "]");
+                break;
+            }
+            getObjectLists = getObjectLists.append(reply);
+            String matches = reply.substring(reply.indexOf("<TotalMatches>") + 14, reply.indexOf("</TotalMatches>"));
+            try
+            {
+                totalCount = Integer.parseInt(matches);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                totalCount = 0;
+            }
+
+            String returned = reply.substring(reply.indexOf("<NumberReturned>") + 16, reply.indexOf("</NumberReturned>"));
+            try
+            {
+                returnedCount = returnedCount + Integer.parseInt(returned);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            Log.v(TAG, "  REPLY DATA : (" + matches + "/" + totalCount + ") [" + returned + "/" + returnedCount + "] " + " " + reply.length() + "bytes");
         }
-        getObjectLists = reply;
-        String matches = reply.substring(reply.indexOf("<TotalMatches>") + 14, reply.indexOf("</TotalMatches>"));
-        String returned = reply.substring(reply.indexOf("<NumberReturned>") + 16, reply.indexOf("</NumberReturned>"));
-        Log.v(TAG, "REPLY DATA : (" + matches + ") [" + returned + "] " + " " + reply.length() + "bytes");
     }
 
     public void preprocessPlaymode()
@@ -93,7 +117,6 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         Log.v(TAG, "  preprocessPlaymode() : " + panasonicCamera.getObjUrl());
 
         // 画像情報を取得
-        sequenceNumber = 0;
         getContentList();
 
         // スクリーンネイルを１こづつ取得するように変更
@@ -281,18 +304,19 @@ public class PanasonicPlaybackControl implements IPlaybackControl
                 //何もしないで終了する
                 return;
             }
+            String objectString = getObjectLists.toString();
             String checkUrl = panasonicCamera.getPictureUrl();
-            int maxIndex = getObjectLists.length() - checkUrl.length();
+            int maxIndex = objectString.length() - checkUrl.length();
             int index = 0;
 
             // データを解析してリストを作る
             while ((index >= 0) && (index < maxIndex))
             {
-                index = getObjectLists.indexOf(checkUrl, index);
+                index = objectString.indexOf(checkUrl, index);
                 if (index > 0)
                 {
-                    int lastIndex = getObjectLists.indexOf("&", index);
-                    String picUrl = getObjectLists.substring(index + checkUrl.length(), lastIndex);
+                    int lastIndex = objectString.indexOf("&", index);
+                    String picUrl = objectString.substring(index + checkUrl.length(), lastIndex);
                     if (picUrl.startsWith("DO"))
                     {
                         // DO(オリジナル), DL(スクリーンネイル?), DT(サムネイル?)
