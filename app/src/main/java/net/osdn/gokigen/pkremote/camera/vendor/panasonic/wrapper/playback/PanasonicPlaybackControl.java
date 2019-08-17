@@ -277,6 +277,7 @@ public class PanasonicPlaybackControl implements IPlaybackControl
                 @Override
                 public void onReceive(int readBytes, int length, int size, byte[] data) {
                     float percent = (length == 0) ? 0.0f : ((float) readBytes / (float) length);
+                    //Log.v(TAG, " onReceive : " + readBytes + " " + length + " " + size);
                     ProgressEvent event = new ProgressEvent(percent, null);
                     callback.onProgress(data, size, event);
                 }

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -15,13 +14,11 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.IFujiXInterfaceProvider;
-import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -142,7 +139,7 @@ public class FujiXConnection implements ICameraConnection
     {
         Log.v(TAG, "alertConnectingFailed() : " + message);
         final AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.dialog_title_connect_failed))
+                .setTitle(context.getString(R.string.dialog_title_connect_failed_fuji))
                 .setMessage(message)
                 .setPositiveButton(context.getString(R.string.dialog_title_button_retry), new DialogInterface.OnClickListener() {
                     @Override

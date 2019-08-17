@@ -69,7 +69,7 @@ public class FujiXCameraConnectSequenceForRead implements Runnable, IFujiXComman
                 if (!interfaceProvider.getCommandCommunication().connect())
                 {
                     // 接続失敗...
-                    onConnectError(context.getString(R.string.dialog_title_connect_failed));
+                    onConnectError(context.getString(R.string.dialog_title_connect_failed_fuji));
                     return;
                 }
             }

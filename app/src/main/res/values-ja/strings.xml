@@ -70,7 +70,12 @@
     <string name="pref_degug_info">デバッグ情報</string>
     <string name="pref_summary_debug_info">LogCat情報を表示します。</string>
 
-    <string name="dialog_title_connect_failed">接続失敗</string>
+    <string name="dialog_title_connect_failed_ricoh">接続失敗(RICOH)</string>
+    <string name="dialog_title_connect_failed_sony">接続失敗(SONY)</string>
+    <string name="dialog_title_connect_failed_opc">接続失敗(OPC)</string>
+    <string name="dialog_title_connect_failed_panasonic">接続失敗(Panasonic)</string>
+    <string name="dialog_title_connect_failed_fuji">接続失敗(FUJI)</string>
+
     <string name="dialog_title_button_retry">再接続</string>
     <string name="dialog_title_button_network_settings">WiFi設定</string>
 

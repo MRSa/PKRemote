@@ -256,7 +256,7 @@ public class OlyCameraConnection implements ICameraConnection, OLYCameraConnecti
     public void alertConnectingFailed(String message)
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.dialog_title_connect_failed))
+                .setTitle(context.getString(R.string.dialog_title_connect_failed_opc))
                 .setMessage(message)
                 .setPositiveButton(context.getString(R.string.dialog_title_button_retry), new DialogInterface.OnClickListener() {
                     @Override

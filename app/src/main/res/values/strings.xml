@@ -69,7 +69,12 @@
     <string name="pref_degug_info">Debug Information</string>
     <string name="pref_summary_debug_info">LogCat Information</string>
 
-    <string name="dialog_title_connect_failed">Connect failed</string>
+    <string name="dialog_title_connect_failed_ricoh">Connect failed (RICOH)</string>
+    <string name="dialog_title_connect_failed_sony">Connect failed (SONY)</string>
+    <string name="dialog_title_connect_failed_opc">Connect failed (OPC)</string>
+    <string name="dialog_title_connect_failed_panasonic">Connect failed (Panasonic)</string>
+    <string name="dialog_title_connect_failed_fuji">Connect failed (FUJI)</string>
+
     <string name="dialog_title_button_retry">Retry</string>
     <string name="dialog_title_button_network_settings">WiFi Settings</string>
 

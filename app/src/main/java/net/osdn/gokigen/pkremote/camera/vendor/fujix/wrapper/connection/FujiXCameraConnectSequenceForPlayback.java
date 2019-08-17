@@ -76,8 +76,8 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
                 if (!interfaceProvider.getCommandCommunication().connect())
                 {
                     // 接続失敗...
-                    interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.dialog_title_connect_failed), false, true, Color.RED);
-                    onConnectError(context.getString(R.string.dialog_title_connect_failed));
+                    interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.dialog_title_connect_failed_fuji), false, true, Color.RED);
+                    onConnectError(context.getString(R.string.dialog_title_connect_failed_fuji));
                     return;
                 }
             }
@@ -95,7 +95,7 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
         catch (Exception e)
         {
             e.printStackTrace();
-            interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.dialog_title_connect_failed), false, true, Color.RED);
+            interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.dialog_title_connect_failed_fuji), false, true, Color.RED);
             onConnectError(e.getLocalizedMessage());
         }
     }
