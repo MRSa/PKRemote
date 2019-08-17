@@ -77,7 +77,8 @@ public interface IPreferencePropertyAccessor
 
     String FUJIX_CONNECTION_FOR_READ = "fujix_connection_for_read";
 
-
+    String RICOH_GET_PICS_LIST_TIMEOUT = "ricoh_get_pics_list_timeout";
+    String RICOH_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE = "10";
 /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
     //String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";

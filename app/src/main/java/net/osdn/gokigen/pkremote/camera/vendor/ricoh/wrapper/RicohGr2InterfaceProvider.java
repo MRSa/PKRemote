@@ -67,6 +67,19 @@ public class RicohGr2InterfaceProvider implements IRicohGr2InterfaceProvider, ID
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         useGrCommand = preferences.getBoolean(IPreferencePropertyAccessor.USE_GR2_SPECIAL_COMMAND, true);
         pentaxCaptureAfterAf = preferences.getBoolean(IPreferencePropertyAccessor.PENTAX_CAPTURE_AFTER_AF, false);
+        int communicationTimeoutMs = 10000;  // デフォルトは 10000ms とする
+        try
+        {
+            communicationTimeoutMs = Integer.parseInt(preferences.getString(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT, IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE)) * 1000;
+            if (communicationTimeoutMs < 3000)
+            {
+                communicationTimeoutMs = 3000;  // 最小値は 3000msとする。
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
         //this.activity = context;
         //this.provider = provider;
@@ -75,7 +88,7 @@ public class RicohGr2InterfaceProvider implements IRicohGr2InterfaceProvider, ID
         zoomControl = new RicohGr2CameraZoomLensControl();
         buttonControl = new RicohGr2CameraButtonControl();
         statusChecker = new RicohGr2StatusChecker(500, useGrCommand);
-        playbackControl = new RicohGr2PlaybackControl(statusChecker, useGrCommand);
+        playbackControl = new RicohGr2PlaybackControl(statusChecker, useGrCommand, communicationTimeoutMs);
         hardwareStatus = new RicohGr2HardwareStatus();
         runMode = new RicohGr2RunMode();
     }

@@ -37,8 +37,10 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
     private final String TAG = toString();
     private final String getPhotoUrl = "http://192.168.0.1/v1/photos/";
     private final RicohGr2StatusChecker statusChecker;
-    private static final int DEFAULT_TIMEOUT = 30000;
+    private static final int DEFAULT_TIMEOUT = 3000;
     private final boolean useGrCommand;
+    private final int timeoutValue;
+
 
 
     /*****
@@ -54,10 +56,11 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
             動画をダウンロードする      ： http://192.168.0.1/v1/photos/yyyRICOH/R0000xxx.MOV?size=full
      *****/
 
-    RicohGr2PlaybackControl(RicohGr2StatusChecker statusChecker, boolean useGrCommand)
+    RicohGr2PlaybackControl(RicohGr2StatusChecker statusChecker, boolean useGrCommand, int timeoutMs)
     {
         this.statusChecker = statusChecker;
         this.useGrCommand = useGrCommand;
+        this.timeoutValue  = (timeoutMs < DEFAULT_TIMEOUT) ? DEFAULT_TIMEOUT : timeoutMs;
     }
 
     @Override
@@ -74,7 +77,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         String contentList;
         try
         {
-            contentList = SimpleHttpClient.httpGet(imageListurl, DEFAULT_TIMEOUT);
+            contentList = SimpleHttpClient.httpGet(imageListurl, timeoutValue);
             if (contentList == null)
             {
                 // ぬるぽ発行
@@ -123,7 +126,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         Log.v(TAG, "updateCameraFileInfo() GET URL : " + url);
         try
         {
-            String response = SimpleHttpClient.httpGet(url, DEFAULT_TIMEOUT);
+            String response = SimpleHttpClient.httpGet(url, timeoutValue);
             if ((response == null)||(response.length() < 1))
             {
                 return;
@@ -170,7 +173,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         Log.v(TAG, "getContentInfo() GET URL : " + url);
         try
         {
-            String response = SimpleHttpClient.httpGet(url, DEFAULT_TIMEOUT);
+            String response = SimpleHttpClient.httpGet(url, timeoutValue);
             if ((response == null)||(response.length() < 1))
             {
                 callback.onErrorOccurred(new NullPointerException());
@@ -208,7 +211,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         Log.v(TAG, "downloadContentScreennail() GET URL : " + url);
         try
         {
-            Bitmap bmp = SimpleHttpClient.httpGetBitmap(url, DEFAULT_TIMEOUT);
+            Bitmap bmp = SimpleHttpClient.httpGetBitmap(url, timeoutValue);
             HashMap<String, Object> map = new HashMap<>();
             map.put("Orientation", 0);
             callback.onCompleted(bmp, map);
@@ -232,7 +235,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         Log.v(TAG, "downloadContentThumbnail() GET URL : " + url);
         try
         {
-            Bitmap bmp = SimpleHttpClient.httpGetBitmap(url, DEFAULT_TIMEOUT);
+            Bitmap bmp = SimpleHttpClient.httpGetBitmap(url, timeoutValue);
             HashMap<String, Object> map = new HashMap<>();
             map.put("Orientation", 0);
             callback.onCompleted(bmp, map);
@@ -257,7 +260,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         Log.v(TAG, "downloadContent() GET URL : " + url);
         try
         {
-            SimpleHttpClient.httpGetBytes(url, DEFAULT_TIMEOUT, new SimpleHttpClient.IReceivedMessageCallback() {
+            SimpleHttpClient.httpGetBytes(url, timeoutValue, new SimpleHttpClient.IReceivedMessageCallback() {
                 @Override
                 public void onCompleted() {
                     callback.onCompleted();
@@ -348,7 +351,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         String contentList;
 
         // try ～ catch でくくらない ... だめだったら PENTAXのシーケンスに入るようにしたいので
-        contentList = SimpleHttpClient.httpGet(imageListurl, DEFAULT_TIMEOUT);
+        contentList = SimpleHttpClient.httpGet(imageListurl, timeoutValue);
         if (contentList == null)
         {
             // ぬるぽ発行
@@ -401,7 +404,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         String contentList;
         try
         {
-            contentList = SimpleHttpClient.httpGet(imageListurl, DEFAULT_TIMEOUT);
+            contentList = SimpleHttpClient.httpGet(imageListurl, timeoutValue);
             if (contentList == null)
             {
                 // ぬるぽ発行
