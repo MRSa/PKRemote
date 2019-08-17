@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 
@@ -178,6 +180,39 @@ public class SimpleHttpClient
         try
         {
             int contentLength = httpConn.getContentLength();
+            if (contentLength < 0)
+            {
+                // コンテンツ長が取れない場合の処理...
+                try
+                {
+                    Map<String, List<String>> headers = httpConn.getHeaderFields();
+
+                    /*
+                    // 応答ヘッダをすべてダンプするロジック...
+                    for (String key : headers.keySet())
+                    {
+                        final List<String> valueList = headers.get(key);
+                        Log.v(TAG, " " + key + " : " + getValue(valueList));
+                    }
+                    */
+
+                    // コンテンツ長さが取れない場合は、HTTP応答ヘッダから取得する
+                    List<String> valueList = headers.get("X-FILE_SIZE");
+                    try
+                    {
+                        contentLength = Integer.parseInt(getValue(valueList));
+                    }
+                    catch (Exception ee)
+                    {
+                        ee.printStackTrace();
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
             byte[] buffer = new byte[BUFFER_SIZE];
             int readBytes = 0;
             int readSize = inputStream.read(buffer, 0, BUFFER_SIZE);
@@ -208,6 +243,26 @@ public class SimpleHttpClient
             }
         }
         callback.onCompleted();
+    }
+
+    public static String getValue(List<String> valueList)
+    {
+        // 応答ヘッダの値切り出し用...
+        boolean isFirst = true;
+        final StringBuilder values = new StringBuilder();
+        for (String value : valueList)
+        {
+            values.append(value);
+            if (isFirst)
+            {
+                isFirst = false;
+            }
+            else
+            {
+                values.append(" ");
+            }
+        }
+        return (values.toString());
     }
 
     /**
