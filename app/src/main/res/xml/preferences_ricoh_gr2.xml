@@ -93,6 +93,13 @@
             android:inputType="number"
             android:summary="@string/pref_summary_ricoh_get_pics_list_timeout" />
 
+        <EditTextPreference
+            android:key="ricoh_get_pics_list_max_count"
+            android:title="@string/pref_ricoh_get_pics_list_max_count"
+            android:defaultValue="3000"
+            android:inputType="number"
+            android:summary="@string/pref_summary_ricoh_get_pics_list_max_count" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

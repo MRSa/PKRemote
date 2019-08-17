@@ -79,7 +79,12 @@ public interface IPreferencePropertyAccessor
 
     String RICOH_GET_PICS_LIST_TIMEOUT = "ricoh_get_pics_list_timeout";
     String RICOH_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE = "10";
-/*
+
+    String RICOH_GET_PICS_LIST_MAX_COUNT = "ricoh_get_pics_list_max_count";
+    String RICOH_GET_PICS_LIST_MAX_COUNT_DEFAULT_VALUE = "3000";
+
+
+    /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
     //String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";
 

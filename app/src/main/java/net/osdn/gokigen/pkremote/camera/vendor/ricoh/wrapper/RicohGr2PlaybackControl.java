@@ -38,10 +38,10 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
     private final String getPhotoUrl = "http://192.168.0.1/v1/photos/";
     private final RicohGr2StatusChecker statusChecker;
     private static final int DEFAULT_TIMEOUT = 3000;
+    private static final int DEFAULT_MAX_COUNT = 300;
     private final boolean useGrCommand;
     private final int timeoutValue;
-
-
+    private final int maxCount;
 
     /*****
          [操作メモ]
@@ -56,11 +56,12 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
             動画をダウンロードする      ： http://192.168.0.1/v1/photos/yyyRICOH/R0000xxx.MOV?size=full
      *****/
 
-    RicohGr2PlaybackControl(RicohGr2StatusChecker statusChecker, boolean useGrCommand, int timeoutMs)
+    RicohGr2PlaybackControl(RicohGr2StatusChecker statusChecker, boolean useGrCommand, int timeoutMs, int maxCount)
     {
         this.statusChecker = statusChecker;
         this.useGrCommand = useGrCommand;
         this.timeoutValue  = (timeoutMs < DEFAULT_TIMEOUT) ? DEFAULT_TIMEOUT : timeoutMs;
+        this.maxCount  = (maxCount < DEFAULT_MAX_COUNT) ? DEFAULT_MAX_COUNT : maxCount;
     }
 
     @Override
@@ -73,7 +74,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
     public void downloadContentList(@NonNull IDownloadContentListCallback callback)
     {
         List<ICameraFileInfo> fileList = new ArrayList<>();
-        String imageListurl = "http://192.168.0.1/v1/photos?limit=3000";
+        String imageListurl = "http://192.168.0.1/v1/photos?" + maxCount;
         String contentList;
         try
         {
@@ -400,7 +401,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
     private void getCameraContentListImpl(ICameraContentListCallback callback)
     {
         List<ICameraContent> fileList = new ArrayList<>();
-        String imageListurl = "http://192.168.0.1/v1/photos?limit=3000";
+        String imageListurl = "http://192.168.0.1/v1/photos?limit=" + maxCount;
         String contentList;
         try
         {

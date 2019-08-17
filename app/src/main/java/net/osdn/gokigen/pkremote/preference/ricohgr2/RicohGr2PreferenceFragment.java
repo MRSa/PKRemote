@@ -137,6 +137,9 @@ public class RicohGr2PreferenceFragment  extends PreferenceFragmentCompat implem
             if (!items.containsKey(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT)) {
                 editor.putString(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT, IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_MAX_COUNT)) {
+                editor.putString(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_MAX_COUNT, IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_MAX_COUNT_DEFAULT_VALUE);
+            }
             editor.apply();
         }
         catch (Exception e)

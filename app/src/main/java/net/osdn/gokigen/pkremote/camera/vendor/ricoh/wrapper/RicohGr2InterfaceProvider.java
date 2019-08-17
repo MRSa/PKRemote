@@ -80,6 +80,19 @@ public class RicohGr2InterfaceProvider implements IRicohGr2InterfaceProvider, ID
         {
             e.printStackTrace();
         }
+        int maxCount = 3000;  // デフォルトは 3000枚 とする
+        try
+        {
+            maxCount = Integer.parseInt(preferences.getString(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_MAX_COUNT, IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_MAX_COUNT_DEFAULT_VALUE));
+            if (maxCount < 300)
+            {
+                maxCount = 300;  // 最小値は 300枚とする。
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
         //this.activity = context;
         //this.provider = provider;
@@ -88,7 +101,7 @@ public class RicohGr2InterfaceProvider implements IRicohGr2InterfaceProvider, ID
         zoomControl = new RicohGr2CameraZoomLensControl();
         buttonControl = new RicohGr2CameraButtonControl();
         statusChecker = new RicohGr2StatusChecker(500, useGrCommand);
-        playbackControl = new RicohGr2PlaybackControl(statusChecker, useGrCommand, communicationTimeoutMs);
+        playbackControl = new RicohGr2PlaybackControl(statusChecker, useGrCommand, communicationTimeoutMs, maxCount);
         hardwareStatus = new RicohGr2HardwareStatus();
         runMode = new RicohGr2RunMode();
     }
