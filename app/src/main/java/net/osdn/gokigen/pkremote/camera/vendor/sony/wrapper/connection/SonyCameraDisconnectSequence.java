@@ -11,7 +11,6 @@ public class SonyCameraDisconnectSequence implements Runnable
         //this.powerOff = isOff;
     }
 
-
     @Override
     public void run()
     {

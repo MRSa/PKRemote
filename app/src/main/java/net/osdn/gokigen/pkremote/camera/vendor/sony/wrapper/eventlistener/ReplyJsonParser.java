@@ -1,6 +1,5 @@
 package net.osdn.gokigen.pkremote.camera.vendor.sony.wrapper.eventlistener;
 
-
 import android.os.Handler;
 import android.util.Log;
 
