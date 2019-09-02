@@ -53,6 +53,8 @@ public interface ISonyCameraApi
     JSONObject getSchemeList();
     JSONObject getSourceList(String scheme);
 
+    JSONObject getContentCountFlatAll(String uri);
+
     JSONObject getContentList(JSONArray params);
 
     JSONObject setStreamingContent(String uri);

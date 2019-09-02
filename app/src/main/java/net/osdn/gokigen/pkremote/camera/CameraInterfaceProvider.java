@@ -109,6 +109,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (panasonic.getPanasonicCameraConnection());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getSonyCameraConnection());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getRicohGr2CameraConnection());
@@ -138,6 +142,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
             {
                 return (panasonic.getButtonControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getButtonControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -169,6 +177,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (panasonic.getDisplayInjector());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getDisplayInjector());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getDisplayInjector());
@@ -198,6 +210,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
             {
                 return (panasonic.getPanasonicLiveViewControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getLiveViewControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -229,6 +245,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (panasonic.getLiveViewListener());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getLiveViewListener());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getLiveViewListener());
@@ -258,6 +278,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
             {
                 return (panasonic.getFocusingControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getFocusingControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -289,6 +313,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (panasonic.getCameraInformation());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getCameraInformation());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCameraInformation());
@@ -318,6 +346,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
             {
                 return (panasonic.getZoomLensControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getZoomLensControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -349,6 +381,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (panasonic.getCaptureControl());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getCaptureControl());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCaptureControl());
@@ -378,6 +414,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
             {
                 return (panasonic.getCameraStatusListHolder());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getCameraStatusListHolder());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -409,6 +449,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (panasonic.getCameraStatusWatcher());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getCameraStatusWatcher());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCameraStatusWatcher());
@@ -438,6 +482,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
             {
                 return (panasonic.getPlaybackControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getPlaybackControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -469,6 +517,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (panasonic.getHardwareStatus());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getHardwareStatus());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getHardwareStatus());
@@ -498,6 +550,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PANASONIC)
             {
                 return (panasonic.getCameraRunMode());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+            {
+                return (sony.getCameraRunMode());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -573,6 +629,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod.contains("PANASONIC"))
             {
                 ret = ICameraConnection.CameraConnectionMethod.PANASONIC;
+            }
+            else if (connectionMethod.contains("SONY"))
+            {
+                ret = ICameraConnection.CameraConnectionMethod.SONY;
             }
             else // if (connectionMethod.contains("OPC"))
             {

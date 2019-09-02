@@ -462,6 +462,21 @@ class SonyCameraApi implements ISonyCameraApi
     }
 
     @Override
+    public JSONObject getContentCountFlatAll(String uri)
+    {
+        try {
+            JSONObject params = new JSONObject();
+            params.put("uri", uri);
+            params.put("target", "all");
+            params.put("view", "flat");
+            return (communicateJSON("avContent", "getContentCount", new JSONArray().put(0, params), "1.2", -1));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return (new JSONObject());
+    }
+
+    @Override
     public JSONObject getContentList(JSONArray params)
     {
         try {
@@ -470,7 +485,6 @@ class SonyCameraApi implements ISonyCameraApi
             e.printStackTrace();
         }
         return (new JSONObject());
-
     }
 
     @Override
@@ -536,7 +550,7 @@ class SonyCameraApi implements ISonyCameraApi
         return (communicateJSON(service, method, params, version, -1));
     }
 
-    public static boolean isErrorReply(JSONObject replyJson)
+    static boolean isErrorReply(JSONObject replyJson)
     {
         return ((replyJson != null && replyJson.has("error")));
     }

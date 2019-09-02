@@ -12,12 +12,14 @@ import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentsRecognizer;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.vendor.sony.cameraproperty.SonyCameraApiListFragment;
 import net.osdn.gokigen.pkremote.logcat.LogCatFragment;
 import net.osdn.gokigen.pkremote.playback.ImageGridViewFragment;
 import net.osdn.gokigen.pkremote.preference.fujix.FujiXPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.olympus.OpcPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.panasonic.PanasonicPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.ricohgr2.RicohGr2PreferenceFragment;
+import net.osdn.gokigen.pkremote.preference.sony.SonyPreferenceFragment;
 import net.osdn.gokigen.pkremote.transfer.AutoTransferFragment;
 
 import androidx.annotation.NonNull;
@@ -43,6 +45,7 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     private CalendarFragment calendarFragment = null;
     private ImageGridViewFragment gridViewFragment = null;
     private AutoTransferFragment autoTransferFragment = null;
+    private SonyCameraApiListFragment sonyApiListFragmentSony = null;
 
     public static CameraSceneUpdater newInstance(@NonNull AppCompatActivity activity)
     {
@@ -313,6 +316,10 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
                     {
                         preferenceFragment = PanasonicPreferenceFragment.newInstance(activity, this);
                     }
+                    else if (connectionMethod == ICameraConnection.CameraConnectionMethod.SONY)
+                    {
+                        preferenceFragment = SonyPreferenceFragment.newInstance(activity, this);
+                    }
                     else //  if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
                     {
                         preferenceFragment = OpcPreferenceFragment.newInstance(activity, interfaceProvider, this);
@@ -402,17 +409,15 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
     @Override
     public void changeSceneToApiList()
     {
-/*
         if (sonyApiListFragmentSony == null)
         {
             sonyApiListFragmentSony = SonyCameraApiListFragment.newInstance(interfaceProvider);
         }
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment1, sonyApiListFragmentSony);
         // backstackに追加
         transaction.addToBackStack(null);
         transaction.commit();
-*/
     }
 
     //  IChangeScene
