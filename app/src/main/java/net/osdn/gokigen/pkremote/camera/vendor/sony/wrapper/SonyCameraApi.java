@@ -438,6 +438,17 @@ class SonyCameraApi implements ISonyCameraApi
     }
 
     @Override
+    public JSONObject getStorageInformation()
+    {
+        try {
+            return (communicateJSON("camera", "getStorageInformation", new JSONArray(), "1.0", -1));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return (new JSONObject());
+    }
+
+    @Override
     public JSONObject getSchemeList()
     {
         try {

@@ -10,5 +10,6 @@ public interface ISonyCameraHolder
     void detectedCamera(@NonNull ISonyCamera camera);
     void prepare();
     void startRecMode();
+    void startPlaybackMode();
     void startEventWatch(@Nullable ICameraChangeListener listener);
 }

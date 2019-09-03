@@ -50,6 +50,8 @@ public interface ISonyCameraApi
 
     JSONObject getAvcontentMethodTypes();
 
+    JSONObject getStorageInformation();
+
     JSONObject getSchemeList();
     JSONObject getSourceList(String scheme);
 

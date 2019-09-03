@@ -80,10 +80,20 @@ public class SonyCameraWrapper implements ISonyCameraHolder, ISonyInterfaceProvi
             this.sonyCameraApi = SonyCameraApi.newInstance(sonyCamera);
             eventObserver = CameraEventObserver.newInstance(context, sonyCameraApi);
             liveViewControl = new SonyLiveViewControl(sonyCameraApi);
-
-            focusControl.setCameraApi(sonyCameraApi);
-            captureControl.setCameraApi(sonyCameraApi);
-            zoomControl.setCameraApi(sonyCameraApi);
+            playbackControl.setCameraApi(sonyCameraApi);
+            runMode.setCameraApi(sonyCameraApi);
+            if (focusControl != null)
+            {
+                focusControl.setCameraApi(sonyCameraApi);
+            }
+            if (captureControl != null)
+            {
+                captureControl.setCameraApi(sonyCameraApi);
+            }
+            if (zoomControl != null)
+            {
+                zoomControl.setCameraApi(sonyCameraApi);
+            }
         }
         catch (Exception e)
         {
@@ -109,6 +119,23 @@ public class SonyCameraWrapper implements ISonyCameraHolder, ISonyInterfaceProvi
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void startPlaybackMode()
+    {
+        try
+        {
+            startRecMode();
+            runMode.changeRunMode(false);
+            Log.v(TAG, "----- CHANGE PLAYBACK MODE -----");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
 
     @Override
     public void startEventWatch(@Nullable ICameraChangeListener listener)
