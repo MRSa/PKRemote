@@ -101,6 +101,45 @@ public class SonyPlaybackControl implements IPlaybackControl
             int objectCount = resultArray.getJSONObject(0).getInt("count");
             Log.v(TAG, "  OBJECT COUNT  : " + objectCount);
 
+            int index = 0;
+            // データを解析してリストを作る
+            while ((index >= 0) && (index < objectCount))
+            {
+                int remainCount = objectCount - index;
+                JSONObject paramsObj = new JSONObject();
+                paramsObj.put("uri", "storage:memoryCard1");
+                paramsObj.put("stIdx", index);
+                paramsObj.put("cnt", (remainCount > 100 ? 100 : remainCount));
+                paramsObj.put("view", "flat");
+                paramsObj.put("sort", "descending");
+                try
+                {
+                    JSONObject responseObject = cameraApi.getContentList(new JSONArray().put(paramsObj));
+                    JSONArray resultsArray = responseObject.getJSONArray("result").getJSONArray(0);
+                    int nofContents = resultsArray.length();
+                    for (int pos = 0; pos < nofContents; pos++)
+                    {
+                        JSONObject contentObject = resultsArray.getJSONObject(pos);
+                        JSONObject contents = contentObject.getJSONObject("content");
+                        JSONArray original = contents.getJSONArray("original");
+                        String fileNo = contentObject.getString("fileNo");
+                        String createdTime = contentObject.getString("createdTime");
+                        String contentKind =  contentObject.getString("contentKind");
+                        String folderNo =  contentObject.getString("folderNo");
+                        String thumbnailUrl = contents.getString("thumbnailUrl");
+                        String fileName = original.getJSONObject(0).getString("fileName");
+
+                        Log.v(TAG,  " [" + pos + "] " + "  " + fileName + " " + " " + createdTime + " " + folderNo + " " + thumbnailUrl);
+                    }
+                    index = index + nofContents;
+                    Log.v(TAG, "  COUNT : " + index);
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    break;
+                }
+            }
         }
         catch (Exception e)
         {

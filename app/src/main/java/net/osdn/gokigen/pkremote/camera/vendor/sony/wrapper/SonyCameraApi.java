@@ -491,7 +491,7 @@ class SonyCameraApi implements ISonyCameraApi
     public JSONObject getContentList(JSONArray params)
     {
         try {
-            return (communicateJSON("avContent", "getContentList", new JSONArray().put(0, params), "1.3", -1));
+            return (communicateJSON("avContent", "getContentList", params, "1.3", -1));
         } catch (Exception e) {
             e.printStackTrace();
         }
