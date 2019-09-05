@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IContentInfoCallback;
@@ -16,66 +17,64 @@ import net.osdn.gokigen.pkremote.camera.vendor.sony.wrapper.ISonyCameraApi;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+
 public class SonyPlaybackControl implements IPlaybackControl
 {
     private final String TAG = toString();
     private ISonyCameraApi cameraApi = null;
+    private HashMap<String, SonyImageContentInfo> contentList;
 
     public SonyPlaybackControl()
     {
         Log.v(TAG, "SonyPlaybackControl()");
+        contentList = new HashMap<>();
 
     }
 
-    public void setCameraApi(@NonNull ISonyCameraApi sonyCameraApi)
-    {
+    public void setCameraApi(@NonNull ISonyCameraApi sonyCameraApi) {
         cameraApi = sonyCameraApi;
     }
 
     @Override
-    public String getRawFileSuffix()
-    {
+    public String getRawFileSuffix() {
         return "ARW";
     }
 
     @Override
-    public void downloadContentList(IDownloadContentListCallback callback)
-    {
+    public void downloadContentList(IDownloadContentListCallback callback) {
         Log.v(TAG, "downloadContentList()");
 
     }
 
     @Override
-    public void getContentInfo(String path, String name, IContentInfoCallback callback)
-    {
+    public void getContentInfo(String path, String name, IContentInfoCallback callback) {
         Log.v(TAG, "getContentInfo()");
 
     }
 
     @Override
-    public void updateCameraFileInfo(ICameraFileInfo info)
-    {
+    public void updateCameraFileInfo(ICameraFileInfo info) {
         Log.v(TAG, "updateCameraFileInfo()");
 
     }
 
     @Override
-    public void downloadContentScreennail(String path, IDownloadThumbnailImageCallback callback)
-    {
+    public void downloadContentScreennail(String path, IDownloadThumbnailImageCallback callback) {
         Log.v(TAG, "downloadContentScreennail()");
 
     }
 
     @Override
-    public void downloadContentThumbnail(String path, IDownloadThumbnailImageCallback callback)
-    {
+    public void downloadContentThumbnail(String path, IDownloadThumbnailImageCallback callback) {
         Log.v(TAG, "downloadContentThumbnail()");
 
     }
 
     @Override
-    public void downloadContent(String path, boolean isSmallSize, IDownloadContentCallback callback)
-    {
+    public void downloadContent(String path, boolean isSmallSize, IDownloadContentCallback callback) {
         Log.v(TAG, "downloadContent()");
 
     }
@@ -100,6 +99,7 @@ public class SonyPlaybackControl implements IPlaybackControl
             JSONArray resultArray = countObject.getJSONArray("result");
             int objectCount = resultArray.getJSONObject(0).getInt("count");
             Log.v(TAG, "  OBJECT COUNT  : " + objectCount);
+            contentList.clear();
 
             int index = 0;
             // データを解析してリストを作る
@@ -119,17 +119,16 @@ public class SonyPlaybackControl implements IPlaybackControl
                     int nofContents = resultsArray.length();
                     for (int pos = 0; pos < nofContents; pos++)
                     {
-                        JSONObject contentObject = resultsArray.getJSONObject(pos);
-                        JSONObject contents = contentObject.getJSONObject("content");
-                        JSONArray original = contents.getJSONArray("original");
-                        String fileNo = contentObject.getString("fileNo");
-                        String createdTime = contentObject.getString("createdTime");
-                        String contentKind =  contentObject.getString("contentKind");
-                        String folderNo =  contentObject.getString("folderNo");
-                        String thumbnailUrl = contents.getString("thumbnailUrl");
-                        String fileName = original.getJSONObject(0).getString("fileName");
-
-                        Log.v(TAG,  " [" + pos + "] " + "  " + fileName + " " + " " + createdTime + " " + folderNo + " " + thumbnailUrl);
+                        //  ひろったデータを全部入れていく
+                        SonyImageContentInfo contentInfo = new SonyImageContentInfo(resultsArray.getJSONObject(pos));
+                        String contentName = contentInfo.getContentName();
+                        Date createdTime = contentInfo.getCapturedDate();
+                        String folderNo = contentInfo.getContentPath();
+                        if (contentName.length() > 0)
+                        {
+                            contentList.put(contentName, contentInfo);
+                        }
+                        Log.v(TAG, " [" + pos + "] " + "  " + contentName + " " + " " + createdTime + " " + folderNo);
                     }
                     index = index + nofContents;
                     Log.v(TAG, "  COUNT : " + index);
@@ -140,10 +139,18 @@ public class SonyPlaybackControl implements IPlaybackControl
                     break;
                 }
             }
+            if (callback != null)
+            {
+                // コレクションを詰めなおして応答する
+                callback.onCompleted(new ArrayList<ICameraContent>(contentList.values()));
+            }
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
     }
+
+
+
 }
