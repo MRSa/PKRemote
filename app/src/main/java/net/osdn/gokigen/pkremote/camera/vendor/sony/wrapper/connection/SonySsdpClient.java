@@ -29,7 +29,7 @@ class SonySsdpClient
     private final String TAG = toString();
     private static final int SEND_TIMES_DEFAULT = 3;
     private static final int SEND_WAIT_DURATION_MS = 100;
-    private static final int SSDP_RECEIVE_TIMEOUT = 10 * 1000; // msec
+    private static final int SSDP_RECEIVE_TIMEOUT = 4 * 1000; // msec
     private static final int PACKET_BUFFER_SIZE = 2048;
     private static final int SSDP_PORT = 1900;
     private static final int SSDP_MX = 1;

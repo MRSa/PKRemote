@@ -58,6 +58,7 @@ public class SonyCameraWrapper implements ISonyCameraHolder, ISonyInterfaceProvi
     private SonyRunMode runMode;
     private SonyStatus statusHolder;
     private SonyPlaybackControl playbackControl;
+    private SonyCameraConnection cameraConnection = null;
 
     public SonyCameraWrapper(final Activity context, final ICameraStatusReceiver statusReceiver , final @NonNull ICameraChangeListener listener)
     {
@@ -68,7 +69,7 @@ public class SonyCameraWrapper implements ISonyCameraHolder, ISonyInterfaceProvi
         this.hardwareStatus = new SonyHardwareStatus();
         this.runMode = new SonyRunMode();
         this.statusHolder = new SonyStatus();
-        this.playbackControl = new SonyPlaybackControl();
+        this.playbackControl = new SonyPlaybackControl(context);
     }
 
     @Override
@@ -169,7 +170,11 @@ public class SonyCameraWrapper implements ISonyCameraHolder, ISonyInterfaceProvi
     @Override
     public ICameraConnection getSonyCameraConnection()
     {
-        return (new SonyCameraConnection(context, provider, this, listener));
+        if (cameraConnection == null)
+        {
+            cameraConnection = new SonyCameraConnection(context, provider, this, listener);
+        }
+        return (cameraConnection);
     }
 
     @Override

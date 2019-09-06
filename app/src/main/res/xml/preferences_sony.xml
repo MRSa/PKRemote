@@ -24,11 +24,18 @@
             android:key="sony_api_list"
             android:title="@string/pref_sony_api_list"
             android:summary="@string/pref_summary_sony_api_list" />
-<!--
+
+
         <CheckBoxPreference
-            android:key="capture_both_camera_and_live_view"
-            android:title="@string/pref_capture_both_camera_and_live_view" />
--->
+            android:key="get_small_picture_as_vga"
+            android:title="@string/pref_get_small_picture_as_vga"
+            android:summary="@string/pref_summary_get_small_picture_as_vga" />
+
+        <!--
+                <CheckBoxPreference
+                    android:key="capture_both_camera_and_live_view"
+                    android:title="@string/pref_capture_both_camera_and_live_view" />
+        -->
     </PreferenceCategory>
 
     <PreferenceCategory

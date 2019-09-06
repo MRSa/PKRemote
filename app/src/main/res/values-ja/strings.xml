@@ -274,4 +274,7 @@
     <string name="pref_ricoh_get_pics_list_max_count">撮影画像一覧で取得する最大枚数</string>
     <string name="pref_summary_ricoh_get_pics_list_max_count">カメラ内の画像が多い場合は数を増やしてください。</string>
 
+    <string name="pref_get_small_picture_as_vga">スモールサイズはVGA</string>
+    <string name="pref_summary_get_small_picture_as_vga">画像取得のスモールサイズをVGAサイズにします。</string>
+
 </resources>

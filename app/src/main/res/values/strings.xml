@@ -275,4 +275,7 @@
     <string name="pref_ricoh_get_pics_list_max_count">Max Pics List Count</string>
     <string name="pref_summary_ricoh_get_pics_list_max_count">If the camera has many number of Pics, increase number.</string>
 
+    <string name="pref_get_small_picture_as_vga">Small picture size is VGA.</string>
+    <string name="pref_summary_get_small_picture_as_vga">To get small picture size as VGA.</string>
+
 </resources>

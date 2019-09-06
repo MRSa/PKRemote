@@ -131,4 +131,35 @@ public class SonyImageContentInfo implements ICameraContent
     {
         // 設定変更できません
     }
+
+
+    String getContentKind()
+    {
+        return (contentKind);
+    }
+
+    String getStillObject()
+    {
+        return (stillObject);
+    }
+
+    String getOriginalUrl()
+    {
+        return (url);
+    }
+
+    String getLargeUrl()
+    {
+        return (largeUrl);
+    }
+
+    String getSmallUrl()
+    {
+        return (smallUrl);
+    }
+
+    String getThumbnailUrl()
+    {
+        return (thumbnailUrl);
+    }
 }

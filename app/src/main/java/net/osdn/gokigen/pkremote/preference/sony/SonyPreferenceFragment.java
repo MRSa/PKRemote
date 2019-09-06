@@ -123,6 +123,9 @@ public class SonyPreferenceFragment  extends PreferenceFragmentCompat implements
             if (!items.containsKey(IPreferencePropertyAccessor.CONNECTION_METHOD)) {
                 editor.putString(IPreferencePropertyAccessor.CONNECTION_METHOD, IPreferencePropertyAccessor.CONNECTION_METHOD_DEFAULT_VALUE);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA)) {
+                editor.putBoolean(IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA, false);
+            }
             editor.apply();
         }
         catch (Exception e)
@@ -151,6 +154,11 @@ public class SonyPreferenceFragment  extends PreferenceFragmentCompat implements
 
                 case IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW:
                     value = preferences.getBoolean(key, true);
+                    Log.v(TAG, " " + key + " , " + value);
+                    break;
+
+                case IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA:
+                    value = preferences.getBoolean(key, false);
                     Log.v(TAG, " " + key + " , " + value);
                     break;
 
@@ -215,7 +223,6 @@ public class SonyPreferenceFragment  extends PreferenceFragmentCompat implements
         }
 
         Log.v(TAG, "onResume() End");
-
     }
 
     /**
@@ -308,6 +315,7 @@ public class SonyPreferenceFragment  extends PreferenceFragmentCompat implements
                         // Preferenceの画面に反映させる
                         setBooleanPreference(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, defaultValue);
                         setBooleanPreference(IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW, IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW, defaultValue);
+                        setBooleanPreference(IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA, IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA, false);
                     }
                     catch (Exception e)
                     {

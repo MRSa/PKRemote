@@ -83,6 +83,7 @@ public interface IPreferencePropertyAccessor
     String RICOH_GET_PICS_LIST_MAX_COUNT = "ricoh_get_pics_list_max_count";
     String RICOH_GET_PICS_LIST_MAX_COUNT_DEFAULT_VALUE = "3000";
 
+    String GET_SMALL_PICTURE_AS_VGA = "get_small_picture_as_vga";
 
     /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
