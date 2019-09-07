@@ -279,6 +279,7 @@
     <string name="pref_summary_get_small_picture_as_vga">To get small picture size as VGA.</string>
 
     <string name="change_transfer_mode_retry">RETRY: Change Transfer mode&#8230;</string>
+    <string name="change_transfer_mode_retry_over">CHANGE RETRY OVER(Not Support device?)</string>
     <string name="content_is_nothing">Content is nothing.</string>
 
 </resources>

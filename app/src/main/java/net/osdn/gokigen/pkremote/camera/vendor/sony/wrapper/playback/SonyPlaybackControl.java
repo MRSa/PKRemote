@@ -3,6 +3,7 @@ package net.osdn.gokigen.pkremote.camera.vendor.sony.wrapper.playback;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -319,6 +320,12 @@ public class SonyPlaybackControl implements IPlaybackControl
                 isAvailable = setCameraFunction(false);
                 maxRetryCount--;
             }
+            if (maxRetryCount <= 0)
+            {
+                // Retry over
+                informationReceiver.updateMessage(activity.getString(R.string.change_transfer_mode_retry_over), true, true, Color.RED);
+            }
+
         }
         catch (Exception e)
         {

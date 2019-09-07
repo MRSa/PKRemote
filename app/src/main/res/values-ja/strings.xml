@@ -278,6 +278,7 @@
     <string name="pref_summary_get_small_picture_as_vga">画像取得のスモールサイズをVGAサイズにします。</string>
 
     <string name="change_transfer_mode_retry">モード切替再試行中&#8230;</string>
+    <string name="change_transfer_mode_retry_over">モード切替失敗(未サポート機?)</string>
     <string name="content_is_nothing">画像がありません。</string>
 
 </resources>
