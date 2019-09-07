@@ -11,7 +11,9 @@ import java.util.Locale;
 public class SonyImageContentInfo implements ICameraContent
 {
     private final String TAG = toString();
+    private final JSONObject contentObject;
 
+/*
     private String uri = "";
     private String title = "";
     // content
@@ -29,10 +31,13 @@ public class SonyImageContentInfo implements ICameraContent
     private String isPlayable = "";
     private String isBrowsable = "";
     private String isProtected = "";
-    //  remotePlayType
+    private String remotePlayType = "";
+*/
 
     SonyImageContentInfo(JSONObject contentObject)
     {
+        this.contentObject = contentObject;  // 応答性能向上のため、データの保持方法を変える
+/*
         try
         {
             title = getObjectString(contentObject, "title");
@@ -59,21 +64,7 @@ public class SonyImageContentInfo implements ICameraContent
         {
             e.printStackTrace();
         }
-    }
-
-    private Date getDateTime(JSONObject content, String name)
-    {
-        try
-        {
-            String createTime = getObjectString(content, name);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.ENGLISH);
-            return (dateFormat.parse(createTime));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return (new Date());
+*/
     }
 
     private String getObjectString(JSONObject target, String name)
@@ -105,12 +96,23 @@ public class SonyImageContentInfo implements ICameraContent
     @Override
     public String getContentPath()
     {
-        return (folderNo);
+        return (getObjectString(contentObject, "folderNo"));
     }
 
     @Override
     public String getContentName()
     {
+        String fileName = "";
+        try
+        {
+            JSONObject contents = contentObject.getJSONObject("content");
+            JSONObject originalObject = contents.getJSONArray("original").getJSONObject(0);
+            fileName = getObjectString(originalObject, "fileName");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         return (fileName);
     }
 
@@ -123,7 +125,17 @@ public class SonyImageContentInfo implements ICameraContent
     @Override
     public Date getCapturedDate()
     {
-        return (createdTime);
+        try
+        {
+            String createTime = getObjectString(contentObject, "createdTime");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.ENGLISH);
+            return (dateFormat.parse(createTime));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (new Date());
     }
 
     @Override
@@ -132,34 +144,87 @@ public class SonyImageContentInfo implements ICameraContent
         // 設定変更できません
     }
 
-
+/*
     String getContentKind()
     {
-        return (contentKind);
+        return (getObjectString(contentObject,"contentKind"));
     }
 
     String getStillObject()
     {
+        String stillObject = "";
+        try
+        {
+            JSONObject contents = contentObject.getJSONObject("content");
+            JSONObject originalObject = contents.getJSONArray("original").getJSONObject(0);
+            stillObject = getObjectString(originalObject, "stillObject");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         return (stillObject);
     }
+*/
 
     String getOriginalUrl()
     {
+        String url = "";
+        try
+        {
+            JSONObject contents = contentObject.getJSONObject("content");
+            JSONObject originalObject = contents.getJSONArray("original").getJSONObject(0);
+            url = getObjectString(originalObject, "url");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         return (url);
     }
 
     String getLargeUrl()
     {
+        String largeUrl = "";
+        try
+        {
+            JSONObject contents = contentObject.getJSONObject("content");
+            largeUrl = getObjectString(contents, "largeUrl");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         return (largeUrl);
     }
 
     String getSmallUrl()
     {
+        String smallUrl = "";
+        try
+        {
+            JSONObject contents = contentObject.getJSONObject("content");
+            smallUrl = getObjectString(contents, "smallUrl");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         return (smallUrl);
     }
 
     String getThumbnailUrl()
     {
+        String thumbnailUrl = "";
+        try
+        {
+            JSONObject contents = contentObject.getJSONObject("content");
+            thumbnailUrl = getObjectString(contents, "thumbnailUrl");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         return (thumbnailUrl);
     }
 }

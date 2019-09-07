@@ -6,6 +6,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import net.osdn.gokigen.pkremote.IInformationReceiver;
+import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode;
@@ -46,6 +48,7 @@ public class SonyCameraWrapper implements ISonyCameraHolder, ISonyInterfaceProvi
     private final Activity context;
     private final ICameraStatusReceiver provider;
     private final ICameraChangeListener listener;
+    private final IInformationReceiver informationReceiver;
     private ISonyCamera sonyCamera = null;
     private ISonyCameraApi sonyCameraApi = null;
     private ICameraEventObserver eventObserver = null;
@@ -60,16 +63,17 @@ public class SonyCameraWrapper implements ISonyCameraHolder, ISonyInterfaceProvi
     private SonyPlaybackControl playbackControl;
     private SonyCameraConnection cameraConnection = null;
 
-    public SonyCameraWrapper(final Activity context, final ICameraStatusReceiver statusReceiver , final @NonNull ICameraChangeListener listener)
+    public SonyCameraWrapper(final Activity context, final ICameraStatusReceiver statusReceiver , final @NonNull ICameraChangeListener listener, @NonNull IInformationReceiver informationReceiver)
     {
         this.context = context;
         this.provider = statusReceiver;
         this.listener = listener;
+        this.informationReceiver = informationReceiver;
         this.buttonControl = new SonyButtonControl();
         this.hardwareStatus = new SonyHardwareStatus();
-        this.runMode = new SonyRunMode();
+        this.runMode = new SonyRunMode(informationReceiver);
         this.statusHolder = new SonyStatus();
-        this.playbackControl = new SonyPlaybackControl(context);
+        this.playbackControl = new SonyPlaybackControl(context, informationReceiver);
     }
 
     @Override
@@ -126,6 +130,7 @@ public class SonyCameraWrapper implements ISonyCameraHolder, ISonyInterfaceProvi
     {
         try
         {
+            informationReceiver.updateMessage(context.getString(R.string.connect_change_run_mode), false, false, 0);
             startRecMode();
             runMode.changeRunMode(false);
             Log.v(TAG, "----- CHANGE PLAYBACK MODE -----");
@@ -135,8 +140,6 @@ public class SonyCameraWrapper implements ISonyCameraHolder, ISonyInterfaceProvi
             e.printStackTrace();
         }
     }
-
-
 
     @Override
     public void startEventWatch(@Nullable ICameraChangeListener listener)

@@ -8,6 +8,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
+import net.osdn.gokigen.pkremote.IInformationReceiver;
+import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
@@ -25,21 +27,23 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 public class SonyPlaybackControl implements IPlaybackControl
 {
     private final String TAG = toString();
     private final Activity activity;
+    private final IInformationReceiver informationReceiver;
     private ISonyCameraApi cameraApi = null;
     private HashMap<String, SonyImageContentInfo> contentList;
-    private int timeoutMs = 50000;
+    private int timeoutMs = 55000;
+    private boolean contentListIsCreating = false;
 
-    public SonyPlaybackControl(@NonNull Activity activity)
+    public SonyPlaybackControl(@NonNull Activity activity, @NonNull IInformationReceiver informationReceiver)
     {
         Log.v(TAG, "SonyPlaybackControl()");
         this.activity = activity;
+        this.informationReceiver = informationReceiver;
         contentList = new HashMap<>();
 
     }
@@ -75,7 +79,7 @@ public class SonyPlaybackControl implements IPlaybackControl
     @Override
     public void downloadContentScreennail(String path, IDownloadThumbnailImageCallback callback)
     {
-        Log.v(TAG, "downloadContentScreennail()" + path);
+        //Log.v(TAG, "downloadContentScreennail()" + path);
         try
         {
             SonyImageContentInfo content = contentList.get(path.substring(path.indexOf('/') + 1));
@@ -114,7 +118,7 @@ public class SonyPlaybackControl implements IPlaybackControl
     @Override
     public void downloadContentThumbnail(String path, IDownloadThumbnailImageCallback callback)
     {
-        Log.v(TAG, "downloadContentThumbnail() : " + path);
+        //Log.v(TAG, "downloadContentThumbnail() : " + path);
         try
         {
             SonyImageContentInfo content = contentList.get(path.substring(path.indexOf('/') + 1));
@@ -149,7 +153,7 @@ public class SonyPlaybackControl implements IPlaybackControl
     @Override
     public void downloadContent(String path, boolean isSmallSize, final IDownloadContentCallback callback)
     {
-        Log.v(TAG, "downloadContent() : " + path);
+        //Log.v(TAG, "downloadContent() : " + path);
         try
         {
             SonyImageContentInfo content = contentList.get(path.substring(path.indexOf('/') + 1));
@@ -173,7 +177,6 @@ public class SonyPlaybackControl implements IPlaybackControl
                     }
                 }
                 Log.v(TAG, "downloadContent()  PATH : " + path + "  [SMALL:" + isSmallSize + "][VGA:" + isVgaSize + "]" + " GET URL : " + url);
-
 
                 SimpleHttpClient.httpGetBytes(url, timeoutMs, new SimpleHttpClient.IReceivedMessageCallback() {
                     @Override
@@ -205,10 +208,6 @@ public class SonyPlaybackControl implements IPlaybackControl
         {
             e.printStackTrace();
         }
-
-
-
-
     }
 
     @Override
@@ -222,6 +221,16 @@ public class SonyPlaybackControl implements IPlaybackControl
                 Log.v(TAG, "CAMERA API is NULL.");
                 return;
             }
+            if (contentListIsCreating)
+            {
+                // すでにコンテントリストを作り始めているので、処理は継続しない。
+                Log.v(TAG, "ALREADY CREATING CONTENT LIST.");
+                return;
+            }
+            contentListIsCreating = true;
+            informationReceiver.updateMessage(activity.getString(R.string.get_image_list), false, false, 0);
+            changeContentsTransferMode();  // コンテンツトランスファモードに切り替える
+
             JSONObject storageInformationObj = cameraApi.getStorageInformation();
             JSONObject schemeListObj = cameraApi.getSchemeList();
             //JSONArray schemeArray = schemeListObj.getJSONArray("result");
@@ -231,17 +240,27 @@ public class SonyPlaybackControl implements IPlaybackControl
             JSONArray resultArray = countObject.getJSONArray("result");
             int objectCount = resultArray.getJSONObject(0).getInt("count");
             Log.v(TAG, "  OBJECT COUNT  : " + objectCount);
+            if (objectCount < 1)
+            {
+                // コンテンツ一覧の取得失敗...
+                informationReceiver.updateMessage(activity.getString(R.string.content_is_nothing), true, false, 0);
+                contentListIsCreating = false;
+                return;
+            }
             contentList.clear();
 
             int index = 0;
             // データを解析してリストを作る
             while ((index >= 0) && (index < objectCount))
             {
+                informationReceiver.updateMessage(activity.getString(R.string.get_image_list) + " " + index + "/" + objectCount + " ", false, false, 0);
+
                 int remainCount = objectCount - index;
                 JSONObject paramsObj = new JSONObject();
                 paramsObj.put("uri", "storage:memoryCard1");
                 paramsObj.put("stIdx", index);
-                paramsObj.put("cnt", (remainCount > 100 ? 100 : remainCount));
+                paramsObj.put("cnt", (remainCount > 100 ? 100 : remainCount));      // 一括取得数...最大100
+                //paramsObj.put("cnt", (remainCount > 50 ? 50 : remainCount)); // 一括取得数
                 paramsObj.put("view", "flat");
                 paramsObj.put("sort", "descending");
                 try
@@ -254,8 +273,8 @@ public class SonyPlaybackControl implements IPlaybackControl
                         //  ひろったデータを全部入れていく
                         SonyImageContentInfo contentInfo = new SonyImageContentInfo(resultsArray.getJSONObject(pos));
                         String contentName = contentInfo.getContentName();
-                        Date createdTime = contentInfo.getCapturedDate();
-                        String folderNo = contentInfo.getContentPath();
+                        //Date createdTime = contentInfo.getCapturedDate();
+                        //String folderNo = contentInfo.getContentPath();
                         if (contentName.length() > 0)
                         {
                             contentList.put(contentName, contentInfo);
@@ -271,6 +290,8 @@ public class SonyPlaybackControl implements IPlaybackControl
                     break;
                 }
             }
+            contentListIsCreating = false;
+            informationReceiver.updateMessage(activity.getString(R.string.get_image_list) + " " + index + "/" + objectCount + " ", false, false, 0);
             if (callback != null)
             {
                 // コレクションを詰めなおして応答する
@@ -281,8 +302,53 @@ public class SonyPlaybackControl implements IPlaybackControl
         {
             e.printStackTrace();
         }
+        contentListIsCreating = false;
+    }
+    private void changeContentsTransferMode()
+    {
+        try
+        {
+            if (cameraApi == null)
+            {
+                return;
+            }
+            boolean isAvailable = false;
+            int maxRetryCount = 10;    // 最大リトライ回数
+            while ((!isAvailable)&&(maxRetryCount > 0))
+            {
+                isAvailable = setCameraFunction(false);
+                maxRetryCount--;
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
-
+    private boolean setCameraFunction(boolean isRecording)
+    {
+        try
+        {
+            JSONObject reply = cameraApi.setCameraFunction((isRecording) ? "Remote Shooting" : "Contents Transfer");
+            try
+            {
+                int value = reply.getInt("result");
+                Log.v(TAG, "CHANGE RUN MODE : " + value);
+                return (true);
+            }
+            catch (Exception ee)
+            {
+                ee.printStackTrace();
+                informationReceiver.updateMessage(activity.getString(R.string.change_transfer_mode_retry), false, false, 0);
+                Thread.sleep(500); //  500ms 待つ
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
 
 }

@@ -69,7 +69,7 @@ public class CameraInterfaceProvider implements IInterfaceProvider
         olympus = new OlympusInterfaceProvider(context, provider);
         ricohGr2 = new RicohGr2InterfaceProvider(context, provider);
         fujiX = new FujiXInterfaceProvider(context, provider, statusListener, informationReceiver);
-        sony = new SonyCameraWrapper(context, provider, statusListener);
+        sony = new SonyCameraWrapper(context, provider, statusListener, informationReceiver);
         panasonic = new PanasonicCameraWrapper(context, provider, statusListener);
         this.informationReceiver = informationReceiver;
         this.cameraContentsRecognizer = new CameraContentsRecognizer(context, this);
