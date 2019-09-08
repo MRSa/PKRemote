@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode;
@@ -59,7 +60,7 @@ public class PanasonicCameraWrapper implements IPanasonicCameraHolder, IPanasoni
     private PanasonicStatus statusHolder;
     private PanasonicPlaybackControl playbackControl;
 
-    public PanasonicCameraWrapper(final Activity context, final ICameraStatusReceiver statusReceiver , final @NonNull ICameraChangeListener listener)
+    public PanasonicCameraWrapper(final Activity context, final ICameraStatusReceiver statusReceiver , final @NonNull ICameraChangeListener listener, @NonNull IInformationReceiver informationReceiver)
     {
         this.context = context;
         this.provider = statusReceiver;
@@ -67,7 +68,7 @@ public class PanasonicCameraWrapper implements IPanasonicCameraHolder, IPanasoni
         this.buttonControl = new PanasonicButtonControl();
         this.hardwareStatus = new PanasonicHardwareStatus();
         this.statusHolder = new PanasonicStatus();
-        this.playbackControl = new PanasonicPlaybackControl();
+        this.playbackControl = new PanasonicPlaybackControl(context, informationReceiver);
         this.runMode = new PanasonicRunMode();
 
     }

@@ -66,4 +66,6 @@ public interface ISonyCameraApi
 
     List<String> getSonyApiServiceList();
     JSONObject callGenericSonyApiMethod(@NonNull String service, @NonNull String method, @NonNull JSONArray params, @NonNull String version);
+
+    String getDdUrl();
 }

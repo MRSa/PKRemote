@@ -9,4 +9,6 @@ public interface ISonyCamera
 
     String getFriendlyName();
     String getModelName();
+
+    String getDdUrl();
 }

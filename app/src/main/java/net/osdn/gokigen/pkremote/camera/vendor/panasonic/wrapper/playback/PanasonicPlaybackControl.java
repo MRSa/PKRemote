@@ -1,10 +1,13 @@
 package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.playback;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import net.osdn.gokigen.pkremote.IInformationReceiver;
+import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
@@ -26,6 +29,8 @@ import java.util.Queue;
 public class PanasonicPlaybackControl implements IPlaybackControl
 {
     private final String TAG = toString();
+    private final Activity activity;
+    private final IInformationReceiver informationReceiver;
     private static final int COMMAND_POLL_QUEUE_MS = 50;
     private IPanasonicCamera panasonicCamera = null;
     private int timeoutMs = 50000;
@@ -35,8 +40,11 @@ public class PanasonicPlaybackControl implements IPlaybackControl
     private Queue<DownloadScreennailRequest> commandQueue;
 
 
-    public PanasonicPlaybackControl()
+    public PanasonicPlaybackControl(@NonNull Activity activity, @NonNull IInformationReceiver informationReceiver)
     {
+        Log.v(TAG, "PanasonicPlaybackControl()");
+        this.activity = activity;
+        this.informationReceiver = informationReceiver;
         contentList = new ArrayList<>();
     }
 
@@ -81,7 +89,8 @@ public class PanasonicPlaybackControl implements IPlaybackControl
                     "<pana:X_FromCP>LumixLink2.0</pana:X_FromCP></u:Browse></s:Body></s:Envelope>";
 
             String reply = SimpleHttpClient.httpPostWithHeader(url, postData, "SOAPACTION", "urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "#Browse", "text/xml; charset=\"utf-8\"", timeoutMs);
-            if (reply.length() < 10) {
+            if (reply.length() < 10)
+            {
                 Log.v(TAG, postData);
                 Log.v(TAG, "ContentDirectory is FAILURE. [" + sequenceNumber + "]");
                 break;
@@ -108,6 +117,7 @@ public class PanasonicPlaybackControl implements IPlaybackControl
                 e.printStackTrace();
             }
             Log.v(TAG, "  REPLY DATA : (" + matches + "/" + totalCount + ") [" + returned + "/" + returnedCount + "] " + " " + reply.length() + "bytes");
+            informationReceiver.updateMessage(activity.getString(R.string.get_image_list) + " " + returnedCount + "/" + totalCount + " ", false, false, 0);
         }
     }
 
@@ -149,8 +159,6 @@ public class PanasonicPlaybackControl implements IPlaybackControl
     public void updateCameraFileInfo(@NonNull ICameraFileInfo info)
     {
         Log.v(TAG, " updateCameraFileInfo() : " + info.getFilename());
-
-
     }
 
     @Override

@@ -561,8 +561,18 @@ class SonyCameraApi implements ISonyCameraApi
         return (communicateJSON(service, method, params, version, -1));
     }
 
+    @Override
+    public String getDdUrl()
+    {
+        return (sonyCamera.getDdUrl());
+    }
+
     static boolean isErrorReply(JSONObject replyJson)
     {
         return ((replyJson != null && replyJson.has("error")));
     }
+
+
+
+
 }

@@ -91,6 +91,16 @@ public class SonyCameraDeviceProvider implements ISonyCamera
         return (modelName);
     }
 
+    /**
+     *
+     *
+     */
+    @Override
+    public String getDdUrl()
+    {
+        return (ddUrl);
+    }
+
 
     /**
      *
