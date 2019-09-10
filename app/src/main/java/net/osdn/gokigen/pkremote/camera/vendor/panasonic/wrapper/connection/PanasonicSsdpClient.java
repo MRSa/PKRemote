@@ -151,6 +151,10 @@ class PanasonicSsdpClient
                         Log.v(TAG, "Already received. : " + ddUsn);
                     }
                 }
+                else
+                {
+                    Log.v(TAG, " SSDP REPLY MESSAGE (ignored) : " + ssdpReplyMessage);
+                }
                 currentTime = System.currentTimeMillis();
             }
         }

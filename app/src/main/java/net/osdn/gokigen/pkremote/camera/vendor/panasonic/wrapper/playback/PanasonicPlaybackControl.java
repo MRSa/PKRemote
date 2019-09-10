@@ -24,6 +24,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 public class PanasonicPlaybackControl implements IPlaybackControl
@@ -88,7 +89,10 @@ public class PanasonicPlaybackControl implements IPlaybackControl
                     "<ObjectID>0</ObjectID><BrowseFlag>BrowseDirectChildren</BrowseFlag><Filter>*</Filter><StartingIndex>" + returnedCount + "</StartingIndex><RequestedCount>3500</RequestedCount><SortCriteria></SortCriteria>" +
                     "<pana:X_FromCP>LumixLink2.0</pana:X_FromCP></u:Browse></s:Body></s:Envelope>";
 
-            String reply = SimpleHttpClient.httpPostWithHeader(url, postData, "SOAPACTION", "urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "#Browse", "text/xml; charset=\"utf-8\"", timeoutMs);
+            Map<String, String>  header = new HashMap<>();
+            header.clear();
+            header.put("SOAPACTION", "urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "#Browse");
+            String reply = SimpleHttpClient.httpPostWithHeader(url, postData, header, "text/xml; charset=\"utf-8\"", timeoutMs);
             if (reply.length() < 10)
             {
                 Log.v(TAG, postData);

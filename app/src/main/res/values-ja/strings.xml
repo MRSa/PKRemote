@@ -281,4 +281,7 @@
     <string name="change_transfer_mode_retry_over">モード切替失敗(未サポート機?)</string>
     <string name="content_is_nothing">画像がありません。</string>
 
+    <string name="pref_sony_use_smartphone_transfer">スマートフォン転送モードを使う</string>
+    <string name="pref_summary_sony_use_smartphone_transfer">うまく通信できない場合にチェックを入れてください。</string>
+
 </resources>

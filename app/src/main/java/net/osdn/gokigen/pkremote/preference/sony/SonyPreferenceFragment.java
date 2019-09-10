@@ -126,6 +126,9 @@ public class SonyPreferenceFragment  extends PreferenceFragmentCompat implements
             if (!items.containsKey(IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA)) {
                 editor.putBoolean(IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA, false);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE)) {
+                editor.putBoolean(IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE, false);
+            }
             editor.apply();
         }
         catch (Exception e)
@@ -158,6 +161,11 @@ public class SonyPreferenceFragment  extends PreferenceFragmentCompat implements
                     break;
 
                 case IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA:
+                    value = preferences.getBoolean(key, false);
+                    Log.v(TAG, " " + key + " , " + value);
+                    break;
+
+                case IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE:
                     value = preferences.getBoolean(key, false);
                     Log.v(TAG, " " + key + " , " + value);
                     break;
@@ -316,6 +324,7 @@ public class SonyPreferenceFragment  extends PreferenceFragmentCompat implements
                         setBooleanPreference(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, defaultValue);
                         setBooleanPreference(IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW, IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW, defaultValue);
                         setBooleanPreference(IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA, IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA, false);
+                        setBooleanPreference(IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE, IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE, false);
                     }
                     catch (Exception e)
                     {

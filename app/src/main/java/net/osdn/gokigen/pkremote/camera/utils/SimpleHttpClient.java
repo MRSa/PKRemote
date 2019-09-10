@@ -328,7 +328,18 @@ public class SimpleHttpClient
      */
     public static String httpPost(String url, String postData, int timeoutMs)
     {
-        return (httpCommand(url, "POST", postData, null, null, null, timeoutMs));
+        return (httpCommand(url, "POST", postData, null, null, timeoutMs));
+    }
+
+
+    /**
+     *
+     *
+     *
+     */
+    public static String httpGetWithHeader(String url, Map<String, String> headerMap, String contentType, int timeoutMs)
+    {
+        return (httpCommand(url, "GET", null, headerMap, contentType, timeoutMs));
     }
 
     /**
@@ -336,9 +347,9 @@ public class SimpleHttpClient
      *
      *
      */
-    public static String httpPostWithHeader(String url, String postData, String headerKey, String headerValue, String contentType, int timeoutMs)
+    public static String httpPostWithHeader(String url, String postData, Map<String, String> headerMap, String contentType, int timeoutMs)
     {
-        return (httpCommand(url, "POST", postData, headerKey, headerValue, contentType, timeoutMs));
+        return (httpCommand(url, "POST", postData, headerMap, contentType, timeoutMs));
     }
 
     /**
@@ -348,7 +359,7 @@ public class SimpleHttpClient
      */
     public static String httpPut(String url, String postData, int timeoutMs)
     {
-        return (httpCommand(url, "PUT", postData, null, null, null, timeoutMs));
+        return (httpCommand(url, "PUT", postData, null, null, timeoutMs));
     }
 
     /**
@@ -356,7 +367,7 @@ public class SimpleHttpClient
      *
      *
      */
-    private static String httpCommand(String url, String requestMethod, String postData, String setPropertyKey, String setPropertyValue, String contentType, int timeoutMs)
+    private static String httpCommand(String url, String requestMethod, String postData, Map<String, String> setProperty, String contentType, int timeoutMs)
     {
         HttpURLConnection httpConn = null;
         OutputStream outputStream = null;
@@ -375,9 +386,13 @@ public class SimpleHttpClient
             final URL urlObj = new URL(url);
             httpConn = (HttpURLConnection) urlObj.openConnection();
             httpConn.setRequestMethod(requestMethod);
-            if ((setPropertyKey != null)&&(setPropertyValue != null))
+            if (setProperty != null)
             {
-                httpConn.setRequestProperty(setPropertyKey, setPropertyValue);
+                for (String key : setProperty.keySet())
+                {
+                    String value = setProperty.get(key);
+                    httpConn.setRequestProperty(key, value);
+                }
             }
             if (contentType != null)
             {
@@ -385,18 +400,24 @@ public class SimpleHttpClient
             }
             httpConn.setConnectTimeout(timeout);
             httpConn.setReadTimeout(timeout);
-            httpConn.setDoInput(true);
-            httpConn.setDoOutput(true);
 
-            outputStream = httpConn.getOutputStream();
-            writer = new OutputStreamWriter(outputStream, "UTF-8");
-            writer.write(postData);
-            writer.flush();
-            writer.close();
-            writer = null;
-            outputStream.close();
-            outputStream = null;
-
+            if (postData == null)
+            {
+                httpConn.connect();
+            }
+            else
+            {
+                httpConn.setDoInput(true);
+                httpConn.setDoOutput(true);
+                outputStream = httpConn.getOutputStream();
+                writer = new OutputStreamWriter(outputStream, "UTF-8");
+                writer.write(postData);
+                writer.flush();
+                writer.close();
+                writer = null;
+                outputStream.close();
+                outputStream = null;
+            }
             int responseCode = httpConn.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK)
             {

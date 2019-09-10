@@ -1,14 +1,17 @@
 package net.osdn.gokigen.pkremote.camera.vendor.sony.wrapper.connection;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.vendor.sony.wrapper.ISonyCamera;
 import net.osdn.gokigen.pkremote.camera.vendor.sony.wrapper.SonyCameraDeviceProvider;
+import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -35,11 +38,14 @@ class SonySsdpClient
     private static final int SSDP_MX = 1;
     private static final String SSDP_ADDR = "239.255.255.250";
     private static final String SSDP_ST = "urn:schemas-sony-com:service:ScalarWebAPI:1";
+    private static final String SSDP_ST2 = "urn:schemas-upnp-org:service:ContentDirectory:1";
+    // private static final String SSDP_ST2 = "urn:schemas-upnp-org:device:MediaServer:1";
     private final Context context;
     private final ISearchResultCallback callback;
     private final ICameraStatusReceiver cameraStatusReceiver;
     private final String ssdpRequest;
     private final int sendRepeatCount;
+    private final boolean useSmartphoneTransfer;
 
     SonySsdpClient(@NonNull Context context, @NonNull ISearchResultCallback callback, @NonNull ICameraStatusReceiver statusReceiver, int sendRepeatCount)
     {
@@ -47,11 +53,14 @@ class SonySsdpClient
         this.callback = callback;
         this.cameraStatusReceiver = statusReceiver;
         this.sendRepeatCount = (sendRepeatCount >= 0) ? sendRepeatCount : SEND_TIMES_DEFAULT;
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        useSmartphoneTransfer = preferences.getBoolean(IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE, false);
         ssdpRequest = "M-SEARCH * HTTP/1.1\r\n"
                 + String.format(Locale.US, "HOST: %s:%d\r\n", SSDP_ADDR, SSDP_PORT)
                 + "MAN: \"ssdp:discover\"\r\n"
                 + String.format(Locale.US, "MX: %d\r\n", SSDP_MX)
-                + String.format("ST: %s\r\n", SSDP_ST) + "\r\n";
+                + String.format("ST: %s\r\n", (useSmartphoneTransfer ? SSDP_ST2 : SSDP_ST)) + "\r\n";
     }
 
     void search()
@@ -129,6 +138,14 @@ class SonySsdpClient
                             }
                             else
                             {
+                                if ((useSmartphoneTransfer)&&(device != null))
+                                {
+                                    cameraStatusReceiver.onStatusNotify(context.getString(R.string.camera_found) + " " + device.getFriendlyName() + " (Smartphone Transfer)");
+                                    Log.v(TAG, " SMARTPHONE TRANSFER : " + ssdpReplyMessage);
+                                    callback.onDeviceFound(device);
+                                    break;
+                                }
+
                                 // カメラが見つからない...
                                 cameraStatusReceiver.onStatusNotify(context.getString(R.string.camera_not_found));
                             }
@@ -138,6 +155,10 @@ class SonySsdpClient
                     {
                         Log.v(TAG, "Already received. : " + ddUsn);
                     }
+                }
+                else
+                {
+                    Log.v(TAG, " SSDP REPLY (ignored) : " + ssdpReplyMessage + " " + useSmartphoneTransfer);
                 }
                 currentTime = System.currentTimeMillis();
             }

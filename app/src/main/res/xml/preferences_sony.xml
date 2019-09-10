@@ -25,6 +25,10 @@
             android:title="@string/pref_sony_api_list"
             android:summary="@string/pref_summary_sony_api_list" />
 
+        <CheckBoxPreference
+            android:key="use_smartphone_transfer_mode"
+            android:title="@string/pref_sony_use_smartphone_transfer"
+            android:summary="@string/pref_summary_sony_use_smartphone_transfer" />
 
         <CheckBoxPreference
             android:key="get_small_picture_as_vga"

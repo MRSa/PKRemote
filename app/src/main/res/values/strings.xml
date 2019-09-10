@@ -282,4 +282,7 @@
     <string name="change_transfer_mode_retry_over">CHANGE RETRY OVER(Not Support device?)</string>
     <string name="content_is_nothing">Content is nothing.</string>
 
+    <string name="pref_sony_use_smartphone_transfer">Do use SmartPhone transfer mode.</string>
+    <string name="pref_summary_sony_use_smartphone_transfer">If you cannot communicate, please check this.</string>
+
 </resources>

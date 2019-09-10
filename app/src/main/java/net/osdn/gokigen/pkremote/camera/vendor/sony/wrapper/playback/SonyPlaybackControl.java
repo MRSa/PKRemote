@@ -26,9 +26,13 @@ import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class SonyPlaybackControl implements IPlaybackControl {
     private final String TAG = toString();
@@ -178,19 +182,41 @@ public class SonyPlaybackControl implements IPlaybackControl {
     }
 
     @Override
-    public void getCameraContentList(ICameraContentListCallback callback) {
+    public void getCameraContentList(ICameraContentListCallback callback)
+    {
         Log.v(TAG, "getCameraContentList()");
-        try {
+        try
+        {
             if (cameraApi == null) {
                 Log.v(TAG, "CAMERA API is NULL.");
                 return;
             }
-            if (contentListIsCreating) {
+            if (contentListIsCreating)
+            {
                 // すでにコンテントリストを作り始めているので、処理は継続しない。
                 Log.v(TAG, "ALREADY CREATING CONTENT LIST.");
                 return;
             }
             contentListIsCreating = true;
+
+            // 画像転送に「スマートフォン転送機能」を使う場合...
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+            boolean useSmartphoneTransfer = preferences.getBoolean(IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE, false);
+            if (useSmartphoneTransfer)
+            {
+                // DLNAを使用したコンテンツ特定モードを使う
+                try
+                {
+                    getContentDirectorySoapAction(callback);
+                }
+                catch (Exception ee)
+                {
+                    ee.printStackTrace();
+                }
+                contentListIsCreating = false;
+                return;
+            }
+
             informationReceiver.updateMessage(activity.getString(R.string.get_image_list), false, false, 0);
             changeContentsTransferMode();  // コンテンツトランスファモードに切り替える
 
@@ -258,9 +284,12 @@ public class SonyPlaybackControl implements IPlaybackControl {
         contentListIsCreating = false;
     }
 
-    private void changeContentsTransferMode() {
-        try {
-            if (cameraApi == null) {
+    private void changeContentsTransferMode()
+    {
+        try
+        {
+            if (cameraApi == null)
+            {
                 return;
             }
             boolean isAvailable = false;
@@ -272,9 +301,6 @@ public class SonyPlaybackControl implements IPlaybackControl {
             if (maxRetryCount <= 0) {
                 // Retry over
                 informationReceiver.updateMessage(activity.getString(R.string.change_transfer_mode_retry_over), true, true, Color.RED);
-
-                // 試しに呼んでみる。
-                getContentDirectorySoapAction();
             }
 
         } catch (Exception e) {
@@ -282,8 +308,10 @@ public class SonyPlaybackControl implements IPlaybackControl {
         }
     }
 
-    private boolean setCameraFunction(boolean isRecording) {
-        try {
+    private boolean setCameraFunction(boolean isRecording)
+    {
+        try
+        {
             JSONObject reply = cameraApi.setCameraFunction((isRecording) ? "Remote Shooting" : "Contents Transfer");
             try {
                 int value = reply.getInt("result");
@@ -294,14 +322,85 @@ public class SonyPlaybackControl implements IPlaybackControl {
                 informationReceiver.updateMessage(activity.getString(R.string.change_transfer_mode_retry), false, false, 0);
                 Thread.sleep(500); //  500ms 待つ
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
         return (false);
     }
 
-    private void getContentDirectorySoapAction()
+    private void getContentDirectorySoapAction(ICameraContentListCallback callback)
     {
+        try
+        {
+            // 呼んでおくか...
+            String accessUrl = cameraApi.getDdUrl();
+            String reply = SimpleHttpClient.httpGetWithHeader(accessUrl, null, "text/xml; charset=\"utf-8\"", timeoutMs);
+            Log.v(TAG, " dd.xml: " + reply);
+
+            accessUrl = accessUrl.substring(0, accessUrl.lastIndexOf("/"));
+            String url =   accessUrl + "/DigitalImagingDesc.xml";
+            //String url =   accessUrl + "/CdsDesc.xml";
+            reply = SimpleHttpClient.httpGet(url, timeoutMs);
+            Log.v(TAG, " " + url + " : " + reply);
+            // DigitalImagingDesc.xml の replyを parseする
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            XmlPullParser xmlPullParser = factory.newPullParser();
+            xmlPullParser.setInput(new StringReader(reply));
+            int eventType = xmlPullParser.getEventType();
+            boolean getDeviceNumber = false;
+            boolean getDeviceFile = false;
+            String name = "";
+            String getDeviceNumberUrl = "";
+            String getDeviceFileUrl = "";
+            while (eventType != XmlPullParser.END_DOCUMENT)
+            {
+                if(eventType == XmlPullParser.START_TAG)
+                {
+                    name = xmlPullParser.getName();
+                    getDeviceNumber = name.matches("X_DeviceNumber");
+                    getDeviceFile = name.matches("X_DeviceFile");
+                }
+                else if(eventType == XmlPullParser.END_TAG)
+                {
+                    name = "";
+                }
+                else if (eventType == XmlPullParser.TEXT)
+                {
+                    String value = xmlPullParser.getText();
+                    if ((name.length() > 0)&&(value.length() > 0))
+                    {
+                        Log.v(TAG, " DATA {" + name + ": " + value + " } ");
+                    }
+                    if (getDeviceNumber)
+                    {
+                        getDeviceNumberUrl = value;
+                    }
+                    if (getDeviceFile)
+                    {
+                        getDeviceFileUrl = value;
+                    }
+                }
+                eventType = xmlPullParser.next();
+            }
+
+            if (getDeviceNumberUrl.length() > 1)
+            {
+                reply = SimpleHttpClient.httpGet(getDeviceNumberUrl, timeoutMs);
+                Log.v(TAG, " " + getDeviceNumberUrl + " : (" + reply.length() + " bytes) " + reply);
+            }
+            if (getDeviceFileUrl.length() > 1)
+            {
+                reply = SimpleHttpClient.httpGet(getDeviceFileUrl, timeoutMs);
+                Log.v(TAG, " " + getDeviceFileUrl + " : (" + reply.length() + " bytes) ");
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
 
         ////////////  ある程度の数に区切って送られてくる... 何度か繰り返す必要があるようだ  ////////////
         int sequenceNumber = 0;
@@ -331,7 +430,10 @@ public class SonyPlaybackControl implements IPlaybackControl {
                     "<ObjectID>0</ObjectID><BrowseFlag>BrowseDirectChildren</BrowseFlag><Filter>*</Filter><StartingIndex>" + returnedCount + "</StartingIndex><RequestedCount>3500</RequestedCount><SortCriteria></SortCriteria>" +
                     "<pana:X_FromCP>LumixLink2.0</pana:X_FromCP></u:Browse></s:Body></s:Envelope>";
 */
-            String reply = SimpleHttpClient.httpPostWithHeader(url, postData, "SOAPACTION", "urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "#Browse", "text/xml; charset=\"utf-8\"", timeoutMs);
+            Map<String, String> header = new HashMap<>();
+            header.clear();
+            header.put("SOAPACTION", "urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "#Browse");
+            String reply = SimpleHttpClient.httpPostWithHeader(url, postData, header, "text/xml; charset=\"utf-8\"", timeoutMs);
             if (reply.length() < 10)
             {
                 Log.v(TAG, postData);
@@ -339,6 +441,7 @@ public class SonyPlaybackControl implements IPlaybackControl {
                 //break;
             }
             Log.v(TAG, " < REPLY > " + reply);
+            break;
 /*
             getObjectLists = getObjectLists.append(reply);
             String matches = reply.substring(reply.indexOf("<TotalMatches>") + 14, reply.indexOf("</TotalMatches>"));

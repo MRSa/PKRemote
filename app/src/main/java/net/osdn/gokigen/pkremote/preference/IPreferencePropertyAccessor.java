@@ -85,6 +85,8 @@ public interface IPreferencePropertyAccessor
 
     String GET_SMALL_PICTURE_AS_VGA = "get_small_picture_as_vga";
 
+    String USE_SMARTPHONE_TRANSFER_MODE = "use_smartphone_transfer_mode";
+
     /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
     //String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";
