@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
+import android.util.Xml;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
@@ -275,7 +276,7 @@ public class SonyPlaybackControl implements IPlaybackControl
                     for (int pos = 0; pos < nofContents; pos++)
                     {
                         //  ひろったデータを全部入れていく
-                        SonyImageContentInfo contentInfo = new SonyImageContentInfo(resultsArray.getJSONObject(pos));
+                        SonyImageContentInfo contentInfo = new SonyImageContentInfo(resultsArray.getJSONObject(pos), null);
                         String contentName = contentInfo.getContentName();
                         //Date createdTime = contentInfo.getCapturedDate();
                         //String folderNo = contentInfo.getContentPath();
@@ -560,11 +561,39 @@ public class SonyPlaybackControl implements IPlaybackControl
 
     private void parseContentObject(String receivedData)
     {
-        Log.v(TAG, " >>>>> [" + receivedData.length() +"] " + receivedData);
-        // contentList
+        int startIndex = 0;
+        int endLength = receivedData.length();
+        try
+        {
+            //  <item> ～ </item> を切り出して保管する
+            while (startIndex < endLength)
+            {
+                int index = receivedData.indexOf("<item", startIndex);
+                if (index < 0)
+                {
+                    // もうコンテントがない
+                    break;
+                }
+                int endIndex = receivedData.indexOf("</item>", index);
+                if (endIndex < 0)
+                {
+                    endIndex = endLength;
+                }
+                String itemString = receivedData.substring(index, endIndex + 7);
+                SonyImageContentInfo contentInfo = new SonyImageContentInfo(null, itemString);
+                String contentName = contentInfo.getContentName();
+                if (contentName.length() > 0)
+                {
+                    contentList.put(contentName, contentInfo);
+                }
+                startIndex = endIndex;
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
-
-
 
     private String parseResult(String reply, boolean isResultSubstring)
     {

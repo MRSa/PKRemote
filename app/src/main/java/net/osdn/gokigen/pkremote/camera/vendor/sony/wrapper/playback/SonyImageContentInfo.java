@@ -1,5 +1,7 @@
 package net.osdn.gokigen.pkremote.camera.vendor.sony.wrapper.playback;
 
+import android.util.Log;
+
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 
 import org.json.JSONObject;
@@ -12,6 +14,7 @@ public class SonyImageContentInfo implements ICameraContent
 {
     private final String TAG = toString();
     private final JSONObject contentObject;
+    private final String contentString;
 
 /*
     private String uri = "";
@@ -34,9 +37,10 @@ public class SonyImageContentInfo implements ICameraContent
     private String remotePlayType = "";
 */
 
-    SonyImageContentInfo(JSONObject contentObject)
+    SonyImageContentInfo(JSONObject contentObject, String contentString)
     {
         this.contentObject = contentObject;  // 応答性能向上のため、データの保持方法を変える
+        this.contentString = contentString;
 /*
         try
         {
@@ -96,11 +100,34 @@ public class SonyImageContentInfo implements ICameraContent
     @Override
     public String getContentPath()
     {
+        if (contentObject != null)
+        {
+            return (getContentPathObject());
+        }
+        return (getContentPathString());
+    }
+
+    private String getContentPathObject()
+    {
         return (getObjectString(contentObject, "folderNo"));
+    }
+
+    private String getContentPathString()
+    {
+        return ("");
     }
 
     @Override
     public String getContentName()
+    {
+        if (contentObject != null)
+        {
+            return (getContentNameObject());
+        }
+        return (getContentNameString());
+    }
+
+    private String getContentNameObject()
     {
         String fileName = "";
         try
@@ -116,6 +143,23 @@ public class SonyImageContentInfo implements ICameraContent
         return (fileName);
     }
 
+    private String getContentNameString()
+    {
+        try
+        {
+            int startIndex = contentString.indexOf("<dc:title>");
+            int endIndex = contentString.indexOf("</dc:title>");
+            Log.v(TAG, "getContentNameString : " + contentString.substring(startIndex + 10, endIndex));
+            return (contentString.substring(startIndex + 10, endIndex));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return ("");
+    }
+
+
     @Override
     public boolean isDateValid()
     {
@@ -125,10 +169,36 @@ public class SonyImageContentInfo implements ICameraContent
     @Override
     public Date getCapturedDate()
     {
+        if (contentObject != null)
+        {
+            return (getCapturedDateObject());
+        }
+        return (getCapturedDateString());
+    }
+
+    private Date getCapturedDateObject()
+    {
         try
         {
             String createTime = getObjectString(contentObject, "createdTime");
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.ENGLISH);
+            return (dateFormat.parse(createTime));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (new Date());
+    }
+
+    private Date getCapturedDateString()
+    {
+        try
+        {
+            int startIndex = contentString.indexOf("<dc:date>");
+            int endIndex = contentString.indexOf("</dc:date>");
+            String createTime = contentString.substring(startIndex + 9, endIndex);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
             return (dateFormat.parse(createTime));
         }
         catch (Exception e)
@@ -167,7 +237,33 @@ public class SonyImageContentInfo implements ICameraContent
     }
 */
 
+
     String getOriginalUrl()
+    {
+        if (contentObject != null)
+        {
+            return (getOriginalUrlObject());
+        }
+        return (getOriginalUrlString());
+    }
+
+    private String getOriginalUrlString()
+    {
+        try
+        {
+            int startIndex = contentString.indexOf("image/jpeg:*");
+            int httpStringStart = contentString.indexOf(">http:", startIndex);
+            int httpStringEnd = contentString.indexOf("<", httpStringStart);
+            return (contentString.substring((httpStringStart + 1), (httpStringEnd - 1)));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return ("");
+    }
+
+    private String getOriginalUrlObject()
     {
         String url = "";
         try
@@ -185,6 +281,32 @@ public class SonyImageContentInfo implements ICameraContent
 
     String getLargeUrl()
     {
+        if (contentObject != null)
+        {
+            return (getLargeUrlObject());
+        }
+        return (getLargeUrlString());
+    }
+
+    private String getLargeUrlString()
+    {
+        try
+        {
+            int startIndex = contentString.indexOf("JPEG_LRG");
+            int httpStringStart = contentString.indexOf(">http:", startIndex);
+            int httpStringEnd = contentString.indexOf("<", httpStringStart);
+            return (contentString.substring((httpStringStart + 1), (httpStringEnd - 1)));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return ("");
+    }
+
+
+    private String getLargeUrlObject()
+    {
         String largeUrl = "";
         try
         {
@@ -200,6 +322,31 @@ public class SonyImageContentInfo implements ICameraContent
 
     String getSmallUrl()
     {
+        if (contentObject != null)
+        {
+            return (getSmallUrlObject());
+        }
+        return (getSmallUrlString());
+    }
+
+    private String getSmallUrlString()
+    {
+        try
+        {
+            int startIndex = contentString.indexOf("JPEG_SM");
+            int httpStringStart = contentString.indexOf(">http:", startIndex);
+            int httpStringEnd = contentString.indexOf("<", httpStringStart);
+            return (contentString.substring((httpStringStart + 1), (httpStringEnd - 1)));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return ("");
+    }
+
+    private String getSmallUrlObject()
+    {
         String smallUrl = "";
         try
         {
@@ -214,6 +361,31 @@ public class SonyImageContentInfo implements ICameraContent
     }
 
     String getThumbnailUrl()
+    {
+        if (contentObject != null)
+        {
+            return (getThumbnailUrlObject());
+        }
+        return (getThumbnailUrlString());
+    }
+
+    private String getThumbnailUrlString()
+    {
+        try
+        {
+            int startIndex = contentString.indexOf("JPEG_TN");
+            int httpStringStart = contentString.indexOf(">http:", startIndex);
+            int httpStringEnd = contentString.indexOf("<", httpStringStart);
+            return (contentString.substring((httpStringStart + 1), (httpStringEnd - 1)));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return ("");
+    }
+
+    private String getThumbnailUrlObject()
     {
         String thumbnailUrl = "";
         try
