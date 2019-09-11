@@ -336,10 +336,13 @@ public class SonyPlaybackControl implements IPlaybackControl {
         {
             // 呼んでおくか...
             String accessUrl = cameraApi.getDdUrl();
-            String reply = SimpleHttpClient.httpGetWithHeader(accessUrl, null, "text/xml; charset=\"utf-8\"", timeoutMs);
-            Log.v(TAG, " dd.xml: " + reply);
 
+/*
+            String reply = SimpleHttpClient.httpGetWithHeader(accessUrl, null, "text/xml; charset=\"utf-8\"", timeoutMs);
             accessUrl = accessUrl.substring(0, accessUrl.lastIndexOf("/"));
+
+            // Log.v(TAG, " dd.xml: " + reply);
+
             String url =   accessUrl + "/DigitalImagingDesc.xml";
             //String url =   accessUrl + "/CdsDesc.xml";
             reply = SimpleHttpClient.httpGet(url, timeoutMs);
@@ -395,13 +398,19 @@ public class SonyPlaybackControl implements IPlaybackControl {
                 reply = SimpleHttpClient.httpGet(getDeviceFileUrl, timeoutMs);
                 Log.v(TAG, " " + getDeviceFileUrl + " : (" + reply.length() + " bytes) ");
             }
+            reply = getSortCapabilities(accessUrl);
+            Log.v(TAG, " getSortCapabilities: " + reply);
+*/
+            String reply = browseRootDirectory(accessUrl);
+            Log.v(TAG, " browseRootDirectory: " + reply);
+
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
 
-
+/*
         ////////////  ある程度の数に区切って送られてくる... 何度か繰り返す必要があるようだ  ////////////
         int sequenceNumber = 0;
         int totalCount = 100000;
@@ -424,12 +433,12 @@ public class SonyPlaybackControl implements IPlaybackControl {
                     //"<SortCriteria>" + "-dc:flat" +  "</SortCriteria>" +
                     "<SortCriteria>" + "-dc:date" +  "</SortCriteria>" +
                     "</u:Browse></s:Body></s:Envelope>";
-/*
+*
             String postData = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><s:Body>" +
                     "<u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "\" xmlns:pana=\"urn:schemas-panasonic-com:pana\">" +
                     "<ObjectID>0</ObjectID><BrowseFlag>BrowseDirectChildren</BrowseFlag><Filter>*</Filter><StartingIndex>" + returnedCount + "</StartingIndex><RequestedCount>3500</RequestedCount><SortCriteria></SortCriteria>" +
                     "<pana:X_FromCP>LumixLink2.0</pana:X_FromCP></u:Browse></s:Body></s:Envelope>";
-*/
+*
             Map<String, String> header = new HashMap<>();
             header.clear();
             header.put("SOAPACTION", "urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "#Browse");
@@ -442,7 +451,7 @@ public class SonyPlaybackControl implements IPlaybackControl {
             }
             Log.v(TAG, " < REPLY > " + reply);
             break;
-/*
+*
             getObjectLists = getObjectLists.append(reply);
             String matches = reply.substring(reply.indexOf("<TotalMatches>") + 14, reply.indexOf("</TotalMatches>"));
             try
@@ -466,7 +475,50 @@ public class SonyPlaybackControl implements IPlaybackControl {
             }
             Log.v(TAG, "  REPLY DATA : (" + matches + "/" + totalCount + ") [" + returned + "/" + returnedCount + "] " + " " + reply.length() + "bytes");
             informationReceiver.updateMessage(activity.getString(R.string.get_image_list) + " " + returnedCount + "/" + totalCount + " ", false, false, 0);
-*/
+*
         }
+*/
+    }
+
+    private String getSortCapabilities(String accessUrl)
+    {
+        String url =   accessUrl + "/upnp/control/ContentDirectory";
+        String postData = "<?xml version=\"1.0\"?>" +
+                "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">" +
+                "<s:Body>" +
+                "<u:GetSortCapabilities xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:1\">" +
+                "</u:GetSortCapabilities>" +
+                "</s:Body>" +
+                "</s:Envelope>\r\n\r\n";
+        Map<String, String> header = new HashMap<>();
+        header.clear();
+        header.put("SOAPACTION", "\"urn:schemas-upnp-org:service:ContentDirectory:1" + "#GetSortCapabilities\"");
+        return (SimpleHttpClient.httpPostWithHeader(url, postData, header, "text/xml; charset=\"utf-8\"", timeoutMs));
+    }
+
+    private String browseRootDirectory(String accessUrl)
+    {
+        String url =   accessUrl + "/upnp/control/ContentDirectory";
+        String postData = "<?xml version=\"1.0\"?>" +
+                "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">" +
+                "<s:Body>" +
+                "<u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:1\">" +
+                "<ObjectID>0</ObjectID>" +
+                "<BrowseFlag>BrowseDirectChildren</BrowseFlag>" +
+                "<Filter>*</Filter>" +
+                "<StartingIndex>0</StartingIndex>" +
+                "<RequestedCount>800</RequestedCount>" +
+                "<SortCriteria></SortCriteria>" +
+                "</u:Browse>" +
+                "</s:Body>" +
+                "</s:Envelope>";
+
+        Map<String, String> header = new HashMap<>();
+        header.clear();
+        //header.put("X-AV-Client-Info", "av=5.0; hn=\"\"; cn=\"Sony Corp.\"; mn=\"PMlib\"; mv=\"2.8.1\";");
+        //header.put("User-Agent","UPnP/1.0 DLNADOC/1.50");
+        header.put("SOAPACTION", "\"urn:schemas-upnp-org:service:ContentDirectory:1" + "#Browse\"");
+        return (SimpleHttpClient.httpPostWithHeader(url, postData, header, "text/xml; charset=\"utf-8\"", timeoutMs));
+
     }
 }
