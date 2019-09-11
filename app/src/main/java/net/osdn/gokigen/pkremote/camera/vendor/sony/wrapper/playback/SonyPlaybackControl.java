@@ -30,11 +30,16 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.StringReader;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
-public class SonyPlaybackControl implements IPlaybackControl {
+public class SonyPlaybackControl implements IPlaybackControl
+{
     private final String TAG = toString();
     private final Activity activity;
     private final IInformationReceiver informationReceiver;
@@ -43,12 +48,12 @@ public class SonyPlaybackControl implements IPlaybackControl {
     private int timeoutMs = 55000;
     private boolean contentListIsCreating = false;
 
-    public SonyPlaybackControl(@NonNull Activity activity, @NonNull IInformationReceiver informationReceiver) {
+    public SonyPlaybackControl(@NonNull Activity activity, @NonNull IInformationReceiver informationReceiver)
+    {
         Log.v(TAG, "SonyPlaybackControl()");
         this.activity = activity;
         this.informationReceiver = informationReceiver;
         contentList = new HashMap<>();
-
     }
 
     public void setCameraApi(@NonNull ISonyCameraApi sonyCameraApi) {
@@ -61,13 +66,15 @@ public class SonyPlaybackControl implements IPlaybackControl {
     }
 
     @Override
-    public void downloadContentList(IDownloadContentListCallback callback) {
+    public void downloadContentList(IDownloadContentListCallback callback)
+    {
         Log.v(TAG, "downloadContentList()");
 
     }
 
     @Override
-    public void getContentInfo(String path, String name, IContentInfoCallback callback) {
+    public void getContentInfo(String path, String name, IContentInfoCallback callback)
+    {
         Log.v(TAG, "getContentInfo()");
     }
 
@@ -132,7 +139,8 @@ public class SonyPlaybackControl implements IPlaybackControl {
     }
 
     @Override
-    public void downloadContent(String path, boolean isSmallSize, final IDownloadContentCallback callback) {
+    public void downloadContent(String path, boolean isSmallSize, final IDownloadContentCallback callback)
+    {
         //Log.v(TAG, "downloadContent() : " + path);
         try {
             SonyImageContentInfo content = contentList.get(path.substring(path.indexOf('/') + 1));
@@ -187,7 +195,8 @@ public class SonyPlaybackControl implements IPlaybackControl {
         Log.v(TAG, "getCameraContentList()");
         try
         {
-            if (cameraApi == null) {
+            if (cameraApi == null)
+            {
                 Log.v(TAG, "CAMERA API is NULL.");
                 return;
             }
@@ -207,13 +216,21 @@ public class SonyPlaybackControl implements IPlaybackControl {
                 // DLNAを使用したコンテンツ特定モードを使う
                 try
                 {
-                    getContentDirectorySoapAction(callback);
+                    getContentDirectorySoapAction();
                 }
                 catch (Exception ee)
                 {
                     ee.printStackTrace();
                 }
                 contentListIsCreating = false;
+
+                // 解析終了を報告する
+                informationReceiver.updateMessage(activity.getString(R.string.get_image_list) + " " +  contentList.size() + "/" + contentList.size() + " ", false, false, 0);
+                if (callback != null)
+                {
+                    // コレクションを詰めなおして応答する
+                    callback.onCompleted(new ArrayList<ICameraContent>(contentList.values()));
+                }
                 return;
             }
 
@@ -239,7 +256,8 @@ public class SonyPlaybackControl implements IPlaybackControl {
 
             int index = 0;
             // データを解析してリストを作る
-            while ((index >= 0) && (index < objectCount)) {
+            while ((index >= 0) && (index < objectCount))
+            {
                 informationReceiver.updateMessage(activity.getString(R.string.get_image_list) + " " + index + "/" + objectCount + " ", false, false, 0);
 
                 int remainCount = objectCount - index;
@@ -254,13 +272,15 @@ public class SonyPlaybackControl implements IPlaybackControl {
                     JSONObject responseObject = cameraApi.getContentList(new JSONArray().put(paramsObj));
                     JSONArray resultsArray = responseObject.getJSONArray("result").getJSONArray(0);
                     int nofContents = resultsArray.length();
-                    for (int pos = 0; pos < nofContents; pos++) {
+                    for (int pos = 0; pos < nofContents; pos++)
+                    {
                         //  ひろったデータを全部入れていく
                         SonyImageContentInfo contentInfo = new SonyImageContentInfo(resultsArray.getJSONObject(pos));
                         String contentName = contentInfo.getContentName();
                         //Date createdTime = contentInfo.getCapturedDate();
                         //String folderNo = contentInfo.getContentPath();
-                        if (contentName.length() > 0) {
+                        if (contentName.length() > 0)
+                        {
                             contentList.put(contentName, contentInfo);
                         }
                         //Log.v(TAG, " [" + pos + "] " + "  " + contentName + " " + " " + createdTime + " " + folderNo);
@@ -330,154 +350,52 @@ public class SonyPlaybackControl implements IPlaybackControl {
         return (false);
     }
 
-    private void getContentDirectorySoapAction(ICameraContentListCallback callback)
+    /**
+     *   スマートフォン転送（DLNAを使用したコンテンツ一覧取得）時の一覧取得処理
+     *
+     */
+    private void getContentDirectorySoapAction()
     {
         try
         {
-            // 呼んでおくか...
             String accessUrl = cameraApi.getDdUrl();
-
-/*
-            String reply = SimpleHttpClient.httpGetWithHeader(accessUrl, null, "text/xml; charset=\"utf-8\"", timeoutMs);
             accessUrl = accessUrl.substring(0, accessUrl.lastIndexOf("/"));
 
-            // Log.v(TAG, " dd.xml: " + reply);
-
-            String url =   accessUrl + "/DigitalImagingDesc.xml";
-            //String url =   accessUrl + "/CdsDesc.xml";
-            reply = SimpleHttpClient.httpGet(url, timeoutMs);
-            Log.v(TAG, " " + url + " : " + reply);
-            // DigitalImagingDesc.xml の replyを parseする
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            XmlPullParser xmlPullParser = factory.newPullParser();
-            xmlPullParser.setInput(new StringReader(reply));
-            int eventType = xmlPullParser.getEventType();
-            boolean getDeviceNumber = false;
-            boolean getDeviceFile = false;
-            String name = "";
-            String getDeviceNumberUrl = "";
-            String getDeviceFileUrl = "";
-            while (eventType != XmlPullParser.END_DOCUMENT)
-            {
-                if(eventType == XmlPullParser.START_TAG)
-                {
-                    name = xmlPullParser.getName();
-                    getDeviceNumber = name.matches("X_DeviceNumber");
-                    getDeviceFile = name.matches("X_DeviceFile");
-                }
-                else if(eventType == XmlPullParser.END_TAG)
-                {
-                    name = "";
-                }
-                else if (eventType == XmlPullParser.TEXT)
-                {
-                    String value = xmlPullParser.getText();
-                    if ((name.length() > 0)&&(value.length() > 0))
-                    {
-                        Log.v(TAG, " DATA {" + name + ": " + value + " } ");
-                    }
-                    if (getDeviceNumber)
-                    {
-                        getDeviceNumberUrl = value;
-                    }
-                    if (getDeviceFile)
-                    {
-                        getDeviceFileUrl = value;
-                    }
-                }
-                eventType = xmlPullParser.next();
-            }
-
-            if (getDeviceNumberUrl.length() > 1)
-            {
-                reply = SimpleHttpClient.httpGet(getDeviceNumberUrl, timeoutMs);
-                Log.v(TAG, " " + getDeviceNumberUrl + " : (" + reply.length() + " bytes) " + reply);
-            }
-            if (getDeviceFileUrl.length() > 1)
-            {
-                reply = SimpleHttpClient.httpGet(getDeviceFileUrl, timeoutMs);
-                Log.v(TAG, " " + getDeviceFileUrl + " : (" + reply.length() + " bytes) ");
-            }
-            reply = getSortCapabilities(accessUrl);
-            Log.v(TAG, " getSortCapabilities: " + reply);
-*/
+            //String reply = getSortCapabilities(accessUrl);
             String reply = browseRootDirectory(accessUrl);
-            Log.v(TAG, " browseRootDirectory: " + reply);
+            String objectId = parseObjectId(parseResult(reply, true));
+
+            // PhotoRoot Directory
+            reply = browsePhotoSubRootDirectory(accessUrl, objectId);
+            List<String> rootObjectIdList = parseObjectIds(parseResult(reply, true));
+
+            contentList.clear();
+            for (String rootObjectId : rootObjectIdList)
+            {
+                // Log.v(TAG, "OBJECT ID(ROOT) : " + rootObjectId);
+                reply = browsePhotoSubRootDirectory(accessUrl, rootObjectId);
+                List<String> objectIdList = parseObjectIds(parseResult(reply, true));
+
+                for (String id : objectIdList)
+                {
+                    // （日付別）のサブディレクトリから、データを取得する
+                    Log.v(TAG, " OBJECT ID : " + id);
+
+                    // 撮影日にたくさん撮影していたら、ここでループが必要かも（要調査）
+                    reply = browsePhotoSubRootDirectory(accessUrl, id);
+                    String receivedData = parseResult(reply, false);
+
+                    parseContentObject(receivedData);
+                }
+            }
+
+
 
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
-
-/*
-        ////////////  ある程度の数に区切って送られてくる... 何度か繰り返す必要があるようだ  ////////////
-        int sequenceNumber = 0;
-        int totalCount = 100000;
-        int returnedCount = 0;
-        while (totalCount > returnedCount)
-        {
-            Log.v(TAG, "  ===== getContentList() " + sequenceNumber + " =====");
-            sequenceNumber++;
-            String accessUrl = cameraApi.getDdUrl();
-            String url =  accessUrl.substring(0, accessUrl.lastIndexOf("/")) + "/upnp/control/ContentDirectory";
-
-            String postData = "<?xml version=\"1.0\"?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">" +
-                    "<s:Body><u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "\">" +
-                    //"<ObjectID>0</ObjectID>" +
-                    "<ObjectID>03_01_0002002552_000002_000000_000000</ObjectID>" +
-                    "<BrowseFlag>BrowseDirectChildren</BrowseFlag><Filter>*</Filter>" +
-                    "<StartingIndex>" + returnedCount + "</StartingIndex>" +
-                    //"<RequestedCount>3500</RequestedCount>" +
-                    "<RequestedCount>1</RequestedCount>" +
-                    //"<SortCriteria>" + "-dc:flat" +  "</SortCriteria>" +
-                    "<SortCriteria>" + "-dc:date" +  "</SortCriteria>" +
-                    "</u:Browse></s:Body></s:Envelope>";
-*
-            String postData = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><s:Body>" +
-                    "<u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "\" xmlns:pana=\"urn:schemas-panasonic-com:pana\">" +
-                    "<ObjectID>0</ObjectID><BrowseFlag>BrowseDirectChildren</BrowseFlag><Filter>*</Filter><StartingIndex>" + returnedCount + "</StartingIndex><RequestedCount>3500</RequestedCount><SortCriteria></SortCriteria>" +
-                    "<pana:X_FromCP>LumixLink2.0</pana:X_FromCP></u:Browse></s:Body></s:Envelope>";
-*
-            Map<String, String> header = new HashMap<>();
-            header.clear();
-            header.put("SOAPACTION", "urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "#Browse");
-            String reply = SimpleHttpClient.httpPostWithHeader(url, postData, header, "text/xml; charset=\"utf-8\"", timeoutMs);
-            if (reply.length() < 10)
-            {
-                Log.v(TAG, postData);
-                Log.v(TAG, "ContentDirectory is FAILURE. [" + sequenceNumber + "]");
-                //break;
-            }
-            Log.v(TAG, " < REPLY > " + reply);
-            break;
-*
-            getObjectLists = getObjectLists.append(reply);
-            String matches = reply.substring(reply.indexOf("<TotalMatches>") + 14, reply.indexOf("</TotalMatches>"));
-            try
-            {
-                totalCount = Integer.parseInt(matches);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-                totalCount = 0;
-            }
-
-            String returned = reply.substring(reply.indexOf("<NumberReturned>") + 16, reply.indexOf("</NumberReturned>"));
-            try
-            {
-                returnedCount = returnedCount + Integer.parseInt(returned);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            Log.v(TAG, "  REPLY DATA : (" + matches + "/" + totalCount + ") [" + returned + "/" + returnedCount + "] " + " " + reply.length() + "bytes");
-            informationReceiver.updateMessage(activity.getString(R.string.get_image_list) + " " + returnedCount + "/" + totalCount + " ", false, false, 0);
-*
-        }
-*/
     }
 
     private String getSortCapabilities(String accessUrl)
@@ -507,7 +425,7 @@ public class SonyPlaybackControl implements IPlaybackControl {
                 "<BrowseFlag>BrowseDirectChildren</BrowseFlag>" +
                 "<Filter>*</Filter>" +
                 "<StartingIndex>0</StartingIndex>" +
-                "<RequestedCount>800</RequestedCount>" +
+                "<RequestedCount>8000</RequestedCount>" +
                 "<SortCriteria></SortCriteria>" +
                 "</u:Browse>" +
                 "</s:Body>" +
@@ -519,6 +437,154 @@ public class SonyPlaybackControl implements IPlaybackControl {
         //header.put("User-Agent","UPnP/1.0 DLNADOC/1.50");
         header.put("SOAPACTION", "\"urn:schemas-upnp-org:service:ContentDirectory:1" + "#Browse\"");
         return (SimpleHttpClient.httpPostWithHeader(url, postData, header, "text/xml; charset=\"utf-8\"", timeoutMs));
+    }
 
+    private String browsePhotoRootDirectory(String accessUrl, String rootResult)
+    {
+        //  本来の処理としては rootResult の <container id="PhotoRoot" restricted="1" parentID="0" childCount="1">  の id を切り取って、ObjectID にする必要あり。
+        //  (参考： https://developer.sony.com/develop/audio-control-api/get-started/browse-dlna-file#tutorial-step-3 )
+        String url =   accessUrl + "/upnp/control/ContentDirectory";
+        String postData = "<?xml version=\"1.0\"?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><s:Body>" +
+                "<u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:1\">" +
+                    "<ObjectID>PhotoRoot</ObjectID>" +
+                    "<BrowseFlag>BrowseDirectChildren</BrowseFlag>" +
+                    "<Filter>*</Filter>" +
+                    "<StartingIndex>0</StartingIndex>" +
+                    "<RequestedCount>80000</RequestedCount>" +
+                    "<SortCriteria></SortCriteria>" +
+                "</u:Browse></s:Body></s:Envelope>";
+
+        Map<String, String> header = new HashMap<>();
+        header.clear();
+        header.put("SOAPACTION", "\"urn:schemas-upnp-org:service:ContentDirectory:1" + "#Browse\"");
+        return (SimpleHttpClient.httpPostWithHeader(url, postData, header, "text/xml; charset=\"utf-8\"", timeoutMs));
+    }
+
+
+    private List<String> parseObjectIds(String targetString)
+    {
+        try
+        {
+            List<String> objectIds = new ArrayList<>();
+            objectIds.clear();
+
+            int parsedIndex = 0;
+            int maxSize = targetString.length();
+            while (parsedIndex < maxSize)
+            {
+                String checkString = targetString.substring(parsedIndex);
+                int startIndex = checkString.toLowerCase().indexOf("<container ");
+                if (startIndex < 0)
+                {
+                    // containerタグが見つからない
+                    break;
+                }
+                int endIndex = checkString.indexOf(">", startIndex);
+                if (startIndex > endIndex)
+                {
+                    // タグの末尾が見つからない
+                    //Log.v(TAG, " NOT FOUND END CLAUSE TAG");
+                    break;
+                }
+                String objectId = parseObjectId(checkString.substring(startIndex, endIndex + 1));
+                if (objectId.length() > 0)
+                {
+                    objectIds.add(objectId);
+                    //Log.v(TAG, " OBJECT ID : " + objectId);
+                }
+                parsedIndex = parsedIndex + endIndex;
+            }
+            return (objectIds);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (new ArrayList<>());
+    }
+
+    private String parseObjectId(String targetString)
+    {
+        String objectId = "";
+        String childCount = "0";
+        try
+        {
+            int startIndex = targetString.toLowerCase().indexOf("<container ");
+            if (startIndex < 0)
+            {
+                // パース失敗
+                return ("");
+            }
+            int endIndex = targetString.indexOf(">", startIndex);
+            String containerString = targetString.substring(startIndex + 11, endIndex - 1);
+            String[] attrList = containerString.split(" ");
+            for (String attribute : attrList)
+            {
+                if (attribute.indexOf("id=") == 0)
+                {
+                    objectId = attribute.substring(3).replaceAll("\"","");
+                }
+                else if (attribute.toLowerCase().indexOf("childcount=") == 0)
+                {
+                    childCount = attribute.substring(12).replaceAll("\"","");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        Log.v(TAG, "  OBJECT ID : " + objectId + "  COUNT : " + childCount);
+        return (objectId);
+    }
+
+
+    private String browsePhotoSubRootDirectory(String accessUrl, String objectId)
+    {
+        String url =   accessUrl + "/upnp/control/ContentDirectory";
+        String postData = "<?xml version=\"1.0\"?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><s:Body>" +
+                "<u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:1\">" +
+                "<ObjectID>" + objectId + "</ObjectID>" +
+                "<BrowseFlag>BrowseDirectChildren</BrowseFlag>" +
+                "<Filter>*</Filter>" +
+                "<StartingIndex>0</StartingIndex>" +
+                "<RequestedCount>80000</RequestedCount>" +
+                "<SortCriteria></SortCriteria>" +
+                "</u:Browse></s:Body></s:Envelope>";
+
+        Map<String, String> header = new HashMap<>();
+        header.clear();
+        header.put("SOAPACTION", "\"urn:schemas-upnp-org:service:ContentDirectory:1" + "#Browse\"");
+        return (SimpleHttpClient.httpPostWithHeader(url, postData, header, "text/xml; charset=\"utf-8\"", timeoutMs));
+    }
+
+    private void parseContentObject(String receivedData)
+    {
+        Log.v(TAG, " >>>>> [" + receivedData.length() +"] " + receivedData);
+        // contentList
+    }
+
+
+
+    private String parseResult(String reply, boolean isResultSubstring)
+    {
+        String decordReply = reply;
+        try
+        {
+            int startIndex = reply.indexOf("<Result>");
+            int endIndex = reply.indexOf("</Result>");
+            if ((isResultSubstring)&&(startIndex < endIndex) && (startIndex > 0))
+            {
+                decordReply = reply.substring((startIndex + 8), endIndex); // = URLDecoder.decode(reply.substring((startIndex + 8), endIndex), "UTF-8");
+            }
+            decordReply = decordReply.replaceAll("&lt;", "<");
+            decordReply = decordReply.replaceAll("&gt;", ">");
+            decordReply = decordReply.replaceAll("&quot;", "\"");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (decordReply);
     }
 }
