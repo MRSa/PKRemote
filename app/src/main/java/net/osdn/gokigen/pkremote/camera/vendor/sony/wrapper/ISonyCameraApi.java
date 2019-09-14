@@ -68,4 +68,6 @@ public interface ISonyCameraApi
     JSONObject callGenericSonyApiMethod(@NonNull String service, @NonNull String method, @NonNull JSONArray params, @NonNull String version);
 
     String getDdUrl();
+
+    JSONObject actEnableMethods(String developerName, String developerID, String sg, String methods);
 }

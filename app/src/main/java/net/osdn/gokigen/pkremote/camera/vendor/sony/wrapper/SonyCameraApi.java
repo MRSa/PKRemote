@@ -532,7 +532,6 @@ class SonyCameraApi implements ISonyCameraApi
             e.printStackTrace();
         }
         return (new JSONObject());
-
     }
 
     @Override
@@ -572,7 +571,16 @@ class SonyCameraApi implements ISonyCameraApi
         return ((replyJson != null && replyJson.has("error")));
     }
 
-
-
+    @Override
+    public JSONObject actEnableMethods(String developerName, String developerID, String sg, String methods)
+    {
+        try {
+            JSONObject params = new JSONObject().put("developerName", developerName).put("developerID", developerID).put("sg", sg).put("methods", methods);
+            return (communicateJSON("accessControl", "actEnableMethods", new JSONArray().put(0, params), "1.0", -1));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return (new JSONObject());
+    }
 
 }

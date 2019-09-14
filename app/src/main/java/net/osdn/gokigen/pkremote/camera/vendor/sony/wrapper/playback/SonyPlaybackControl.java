@@ -258,7 +258,13 @@ public class SonyPlaybackControl implements IPlaybackControl
             }
 
             informationReceiver.updateMessage(activity.getString(R.string.get_image_list), false, false, 0);
-            changeContentsTransferMode();  // コンテンツトランスファモードに切り替える
+            boolean ret = changeContentsTransferMode();  // コンテンツトランスファモードに切り替える
+            if (!ret)
+            {
+                informationReceiver.updateMessage(activity.getString(R.string.change_transfer_mode_failure), true, true, Color.RED);
+                contentListIsCreating = false;
+                return;
+            }
 
             JSONObject storageInformationObj = cameraApi.getStorageInformation();
             JSONObject schemeListObj = cameraApi.getSchemeList();
@@ -334,14 +340,15 @@ public class SonyPlaybackControl implements IPlaybackControl
         contentListIsCreating = false;
     }
 
-    private void changeContentsTransferMode()
+    private boolean changeContentsTransferMode()
     {
         try
         {
             if (cameraApi == null)
             {
-                return;
+                return (false);
             }
+
             boolean isAvailable = false;
             int maxRetryCount = 10;    // 最大リトライ回数
             while ((!isAvailable) && (maxRetryCount > 0))
@@ -353,13 +360,28 @@ public class SonyPlaybackControl implements IPlaybackControl
             {
                 // Retry over
                 informationReceiver.updateMessage(activity.getString(R.string.change_transfer_mode_retry_over), true, true, Color.RED);
-            }
 
+                // QX10のコマンドを有効化する。
+                QX10actEnableMethods actEnableMethods = new QX10actEnableMethods(cameraApi);
+                boolean ret = actEnableMethods.actEnableMethods();
+                if (!ret)
+                {
+                    // actEnableMethods がうまく動かなかった場合... ここで処理を止める
+                    getContentDirectorySoapAction();   //  ← やっても動かないはず
+                    return (false);
+                }
+
+                //  DLNAで画像取得に入る...。
+                informationReceiver.updateMessage(activity.getString(R.string.image_checking), false, false, Color.BLACK);
+                getContentDirectorySoapAction();
+                return (false);
+            }
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+        return (true);
     }
 
     private boolean setCameraFunction(boolean isRecording)
