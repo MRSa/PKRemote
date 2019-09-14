@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout
             android:id="@+id/info_edit_data"
             android:orientation="vertical"
             android:layout_width="fill_parent"
@@ -22,15 +22,21 @@
                 android:text="@string/blank"
                 android:visibility="visible" />
 
-            <TextView
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="@android:color/darker_gray"/>
+
+            <EditText
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/method_name"
+                android:id="@+id/edit_method_name"
                 android:tag="title"
-                android:maxWidth="130dp"
-                android:minWidth="130dp"
+                android:linksClickable="true"
+                android:inputType="text"
+                android:hint="@string/dialog_method_name_hint"
                 android:layout_gravity="start">
-            </TextView>
+            </EditText>
 
             <EditText android:id="@+id/edit_parameter"
                 android:layout_width="fill_parent"

@@ -32,7 +32,7 @@ public class SendRequestDialog  extends DialogFragment
     private String method = "";
     private int selectedPosition = 0;
     private SendRequestDialog.Callback callback = null;
-    Dialog myDialog = null;
+    private Dialog myDialog = null;
 
     /**
      *
@@ -78,17 +78,18 @@ public class SendRequestDialog  extends DialogFragment
 
         // Get the layout inflater
         LayoutInflater inflater = activity.getLayoutInflater();
-        final View alertView = inflater.inflate(R.layout.request_edit_layout, null, false);
+        final View alertView = inflater.inflate(R.layout.sony_request_edit_layout, null, false);
         alertDialog.setView(alertView);
 
         alertDialog.setIcon(R.drawable.ic_linked_camera_black_24dp);
         alertDialog.setTitle("API : " + method);
         final Spinner spinner = alertView.findViewById(R.id.spinner_selection_service);
-        final TextView methodName = alertView.findViewById(R.id.method_name);
+        final EditText methodName = alertView.findViewById(R.id.edit_method_name);
         final EditText parameter = alertView.findViewById(R.id.edit_parameter);
         final EditText version = alertView.findViewById(R.id.edit_version);
-        try {
-            methodName.setText("");
+        try
+        {
+            methodName.setText(method);
             version.setText(activity.getString(R.string.dialog_version_hint));
             ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item);
             adapter.addAll(cameraApi.getSonyApiServiceList());
@@ -142,7 +143,7 @@ public class SendRequestDialog  extends DialogFragment
                             {
                                 if (callback != null)
                                 {
-                                    callback.sendRequest((String) spinner.getAdapter().getItem(selectedPosition), method, parameter.getText().toString(), version.getText().toString());
+                                    callback.sendRequest((String) spinner.getAdapter().getItem(selectedPosition), methodName.getText().toString(), parameter.getText().toString(), version.getText().toString());
                                 }
                             }
                         }

@@ -171,6 +171,14 @@ public class SonyCameraApiListFragment extends ListFragment implements SendReque
                 Log.v(TAG, "FINISH GET API LIST");
                 try
                 {
+                    // 追加の追加する
+                    String addMethodText = "(free)";
+                    if (getActivity() != null)
+                    {
+                        addMethodText = getActivity().getString(R.string.free_method_name);
+                    }
+                    dataItems.add(addMethodText);
+
                     final FragmentActivity activity = getActivity();
                     if (activity != null)
                     {
