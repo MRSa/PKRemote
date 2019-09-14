@@ -391,7 +391,7 @@ public class SonyPlaybackControl implements IPlaybackControl
             JSONObject reply = cameraApi.setCameraFunction((isRecording) ? "Remote Shooting" : "Contents Transfer");
             try
             {
-                int value = reply.getInt("result");
+                int value = reply.getJSONArray("result").getInt(0);
                 Log.v(TAG, "CHANGE RUN MODE : " + value);
                 return (true);
             }
