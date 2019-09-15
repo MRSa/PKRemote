@@ -159,7 +159,6 @@ public class SonyImageContentInfo implements ICameraContent
         return ("");
     }
 
-
     @Override
     public boolean isDateValid()
     {
@@ -236,7 +235,6 @@ public class SonyImageContentInfo implements ICameraContent
         return (stillObject);
     }
 */
-
 
     String getOriginalUrl()
     {

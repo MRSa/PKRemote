@@ -14,6 +14,7 @@ import java.security.MessageDigest;
 
 /**
  *   QX10actEnableMethods : QX10を Contents Transferモードに切り替えるための処理...
+ *      (処理はこれでよさそうだが...このキーはファームアップ後に変わっていそう...)
  *
  *    [参考サイト]
  *      - https://github.com/erik-smit/sony-camera-api/blob/master/actEnableMethods.sh
@@ -45,8 +46,6 @@ class QX10actEnableMethods
             e.printStackTrace();
         }
         return (digest);
-        //return ("AqcqkTusNzFKhoXm");
-        //return ("GiigWEMzm1MoEmMu");
     }
 
     private String decideSignature()
@@ -72,7 +71,7 @@ class QX10actEnableMethods
         boolean response = false;
         try
         {
-            // 現物合わせ...
+            // ここは現物合わせ...
             String methods =
                     "camera\\/setFlashMode:camera\\/getFlashMode:camera\\/getSupportedFlashMode:camera\\/getAvailableFlashMode:" +
                     "camera\\/setExposureCompensation:camera\\/getExposureCompensation:camera\\/getSupportedExposureCompensation:camera\\/getAvailableExposureCompensation:" +

@@ -367,9 +367,16 @@ public class SonyPlaybackControl implements IPlaybackControl
                 if (!ret)
                 {
                     // actEnableMethods がうまく動かなかった場合... ここで処理を止める
+
+                    // カメラのモードチェンジ
+                   setCameraFunction(false);
+
                     getContentDirectorySoapAction();   //  ← やっても動かないはず
                     return (false);
                 }
+
+                // カメラのモードチェンジ
+                setCameraFunction(false);
 
                 //  DLNAで画像取得に入る...。
                 informationReceiver.updateMessage(activity.getString(R.string.image_checking), false, false, Color.BLACK);
