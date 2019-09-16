@@ -188,14 +188,14 @@ public class CanonConnection implements ICameraConnection
     @Override
     public CameraConnectionStatus getConnectionStatus()
     {
-        Log.v(TAG, "getConnectionStatus()");
+        Log.v(TAG, " getConnectionStatus()");
         return (connectionStatus);
     }
 
     @Override
     public void forceUpdateConnectionStatus(CameraConnectionStatus status)
     {
-        Log.v(TAG, "forceUpdateConnectionStatus()");
+        Log.v(TAG, " forceUpdateConnectionStatus()");
         connectionStatus = status;
     }
 
@@ -204,7 +204,7 @@ public class CanonConnection implements ICameraConnection
      */
     private void disconnectFromCamera(final boolean powerOff)
     {
-        Log.v(TAG, "disconnectFromCamera()");
+        Log.v(TAG, " disconnectFromCamera()");
         try
         {
             cameraExecutor.execute(new CanonCameraDisconnectSequence(context, interfaceProvider));
@@ -220,7 +220,7 @@ public class CanonConnection implements ICameraConnection
      */
     private void connectToCamera()
     {
-        Log.v(TAG, "connectToCamera()");
+        Log.v(TAG, " connectToCamera()");
         connectionStatus = CameraConnectionStatus.CONNECTING;
         try
         {
@@ -228,7 +228,7 @@ public class CanonConnection implements ICameraConnection
         }
         catch (Exception e)
         {
-            Log.v(TAG, "connectToCamera() EXCEPTION : " + e.getMessage());
+            Log.v(TAG, " connectToCamera() EXCEPTION : " + e.getMessage());
             e.printStackTrace();
         }
     }

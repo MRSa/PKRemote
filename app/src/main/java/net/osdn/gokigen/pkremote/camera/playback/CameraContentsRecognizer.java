@@ -57,6 +57,7 @@ public class CameraContentsRecognizer implements ICameraContentsRecognizer, ICam
     @Override
     public void getRemoteCameraContentsList(boolean isReload, ICameraContentsListCallback callback)
     {
+        Log.v(TAG, "  --- getRemoteCameraContentsList() ---");
         contentsListCallback = callback;
         if ((isLoadedContents)&&(cameraContentsList != null)&&(!isReload))
         {

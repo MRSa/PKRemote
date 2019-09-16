@@ -15,9 +15,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpComma
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRegistrationMessage;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.IPtpIpRunModeHolder;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.PtpIpStatusChecker;
-
 
 public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCommandCallback, IPtpIpMessages
 {
@@ -29,7 +27,6 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
     private final IPtpIpInterfaceProvider interfaceProvider;
     private final IPtpIpCommandPublisher commandIssuer;
     private final PtpIpStatusChecker statusChecker;
-    private boolean isBothLiveView = false;
 
     CanonCameraConnectSequenceForPlayback(@NonNull Activity context, @NonNull ICameraStatusReceiver statusReceiver, @NonNull final ICameraConnection cameraConnection, @NonNull IPtpIpInterfaceProvider interfaceProvider, @NonNull PtpIpStatusChecker statusChecker)
     {
@@ -47,18 +44,6 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
     {
         try
         {
-/*
-            try
-            {
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-                isBothLiveView = preferences.getBoolean(IPreferencePropertyAccessor.FUJIX_DISPLAY_CAMERA_VIEW, false);
-            }
-            catch (Exception e)
-            {
-                //isBothLiveView = false;
-                e.printStackTrace();
-            }
-*/
             // カメラとTCP接続
             IPtpIpCommandPublisher issuer = interfaceProvider.getCommandPublisher();
             if (!issuer.isConnected())
@@ -110,12 +95,8 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
     @Override
     public void receivedMessage(int id, byte[] rx_body)
     {
-        //Log.v(TAG, "receivedMessage : " + id + "[" + rx_body.length + " bytes]");
-        //int bodyLength = 0;
-        IPtpIpRunModeHolder runModeHolder;
         switch (id)
         {
-/**/
             case SEQ_REGISTRATION:
                 if (checkRegistrationMessage(rx_body))
                 {
@@ -156,105 +137,11 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
 
             case SEQ_SET_EVENT_MODE:
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting5), false, false, 0);
-                break;
-/*
-            case SEQ_START_2ND_READ:
-                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting2), false, false, 0);
-                cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_connecting));
-                if (rx_body.length == (int)rx_body[0])
-                {
-                    // なぜかもうちょっとデータが飛んでくるので待つ
-                    //commandIssuer.enqueueCommand(new ReceiveOnly(this));
-
-                    commandIssuer.enqueueCommand(new StartMessage3rd(this));
-                }
-                else
-                {
-                    commandIssuer.enqueueCommand(new StartMessage3rd(this));
-                }
-                break;
-
-            case SEQ_START_2ND_RECEIVE:
-                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting3), false, false, 0);
-                commandIssuer.enqueueCommand(new StartMessage3rd(this));
-                break;
-
-            case SEQ_START_3RD:
-                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting4), false, false, 0);
-                commandIssuer.enqueueCommand(new StartMessage4th(this));
-                break;
-
-            case SEQ_START_4TH:
-                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting5), false, false, 0);
-                if (isBothLiveView)
-                {
-                    // カメラのLCDと遠隔のライブビューを同時に表示する場合...
-                    commandIssuer.enqueueCommand(new CameraRemoteMessage(this));
-                }
-                else
-                {
-                    commandIssuer.enqueueCommand(new StartMessage5th(this));
-                }
-                break;
-
-            case SEQ_START_5TH:
-                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting6), false, false, 0);
-                commandIssuer.enqueueCommand(new QueryCameraCapabilities(this));
-                //commandIssuer.enqueueCommand(new StatusRequestMessage(this));
-                break;
-
-            case SEQ_QUERY_CAMERA_CAPABILITIES:
-                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting7), false, false, 0);
-                commandIssuer.enqueueCommand(new CameraRemoteMessage(this));
-                break;
-
-            case SEQ_CAMERA_REMOTE:
-                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting8), false, false, 0);
-                commandIssuer.enqueueCommand(new ChangeToPlayback1st(this));
-                runModeHolder = interfaceProvider.getRunModeHolder();
-                if (runModeHolder != null)
-                {
-                    runModeHolder.transitToPlaybackMode(false);
-                }
-                //connectFinished();
-                break;
-
-            case SEQ_CHANGE_TO_PLAYBACK_1ST:
-                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting9), false, false, 0);
-                commandIssuer.enqueueCommand(new ChangeToPlayback2nd(this));
-                break;
-
-            case SEQ_CHANGE_TO_PLAYBACK_2ND:
-                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting10), false, false, 0);
-                commandIssuer.enqueueCommand(new ChangeToPlayback3rd(this));
-                break;
-
-            case SEQ_CHANGE_TO_PLAYBACK_3RD:
-                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting11), false, false, 0);
-                commandIssuer.enqueueCommand(new ChangeToPlayback4th(this));
-                break;
-
-            case SEQ_CHANGE_TO_PLAYBACK_4TH:
-                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting12), false, false, 0);
-                commandIssuer.enqueueCommand(new StatusRequestMessage(this));
-                break;
-
-            case SEQ_STATUS_REQUEST:
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connect_finished), false, false, 0);
-                IPtpIpCommandCallback callback = interfaceProvider.getStatusHolder();
-                if (callback != null)
-                {
-                    callback.receivedMessage(id, rx_body);
-                }
-                runModeHolder = interfaceProvider.getRunModeHolder();
-                if (runModeHolder != null)
-                {
-                    runModeHolder.transitToPlaybackMode(true);
-                }
                 connectFinished();
                 Log.v(TAG, "CHANGED PLAYBACK MODE : DONE.");
                 break;
-*/
+
             default:
                 Log.v(TAG, "RECEIVED UNKNOWN ID : " + id);
                 onConnectError(context.getString(R.string.connect_receive_unknown_message));
@@ -288,30 +175,19 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
         {
             e.printStackTrace();
         }
-        //commandIssuer.enqueueCommand(new CanonInitEventRequest(this, connectionNumber));
-        //commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, 0x1002, 4, 0x41));
     }
 
     private boolean checkRegistrationMessage(byte[] receiveData)
     {
         // データ(Connection Number)がないときにはエラーと判断する
-        if ((receiveData == null)||(receiveData.length < 12))
-        {
-            return (false);
-        }
-        return (true);
+        return (!((receiveData == null)||(receiveData.length < 12)));
     }
 
     private boolean checkEventInitialize(byte[] receiveData)
     {
         Log.v(TAG, "checkEventInitialize() ");
-        if (receiveData == null)
-        {
-            return (false);
-        }
-        return (true);
+        return (!(receiveData == null));
     }
-
 
     private void connectFinished()
     {
@@ -323,7 +199,7 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
             // ちょっと待つ
             Thread.sleep(1000);
 
-            interfaceProvider.getAsyncEventCommunication().connect();
+            //interfaceProvider.getAsyncEventCommunication().connect();
             //interfaceProvider.getCameraStatusWatcher().startStatusWatch(interfaceProvider.getStatusListener());  ステータスの定期確認は実施しない
 
             // 接続成功！のメッセージを出す
@@ -349,7 +225,7 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
                     // カメラとの接続確立を通知する
                     cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_connected));
                     cameraStatusReceiver.onCameraConnected();
-                    Log.v(TAG, "onConnectNotify()");
+                    Log.v(TAG, " onConnectNotify()");
                 }
             });
             thread.start();

@@ -13,7 +13,6 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpComma
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonInitEventRequest;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.StatusRequestMessage;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -51,20 +50,6 @@ public class PtpIpStatusChecker implements IPtpIpCommandCallback, ICameraStatusW
         this.statusHolder = new PtpIpStatusHolder();
         this.ipAddress = ip;
         this.portNumber = portNumber;
-
-/*
-        try
-        {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-            String pollingWait = preferences.getString(IPreferencePropertyAccessor.FUJIX_COMMAND_POLLING_WAIT, IPreferencePropertyAccessor.FUJIX_COMMAND_POLLING_WAIT_DEFAULT_VALUE);
-            this.sleepMs = Integer.parseInt(pollingWait);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            this.sleepMs = 400;
-        }
-*/
         Log.v(TAG, "POLLING WAIT : " + sleepMs);
     }
 
@@ -368,7 +353,7 @@ public class PtpIpStatusChecker implements IPtpIpCommandCallback, ICameraStatusW
     private void receive_from_camera(boolean isDumpReceiveLog, int id, IPtpIpCommandCallback callback, boolean receiveAgain, int delayMs) {
         try {
             sleep(delayMs);
-            Log.v(TAG, "  ----- receive_from_camera() ----- : " + isDumpReceiveLog + "  " + receiveAgain);
+
             boolean isFirstTime = true;
             int totalReadBytes;
             int receive_message_buffer_size = BUFFER_SIZE;
@@ -422,7 +407,7 @@ public class PtpIpStatusChecker implements IPtpIpCommandCallback, ICameraStatusW
                 }
                 if (isDumpReceiveLog) {
                     // ログに受信メッセージを出力する
-                    Log.v(TAG, " receive_from_camera() : " + read_bytes + " bytes. [" + receive_message_buffer_size + "]");
+                    Log.v(TAG, " receive_from_camera() : " + read_bytes + " bytes.");
                     dump_bytes("RECV[" + receive_body.length + "] ", receive_body);
                 }
                 if (callback != null) {

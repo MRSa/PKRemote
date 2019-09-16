@@ -248,7 +248,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
                 sendData[17] = (byte) (((0xff000000 & sequenceNumber) >>> 24) & 0x000000ff);
                 if (isDumpReceiveLog)
                 {
-                    Log.v(TAG, "SEQ No. : " + sequenceNumber);
+                    Log.v(TAG, "----- SEQ No. : " + sequenceNumber + " -----");
                 }
             }
 
@@ -289,7 +289,6 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
         try
         {
             sleep(delayMs);
-            Log.v(TAG, "  ----- receive_from_camera() ----- : " + isDumpReceiveLog + "  " + receiveAgain);
             boolean isFirstTime = true;
             int totalReadBytes;
             int receive_message_buffer_size = BUFFER_SIZE;
@@ -360,7 +359,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
                 if (isDumpReceiveLog)
                 {
                     // ログに受信メッセージを出力する
-                    Log.v(TAG, "receive_from_camera() : " + read_bytes + " bytes. [" + receive_message_buffer_size + "]");
+                    Log.v(TAG, "receive_from_camera() : " + read_bytes + " bytes.");
                     dump_bytes("RECV[" + receive_body.length + "] ", receive_body);
                 }
                if (callback != null)

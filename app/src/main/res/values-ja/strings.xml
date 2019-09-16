@@ -294,17 +294,10 @@
     <string name="pref_summary_sony_use_smartphone_transfer">うまく通信できない場合にチェックを入れてください。</string>
 
     <string name="connect_start_2">準備中&#8230;</string>
-    <string name="canon_connect_connecting1">接続中&#8230;(1/12)</string>
-    <string name="canon_connect_connecting2">接続中&#8230;(2/12)</string>
-    <string name="canon_connect_connecting3">接続中&#8230;(3/12)</string>
-    <string name="canon_connect_connecting4">接続中&#8230;(4/12)</string>
-    <string name="canon_connect_connecting5">接続中&#8230;(5/12)</string>
-    <string name="canon_connect_connecting6">接続中&#8230;(6/12)</string>
-    <string name="canon_connect_connecting7">接続中&#8230;(7/12)</string>
-    <string name="canon_connect_connecting8">接続中&#8230;(8/12)</string>
-    <string name="canon_connect_connecting9">接続中&#8230;(9/12)</string>
-    <string name="canon_connect_connecting10">接続中&#8230;(10/12)</string>
-    <string name="canon_connect_connecting11">接続中&#8230;(11/12)</string>
-    <string name="canon_connect_connecting12">接続中&#8230;(12/12)</string>
+    <string name="canon_connect_connecting1">接続中&#8230;(1/5)</string>
+    <string name="canon_connect_connecting2">接続中&#8230;(2/5)</string>
+    <string name="canon_connect_connecting3">接続中&#8230;(3/5)</string>
+    <string name="canon_connect_connecting4">接続中&#8230;(4/5)</string>
+    <string name="canon_connect_connecting5">接続中&#8230;(5/5)</string>
 
 </resources>
