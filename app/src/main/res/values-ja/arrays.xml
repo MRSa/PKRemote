@@ -6,6 +6,10 @@
         <item>Fuji X Series</item>
         <item>Panasonic</item>
         <item>Sony</item>
+        <item>Canon</item>
+<!--
+        <item>Nikon</item>
+-->
     </string-array>
 
     <string-array name="connection_method_value">
@@ -14,6 +18,10 @@
         <item>FUJI_X</item>
         <item>PANASONIC</item>
         <item>SONY</item>
+        <item>CANON</item>
+<!--
+        <item>NIKON</item>
+-->
     </string-array>
 
     <string-array name="sound_volume_level">

@@ -74,6 +74,9 @@
     <string name="dialog_title_connect_failed_opc">Connect failed (OPC)</string>
     <string name="dialog_title_connect_failed_panasonic">Connect failed (Panasonic)</string>
     <string name="dialog_title_connect_failed_fuji">Connect failed (FUJI)</string>
+    <string name="dialog_title_connect_failed_canon">Connect failed (Canon)</string>
+    <string name="dialog_title_connect_failed_nikon">Connect failed (Nikon)</string>
+
 
     <string name="dialog_title_button_retry">Retry</string>
     <string name="dialog_title_button_network_settings">WiFi Settings</string>
@@ -198,12 +201,15 @@
     <string name="update_status">Update</string>
 
     <string name="dialog_fujix_command_title_command">Send Message</string>
+    <string name="dialog_ptpip_command_title_command">Send Message(PTP-IP)</string>
     <string name="dialog_title_command">Command</string>
     <string name="dialog_command_id_hint">0x####</string>
     <string name="dialog_message_type_name">Message Type</string>
     <string name="dialog_title_body_length">Body Length</string>
     <string name="dialog_message_body1_hint">0x########</string>
     <string name="dialog_message_body2_hint">0x########</string>
+    <string name="dialog_message_body3_hint">0x########</string>
+    <string name="dialog_message_body4_hint">0x########</string>
     <string name="dialog_title_message_body">Message Body</string>
     <string name="dialog_send_message">Send</string>
     <string name="dialog_button_liveview">to LiveView</string>
@@ -288,5 +294,19 @@
 
     <string name="pref_sony_use_smartphone_transfer">Do use SmartPhone transfer mode.</string>
     <string name="pref_summary_sony_use_smartphone_transfer">If you cannot communicate, please check this.</string>
+
+    <string name="connect_start_2">Preparing&#8230;</string>
+    <string name="canon_connect_connecting1">Connecting&#8230;(1/12)</string>
+    <string name="canon_connect_connecting2">Connecting&#8230;(2/12)</string>
+    <string name="canon_connect_connecting3">Connecting&#8230;(3/12)</string>
+    <string name="canon_connect_connecting4">Connecting&#8230;(4/12)</string>
+    <string name="canon_connect_connecting5">Connecting&#8230;(5/12)</string>
+    <string name="canon_connect_connecting6">Connecting&#8230;(6/12)</string>
+    <string name="canon_connect_connecting7">Connecting&#8230;(7/12)</string>
+    <string name="canon_connect_connecting8">Connecting&#8230;(8/12)</string>
+    <string name="canon_connect_connecting9">Connecting&#8230;(9/12)</string>
+    <string name="canon_connect_connecting10">Connecting&#8230;(10/12)</string>
+    <string name="canon_connect_connecting11">Connecting&#8230;(11/12)</string>
+    <string name="canon_connect_connecting12">Connecting&#8230;(12/12)</string>
 
 </resources>

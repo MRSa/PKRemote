@@ -1,0 +1,164 @@
+package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper;
+
+import android.util.Log;
+
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+public class PtpIpImageContentInfo implements ICameraContent, IPtpIpCommandCallback
+{
+    private final String TAG = toString();
+    private final int indexNumber;
+    private boolean isReceived = false;
+    private boolean isDateValid = false;
+    private Date date = null;
+    private String realFileName = null;
+    private byte[] rx_body;
+    PtpIpImageContentInfo(int indexNumber, byte[] rx_body)
+    {
+        this.indexNumber = indexNumber;
+        this.rx_body = rx_body;
+        if (this.rx_body != null)
+        {
+            updateInformation(rx_body);
+        }
+        else
+        {
+            date = new Date();
+            isDateValid = false;
+        }
+    }
+
+    @Override
+    public String getCameraId()
+    {
+        return ("FujiX");
+    }
+
+    @Override
+    public String getCardId()
+    {
+        return ("sd1");
+    }
+
+    @Override
+    public String getContentPath()
+    {
+        return ("");
+    }
+
+    @Override
+    public String getContentName()
+    {
+        try
+        {
+            if ((realFileName != null)&&(realFileName.contains(".MOV")))
+            {
+                return ("" + indexNumber + ".MOV");
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return ("" + indexNumber + ".JPG");
+    }
+
+    @Override
+    public boolean isDateValid()
+    {
+        return (isDateValid);
+    }
+
+    @Override
+    public Date getCapturedDate()
+    {
+        return (date);
+    }
+
+    @Override
+    public void setCapturedDate(Date date)
+    {
+        try
+        {
+            this.date = date;
+            isDateValid = true;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onReceiveProgress(int currentBytes, int totalBytes, byte[] body)
+    {
+        Log.v(TAG, " " + currentBytes + "/" + totalBytes);
+    }
+
+    @Override
+    public boolean isReceiveMulti()
+    {
+        return (false);
+    }
+
+    @Override
+    public void receivedMessage(int id, byte[] rx_body)
+    {
+        Log.v(TAG, "RX : " + indexNumber + "(" + id + ") " + rx_body.length + " bytes.");
+        this.rx_body = rx_body;
+        updateInformation(rx_body);
+
+    }
+
+    public int getId()
+    {
+        return (indexNumber);
+    }
+
+    public boolean isReceived()
+    {
+        return (isReceived);
+    }
+
+    private void updateInformation(byte[] rx_body)
+    {
+        try
+        {
+            if (rx_body.length >= 166)
+            {
+                // データの切り出し
+                realFileName = new String(pickupString(rx_body, 65, 12));
+                String dateString = new String(pickupString(rx_body, 92, 15));
+                //char orientation = Character.(rx_body[151]);
+                Log.v(TAG, "[" + indexNumber + "] FILE NAME : " + realFileName + "  DATE : '" + dateString + "'");
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.ENGLISH);
+                date = dateFormat.parse(dateString);
+                isDateValid = true;
+                isReceived = true;
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     *   文字列を無理やり切り出す...
+     *
+     */
+    private byte[] pickupString(byte[] data, int start, int length)
+    {
+        byte[] result = new byte[length];
+        for (int index = 0; index < length; index++)
+        {
+            result[index] = data[start + index * 2];
+        }
+        return (result);
+    }
+}
