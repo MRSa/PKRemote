@@ -46,6 +46,7 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
     private static final int STREAM_PORT = 15742;   // ??
     private static final int ASYNC_RESPONSE_PORT = 15741;  // ??
     private static final int CONTROL_PORT = 15740;
+    private static final int EVENT_PORT = 15740;
     private static final String CAMERA_IP = "192.168.0.1";
 
     private final Activity activity;
@@ -70,9 +71,9 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
         commandPublisher = new PtpIpCommandPublisher(CAMERA_IP, CONTROL_PORT);
         liveViewControl = new PtpIpLiveViewControl(context, CAMERA_IP, STREAM_PORT);
         asyncReceiver = new PtpIpAsyncResponseReceiver(CAMERA_IP, ASYNC_RESPONSE_PORT);
-        canonConnection = new CanonConnection(context, provider, this);
+        statusChecker = new PtpIpStatusChecker(activity, commandPublisher, CAMERA_IP, EVENT_PORT);
+        canonConnection = new CanonConnection(context, provider, this, statusChecker);
         zoomControl = new PtpIpZoomControl();
-        statusChecker = new PtpIpStatusChecker(activity, commandPublisher);
         this.statusListener = statusListener;
         this.runmode = new PtpIpRunMode();
         this.hardwareStatus = new PtpIpHardwareStatus();

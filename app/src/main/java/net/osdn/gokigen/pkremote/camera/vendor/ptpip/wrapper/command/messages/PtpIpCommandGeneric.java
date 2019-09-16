@@ -78,10 +78,10 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         data2 = ((byte)((0x00ff0000 & value) >> 16));
         data3 = ((byte)((0xff000000 & value) >> 24));
 
-        data4 = ((byte) (0x000000ff & value));
-        data5 = ((byte)((0x0000ff00 & value) >> 8));
-        data6 = ((byte)((0x00ff0000 & value) >> 16));
-        data7 = ((byte)((0xff000000 & value) >> 24));
+        data4 = 0; // ((byte) (0x000000ff & value));
+        data5 = 0; // ((byte)((0x0000ff00 & value) >> 8));
+        data6 = 0; // ((byte)((0x00ff0000 & value) >> 16));
+        data7 = 0; // ((byte)((0xff000000 & value) >> 24));
 
         data8 = 0; // ((byte) (0x000000ff & value3));
         data9 = 0; // ((byte)((0x0000ff00 & value3) >> 8));

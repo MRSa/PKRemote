@@ -6,6 +6,9 @@ public interface IPtpIpMessages
     int SEQ_REGISTRATION = 1;
     int SEQ_EVENT_INITIALIZE = 2;
     int SEQ_OPEN_SESSION = 3;
+    int SEQ_INIT_SESSION = 4;
+    int SEQ_CHANGE_REMOTE = 5;
+    int SEQ_SET_EVENT_MODE = 6;
 
 
     int SEQ_STATUS_REQUEST = 9;

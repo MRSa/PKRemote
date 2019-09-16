@@ -1,12 +1,10 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
@@ -16,10 +14,9 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpComma
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonInitEventRequest;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRegistrationMessage;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.IPtpIpRunModeHolder;
-import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.PtpIpStatusChecker;
 
 
 public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCommandCallback, IPtpIpMessages
@@ -31,9 +28,10 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
     private final ICameraStatusReceiver cameraStatusReceiver;
     private final IPtpIpInterfaceProvider interfaceProvider;
     private final IPtpIpCommandPublisher commandIssuer;
+    private final PtpIpStatusChecker statusChecker;
     private boolean isBothLiveView = false;
 
-    CanonCameraConnectSequenceForPlayback(@NonNull Activity context, @NonNull ICameraStatusReceiver statusReceiver, @NonNull final ICameraConnection cameraConnection, @NonNull IPtpIpInterfaceProvider interfaceProvider)
+    CanonCameraConnectSequenceForPlayback(@NonNull Activity context, @NonNull ICameraStatusReceiver statusReceiver, @NonNull final ICameraConnection cameraConnection, @NonNull IPtpIpInterfaceProvider interfaceProvider, @NonNull PtpIpStatusChecker statusChecker)
     {
         Log.v(TAG, " CanonCameraConnectSequenceForPlayback");
         this.context = context;
@@ -41,6 +39,7 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
         this.cameraStatusReceiver = statusReceiver;
         this.interfaceProvider = interfaceProvider;
         this.commandIssuer = interfaceProvider.getCommandPublisher();
+        this.statusChecker = statusChecker;
     }
 
     @Override
@@ -132,7 +131,7 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
                 if (checkEventInitialize(rx_body))
                 {
                     interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting1), false, false, 0);
-                    commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, 0x1002));
+                    commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, 0x1002, 4, 0x41));
                 }
                 else
                 {
@@ -142,9 +141,22 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
 
             case SEQ_OPEN_SESSION:
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting2), false, false, 0);
-                //commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION));
+                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_INIT_SESSION, 0x902f));
                 break;
 
+            case SEQ_INIT_SESSION:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting3), false, false, 0);
+                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_CHANGE_REMOTE, 0x9114, 4, 0x15));
+                break;
+
+            case SEQ_CHANGE_REMOTE:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting4), false, false, 0);
+                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_SET_EVENT_MODE, 0x902f, 4, 0x02));
+                break;
+
+            case SEQ_SET_EVENT_MODE:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting5), false, false, 0);
+                break;
 /*
             case SEQ_START_2ND_READ:
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting2), false, false, 0);
@@ -261,19 +273,23 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
     {
         interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_start_2), false, false, 0);
         cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_start_2));
-        int connectionNumber = 0;
         try
         {
-            connectionNumber = (receiveData[8] & 0xff);
-            connectionNumber = connectionNumber + ((receiveData[9]  & 0xff) << 8);
-            connectionNumber = connectionNumber + ((receiveData[10] & 0xff) << 16);
-            connectionNumber = connectionNumber + ((receiveData[11] & 0xff) << 24);
+            int eventConnectionNumber = (receiveData[8] & 0xff);
+            eventConnectionNumber = eventConnectionNumber + ((receiveData[9]  & 0xff) << 8);
+            eventConnectionNumber = eventConnectionNumber + ((receiveData[10] & 0xff) << 16);
+            eventConnectionNumber = eventConnectionNumber + ((receiveData[11] & 0xff) << 24);
+            statusChecker.setEventConnectionNumber(eventConnectionNumber);
+            interfaceProvider.getCameraStatusWatcher().startStatusWatch(null);
+
+            commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, 0x1002, 4, 0x41));
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
-        commandIssuer.enqueueCommand(new CanonInitEventRequest(this, connectionNumber));
+        //commandIssuer.enqueueCommand(new CanonInitEventRequest(this, connectionNumber));
+        //commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, 0x1002, 4, 0x41));
     }
 
     private boolean checkRegistrationMessage(byte[] receiveData)

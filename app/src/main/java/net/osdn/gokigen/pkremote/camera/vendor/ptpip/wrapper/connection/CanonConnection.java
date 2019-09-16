@@ -19,6 +19,7 @@ import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.IPtpIpInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.PtpIpStatusChecker;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -31,14 +32,16 @@ public class CanonConnection implements ICameraConnection
     private final IPtpIpInterfaceProvider interfaceProvider;
     private final BroadcastReceiver connectionReceiver;
     private final Executor cameraExecutor = Executors.newFixedThreadPool(1);
+    private final PtpIpStatusChecker statusChecker;
     private CameraConnectionStatus connectionStatus = CameraConnectionStatus.UNKNOWN;
 
-    public CanonConnection(@NonNull final Activity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull IPtpIpInterfaceProvider interfaceProvider)
+    public CanonConnection(@NonNull final Activity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull IPtpIpInterfaceProvider interfaceProvider, @NonNull PtpIpStatusChecker statusChecker)
     {
         Log.v(TAG, "CanonConnection()");
         this.context = context;
         this.statusReceiver = statusReceiver;
         this.interfaceProvider = interfaceProvider;
+        this.statusChecker = statusChecker;
         connectionReceiver = new BroadcastReceiver()
         {
             @Override
@@ -221,7 +224,7 @@ public class CanonConnection implements ICameraConnection
         connectionStatus = CameraConnectionStatus.CONNECTING;
         try
         {
-            cameraExecutor.execute(new CanonCameraConnectSequenceForPlayback(context, statusReceiver, this, interfaceProvider));
+            cameraExecutor.execute(new CanonCameraConnectSequenceForPlayback(context, statusReceiver, this, interfaceProvider, statusChecker));
         }
         catch (Exception e)
         {

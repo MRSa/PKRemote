@@ -1,6 +1,5 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command;
 
-
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -13,9 +12,11 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Queue;
 
+import static net.osdn.gokigen.pkremote.camera.utils.SimpleLogDumper.dump_bytes;
+
 public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpCommunication
 {
-    private final String TAG = toString();
+    private static final String TAG = PtpIpCommandPublisher.class.getSimpleName();
 
     private static final int SEQUENCE_START_NUMBER = 1;
     private static final int BUFFER_SIZE = 1024 * 1024 + 8;
@@ -241,10 +242,10 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             if (useSequenceNumber)
             {
                 // Sequence Number を反映させる
-                sendData[15] = (byte) ((0x000000ff & sequenceNumber));
-                sendData[16] = (byte) (((0x0000ff00 & sequenceNumber) >>> 8) & 0x000000ff);
-                sendData[17] = (byte) (((0x00ff0000 & sequenceNumber) >>> 16) & 0x000000ff);
-                sendData[18] = (byte) (((0xff000000 & sequenceNumber) >>> 24) & 0x000000ff);
+                sendData[14] = (byte) ((0x000000ff & sequenceNumber));
+                sendData[15] = (byte) (((0x0000ff00 & sequenceNumber) >>> 8) & 0x000000ff);
+                sendData[16] = (byte) (((0x00ff0000 & sequenceNumber) >>> 16) & 0x000000ff);
+                sendData[17] = (byte) (((0xff000000 & sequenceNumber) >>> 24) & 0x000000ff);
                 if (isDumpReceiveLog)
                 {
                     Log.v(TAG, "SEQ No. : " + sequenceNumber);
@@ -260,8 +261,6 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             // (データを)送信
             dos.write(sendData);
             dos.flush();
-            //dos.close(); //  ← これが必要？
-            //dos = null; //  ← これが必要？
         }
         catch (Exception e)
         {
@@ -384,30 +383,4 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
         }
     }
 
-    /**
-     *   デバッグ用：ログにバイト列を出力する
-     *
-     */
-    private void dump_bytes(String header, byte[] data)
-    {
-        int index = 0;
-        StringBuffer message;
-        message = new StringBuffer();
-        for (byte item : data)
-        {
-            index++;
-            message.append(String.format("%02x ", item));
-            if (index >= 8)
-            {
-                Log.v(TAG, header + " " + message);
-                index = 0;
-                message = new StringBuffer();
-            }
-        }
-        if (index != 0)
-        {
-            Log.v(TAG, header + " " + message);
-        }
-        System.gc();
-    }
 }
