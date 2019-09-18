@@ -26,8 +26,6 @@ import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.IPtpIpInterfaceProvider;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.operation.PtpIpCaptureControl;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.operation.PtpIpFocusingControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.operation.PtpIpZoomControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
@@ -36,6 +34,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpAsyncR
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection.CanonConnection;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.liveview.PtpIpLiveViewControl;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback.PtpIpPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.IPtpIpRunModeHolder;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.PtpIpStatusChecker;
 

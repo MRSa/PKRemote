@@ -12,6 +12,10 @@ public interface IPtpIpMessages
 
 
     int SEQ_STATUS_REQUEST = 9;
+
+    int GET_STORAGE_ID = 101;
+    int GET_STORAGE_INFO = 102;
+    int GET_OBJECT_INFO_EX = 103;
 /*
     int SEQ_REGISTRATION = 1;
     int SEQ_START = 2;

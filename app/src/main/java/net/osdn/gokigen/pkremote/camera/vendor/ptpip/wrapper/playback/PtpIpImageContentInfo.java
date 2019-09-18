@@ -1,4 +1,4 @@
-package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper;
+package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback;
 
 import android.util.Log;
 
