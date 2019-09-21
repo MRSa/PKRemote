@@ -3,40 +3,47 @@ package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback;
 import android.util.Log;
 
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
+import net.osdn.gokigen.pkremote.camera.utils.SimpleLogDumper;
 
-import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.Locale;
 
-public class PtpIpImageContentInfo implements ICameraContent, IPtpIpCommandCallback
+
+
+/*
+  --- CONTENT (IMAGE OBJECTS) ---
+  0000:91 99 b8 01 01 00 01 00 01 38 00 00 00 00 00 00
+  0010:20 00 00 00 69 42 58 00 00 00 b8 01 90 99 b8 01
+  0020:49 4d 47 5f 32 34 35 37 2e 4a 50 47 00 00 00 00
+  0030:e6 6b 86 5d
+*/
+
+public class PtpIpImageContentInfo implements ICameraContent
 {
     private final String TAG = toString();
     private final int indexNumber;
-    private boolean isReceived = false;
-    private boolean isDateValid = false;
-    private Date date = null;
-    private String realFileName = null;
+    private boolean isDateValid;
+    private Date date;
+    private String realFileName;
     private byte[] rx_body;
-    PtpIpImageContentInfo(int indexNumber, byte[] rx_body)
+
+    PtpIpImageContentInfo(int indexNumber, byte[] binaryData, int offset, int length)
     {
         this.indexNumber = indexNumber;
-        this.rx_body = rx_body;
-        if (this.rx_body != null)
-        {
-            updateInformation(rx_body);
-        }
-        else
-        {
-            date = new Date();
-            isDateValid = false;
-        }
+        this.rx_body = Arrays.copyOfRange(binaryData, offset, offset + length);
+        Log.v(TAG, " --- CONTENT ---");
+        SimpleLogDumper.dump_bytes(" [(" + length + ")] ", this.rx_body);
+
+        //  動作用...
+        date = new Date();
+        isDateValid = false;
+        realFileName = "";
     }
 
     @Override
     public String getCameraId()
     {
-        return ("FujiX");
+        return ("Canon");
     }
 
     @Override
@@ -94,32 +101,12 @@ public class PtpIpImageContentInfo implements ICameraContent, IPtpIpCommandCallb
         }
     }
 
-    @Override
-    public void onReceiveProgress(int currentBytes, int totalBytes, byte[] body)
-    {
-        Log.v(TAG, " " + currentBytes + "/" + totalBytes);
-    }
-
-    @Override
-    public boolean isReceiveMulti()
-    {
-        return (false);
-    }
-
-    @Override
-    public void receivedMessage(int id, byte[] rx_body)
-    {
-        Log.v(TAG, "RX : " + indexNumber + "(" + id + ") " + rx_body.length + " bytes.");
-        this.rx_body = rx_body;
-        updateInformation(rx_body);
-
-    }
-
     public int getId()
     {
         return (indexNumber);
     }
 
+/*
     public boolean isReceived()
     {
         return (isReceived);
@@ -148,6 +135,7 @@ public class PtpIpImageContentInfo implements ICameraContent, IPtpIpCommandCallb
         }
     }
 
+ */
     /**
      *   文字列を無理やり切り出す...
      *

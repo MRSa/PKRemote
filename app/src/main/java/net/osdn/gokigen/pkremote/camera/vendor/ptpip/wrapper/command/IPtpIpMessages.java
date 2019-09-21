@@ -16,6 +16,9 @@ public interface IPtpIpMessages
     int GET_STORAGE_ID = 101;
     int GET_STORAGE_INFO = 102;
     int GET_OBJECT_INFO_EX = 103;
+    int GET_OBJECT_INFO_EX_2 = 104;
+    int GET_OBJECT_INFO_EX_3 = 105;
+
 /*
     int SEQ_REGISTRATION = 1;
     int SEQ_START = 2;

@@ -1,10 +1,7 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback;
 
 import android.app.Activity;
-import android.util.Log;
-import android.util.SparseArray;
 
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IContentInfoCallback;
@@ -13,33 +10,33 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentList
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.PtpIpInterfaceProvider;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class PtpIpPlaybackControl implements IPlaybackControl, IPtpIpCommandCallback
+/**
+ *
+ *
+ */
+public class PtpIpPlaybackControl implements IPlaybackControl
 {
-    private final String TAG = toString();
-    private final Activity activity;
-    private final PtpIpInterfaceProvider provider;
+    //private final String TAG = toString();
+    //private final Activity activity;
+    //private final PtpIpInterfaceProvider provider;
     //private List<ICameraContent> imageInfo;
-    private SparseArray<PtpIpImageContentInfo> imageContentInfo;
-    private int indexNumber = 0;
-    private ICameraContentListCallback finishedCallback = null;
+    //private SparseArray<PtpIpImageContentInfo> imageContentInfo;
+    //private int indexNumber = 0;
+    //private ICameraContentListCallback finishedCallback = null;
     private CanonImageObjectReceiver canonImageObjectReceiver;
 
     public PtpIpPlaybackControl(Activity activity, PtpIpInterfaceProvider provider)
     {
-        this.activity = activity;
-        this.provider = provider;
-        canonImageObjectReceiver = new CanonImageObjectReceiver(activity, provider);
-        this.imageContentInfo = new SparseArray<>();
+        // this.activity = activity;
+        //this.provider = provider;
+        canonImageObjectReceiver = new CanonImageObjectReceiver(provider);
+        //this.imageContentInfo = new SparseArray<>();
     }
 
     @Override
-    public String getRawFileSuffix() {
+    public String getRawFileSuffix()
+    {
         return (null);
     }
 
@@ -72,9 +69,9 @@ public class PtpIpPlaybackControl implements IPlaybackControl, IPtpIpCommandCall
     @Override
     public void downloadContentThumbnail(String path, IDownloadThumbnailImageCallback callback)
     {
+/*
         try
         {
-/*
             int start = 0;
             if (path.indexOf("/") == 0)
             {
@@ -93,20 +90,20 @@ public class PtpIpPlaybackControl implements IPlaybackControl, IPtpIpCommandCall
                 }
                 publisher.enqueueCommand(new GetThumbNail(index, new PtpIpThumbnailImageReceiver(activity, callback)));
             }
-*/
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+*/
     }
 
     @Override
     public void downloadContent(String path, boolean isSmallSize, IDownloadContentCallback callback)
     {
+/*
         try
         {
-/*
             int start = 0;
             if (path.indexOf("/") == 0)
             {
@@ -121,12 +118,12 @@ public class PtpIpPlaybackControl implements IPlaybackControl, IPtpIpCommandCall
                 IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
                 publisher.enqueueCommand(new GetFullImage(index, new PtpIpFullImageReceiver(callback)));
             }
-*/
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+*/
     }
 
     @Override
@@ -142,7 +139,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl, IPtpIpCommandCall
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    canonImageObjectReceiver.getCameraContents(imageContentInfo, callback);
+                    canonImageObjectReceiver.getCameraContents(callback);
                 }
             });
             thread.start();
@@ -154,7 +151,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl, IPtpIpCommandCall
         }
     }
 
-
+/*
     @Override
     public void onReceiveProgress(int currentBytes, int totalBytes, byte[] body)
     {
@@ -174,14 +171,13 @@ public class PtpIpPlaybackControl implements IPlaybackControl, IPtpIpCommandCall
         if (rx_body.length < 16)
         {
             // インデックスデータがなくなったことを検出...データがそろったとして応答する。
-            Log.v(TAG, "IMAGE LIST : " + imageContentInfo.size());
+            //Log.v(TAG, "IMAGE LIST : " + imageContentInfo.size());
             finishedCallback.onCompleted(getCameraContentList());
             finishedCallback = null;
             return;
         }
         try
         {
-/*
             Log.v(TAG, "RECEIVED IMAGE INFO : " + indexNumber);
 
             // 受信データを保管しておく
@@ -191,7 +187,6 @@ public class PtpIpPlaybackControl implements IPlaybackControl, IPtpIpCommandCall
             indexNumber++;
             IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
             publisher.enqueueCommand(new GetImageInfo(indexNumber, indexNumber, this));
-*/
         }
         catch (Exception e)
         {
@@ -201,7 +196,9 @@ public class PtpIpPlaybackControl implements IPlaybackControl, IPtpIpCommandCall
             finishedCallback = null;
         }
     }
+*/
 
+/*
     private List<ICameraContent> getCameraContentList()
     {
         /// ダサいけど...コンテナクラスを詰め替えて応答する
@@ -213,5 +210,6 @@ public class PtpIpPlaybackControl implements IPlaybackControl, IPtpIpCommandCall
         }
         return (contentList);
     }
+*/
 
 }
