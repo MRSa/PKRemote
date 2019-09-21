@@ -27,6 +27,7 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
     private final IPtpIpInterfaceProvider interfaceProvider;
     private final IPtpIpCommandPublisher commandIssuer;
     private final PtpIpStatusChecker statusChecker;
+    private boolean isDumpLog = false;
 
     CanonCameraConnectSequenceForPlayback(@NonNull Activity context, @NonNull ICameraStatusReceiver statusReceiver, @NonNull final ICameraConnection cameraConnection, @NonNull IPtpIpInterfaceProvider interfaceProvider, @NonNull PtpIpStatusChecker statusChecker)
     {
@@ -112,7 +113,7 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
                 if (checkEventInitialize(rx_body))
                 {
                     interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting1), false, false, 0);
-                    commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, 0x1002, 4, 0x41));
+                    commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, isDumpLog, SEQ_OPEN_SESSION, 0x1002, 4, 0x41));
                 }
                 else
                 {
@@ -122,17 +123,17 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
 
             case SEQ_OPEN_SESSION:
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting2), false, false, 0);
-                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_INIT_SESSION, 0x902f));
+                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, isDumpLog, SEQ_INIT_SESSION, 0x902f));
                 break;
 
             case SEQ_INIT_SESSION:
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting3), false, false, 0);
-                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_CHANGE_REMOTE, 0x9114, 4, 0x15));
+                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, isDumpLog, SEQ_CHANGE_REMOTE, 0x9114, 4, 0x15));
                 break;
 
             case SEQ_CHANGE_REMOTE:
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting4), false, false, 0);
-                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_SET_EVENT_MODE, 0x902f, 4, 0x02));
+                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, isDumpLog, SEQ_SET_EVENT_MODE, 0x902f, 4, 0x02));
                 break;
 
             case SEQ_SET_EVENT_MODE:
@@ -169,7 +170,7 @@ public class CanonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
             statusChecker.setEventConnectionNumber(eventConnectionNumber);
             interfaceProvider.getCameraStatusWatcher().startStatusWatch(null);
 
-            commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, 0x1002, 4, 0x41));
+            commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, isDumpLog, SEQ_OPEN_SESSION, 0x1002, 4, 0x41));
         }
         catch (Exception e)
         {

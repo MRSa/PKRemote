@@ -1,4 +1,4 @@
-package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper;
+package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
@@ -10,13 +10,15 @@ import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 
+import java.io.ByteArrayInputStream;
+
 public class PtpIpThumbnailImageReceiver implements IPtpIpCommandCallback
 {
     private final String TAG = toString();
     private final Context context;
     private final IDownloadThumbnailImageCallback callback;
 
-    PtpIpThumbnailImageReceiver(Context context, @NonNull IDownloadThumbnailImageCallback callback)
+    PtpIpThumbnailImageReceiver(@NonNull Context context, @NonNull IDownloadThumbnailImageCallback callback)
     {
         this.context = context;
         this.callback = callback;
@@ -27,10 +29,13 @@ public class PtpIpThumbnailImageReceiver implements IPtpIpCommandCallback
     {
         try
         {
-            int offset = 12;
+            int offset = 32;
+            Log.v(TAG, "  RECV THUMBNAIL : " + id + " [" + rx_body.length + "] " + offset);
             if (rx_body.length > offset)
             {
-                callback.onCompleted(BitmapFactory.decodeByteArray(rx_body, offset, rx_body.length - offset), null);
+                //callback.onCompleted(BitmapFactory.decodeByteArray(rx_body, offset, rx_body.length - offset - 22), null);
+                callback.onCompleted(BitmapFactory.decodeStream(new ByteArrayInputStream(rx_body, offset, rx_body.length)), null);
+                //callback.onCompleted(BitmapFactory.decodeStream(new ByteArrayInputStream(rx_body, 0, rx_body.length)), null);
             }
             else
             {

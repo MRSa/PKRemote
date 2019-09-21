@@ -1,7 +1,10 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback;
 
 import android.app.Activity;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 
+import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IContentInfoCallback;
@@ -10,6 +13,9 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentList
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.PtpIpInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
 
 /**
  *
@@ -17,9 +23,9 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.PtpIpInterfaceProvi
  */
 public class PtpIpPlaybackControl implements IPlaybackControl
 {
-    //private final String TAG = toString();
-    //private final Activity activity;
-    //private final PtpIpInterfaceProvider provider;
+    private final String TAG = toString();
+    private final Activity activity;
+    private final PtpIpInterfaceProvider provider;
     //private List<ICameraContent> imageInfo;
     //private SparseArray<PtpIpImageContentInfo> imageContentInfo;
     //private int indexNumber = 0;
@@ -28,8 +34,8 @@ public class PtpIpPlaybackControl implements IPlaybackControl
 
     public PtpIpPlaybackControl(Activity activity, PtpIpInterfaceProvider provider)
     {
-        // this.activity = activity;
-        //this.provider = provider;
+        this.activity = activity;
+        this.provider = provider;
         canonImageObjectReceiver = new CanonImageObjectReceiver(provider);
         //this.imageContentInfo = new SparseArray<>();
     }
@@ -67,9 +73,8 @@ public class PtpIpPlaybackControl implements IPlaybackControl
     }
 
     @Override
-    public void downloadContentThumbnail(String path, IDownloadThumbnailImageCallback callback)
+    public void downloadContentThumbnail(String path, final IDownloadThumbnailImageCallback callback)
     {
-/*
         try
         {
             int start = 0;
@@ -77,8 +82,20 @@ public class PtpIpPlaybackControl implements IPlaybackControl
             {
                 start = 1;
             }
-            String indexStr = path.substring(start, path.indexOf("."));
-            Log.v(TAG, "downloadContentThumbnail() : " + path + " " + indexStr);
+            //String indexStr = path.substring(start, path.indexOf("."));
+            final String indexStr = path.substring(start);
+            //Log.v(TAG, "downloadContentThumbnail() : [" + path + "] " + indexStr);
+
+            PtpIpImageContentInfo content = canonImageObjectReceiver.getContentObject(indexStr);
+            if (content != null)
+            {
+                IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
+                int storageId = content.getStorageId();
+                int objectId = content.getId();
+                // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
+                publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), false, objectId, 0x910a, 8, objectId, 0x00032000));
+            }
+/*
             int index = Integer.parseInt(indexStr);
             if ((index > 0)&&(index <= imageContentInfo.size()))
             {
@@ -90,12 +107,12 @@ public class PtpIpPlaybackControl implements IPlaybackControl
                 }
                 publisher.enqueueCommand(new GetThumbNail(index, new PtpIpThumbnailImageReceiver(activity, callback)));
             }
+ */
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
-*/
     }
 
     @Override

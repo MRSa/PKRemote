@@ -23,6 +23,7 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
 {
     private final String TAG = toString();
     private final PtpIpInterfaceProvider provider;
+    private boolean isDumpLog = false;
     private List<ICameraContent> imageObjectList;
     private List<PtpIpImageContentInfo> ptpIpImageObjectList;
     private ICameraContentListCallback callback = null;
@@ -47,13 +48,13 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
             {
                 case GET_STORAGE_ID:
                     // TODO: ストレージのIDを 0x00100010 で固定にしている。複数スロットある場合もあるので、このタイミングでちゃんと応答を parse してループさせる必要がある
-                    publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_INFO, 0x9102, 4, 0x00010001));
+                    publisher.enqueueCommand(new PtpIpCommandGeneric(this,isDumpLog, GET_STORAGE_INFO, 0x9102, 4, 0x00010001));
                     subDirectoriesCount = -1;  // ここから画像取得シーケンスに入るので、、、
                     break;
 
                 case GET_STORAGE_INFO:
                     // TODO: (要検討) ストレージの情報を取得しているが、本当に使わなくてもよい？
-                    publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_OBJECT_INFO_EX, 0x9109, 12, 0x00010001, 0xffffffff, 0x00200000));
+                    publisher.enqueueCommand(new PtpIpCommandGeneric(this, isDumpLog, GET_OBJECT_INFO_EX, 0x9109, 12, 0x00010001, 0xffffffff, 0x00200000));
                     break;
 
                 case GET_OBJECT_INFO_EX:
@@ -62,7 +63,7 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
                         // サブディレクトリの情報を拾う
                         for (PtpIpImageContentInfo contentInfo : directries)
                         {
-                            publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_OBJECT_INFO_EX_2, 0x9109, 12, 0x00010001, contentInfo.getId(), 0x00200000));
+                            publisher.enqueueCommand(new PtpIpCommandGeneric(this, isDumpLog, GET_OBJECT_INFO_EX_2, 0x9109, 12, 0x00010001, contentInfo.getId(), 0x00200000));
                         }
                     }
                     break;
@@ -73,7 +74,7 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
                         // 画像の情報を拾う
                         for (PtpIpImageContentInfo contentInfo : subDirectries)
                         {
-                            publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_OBJECT_INFO_EX_3, 0x9109, 12, 0x00010001, contentInfo.getId(), 0x00200000));
+                            publisher.enqueueCommand(new PtpIpCommandGeneric(this, isDumpLog, GET_OBJECT_INFO_EX_3, 0x9109, 12, 0x00010001, contentInfo.getId(), 0x00200000));
                         }
                         subDirectoriesCount = subDirectries.size();
                         receivedSubDirectoriesCount = 0;
@@ -86,8 +87,10 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
                     break;
 
                 case GET_OBJECT_INFO_EX_3:
-                    //
-                    Log.v(TAG, " --- CONTENT ---");
+                    if (isDumpLog)
+                    {
+                        Log.v(TAG, " --- CONTENT ---");
+                    }
                     List<PtpIpImageContentInfo> objects =  parseContentSubdirectories(rx_body, 32);
                     if (objects.size() > 0)
                     {
@@ -168,6 +171,19 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
         return (false);
     }
 
+    PtpIpImageContentInfo getContentObject(String fileName)
+    {
+        for (PtpIpImageContentInfo contentInfo : ptpIpImageObjectList)
+        {
+
+            if (fileName.matches(contentInfo.getContentName()))
+            {
+                return (contentInfo);
+            }
+        }
+        return (null);
+    }
+
     void getCameraContents(ICameraContentListCallback callback)
     {
         this.callback = null;
@@ -186,7 +202,7 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
                 // オブジェクト一覧をクリアする
                 this.imageObjectList.clear();
                 this.ptpIpImageObjectList.clear();
-                publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_ID, 0x9101));
+                publisher.enqueueCommand(new PtpIpCommandGeneric(this, isDumpLog, GET_STORAGE_ID, 0x9101));
                 this.callback = callback;
             }
         }

@@ -111,4 +111,19 @@ public class PtpIpImageContentInfo implements ICameraContent
     {
         return (indexNumber);
     }
+
+    int getStorageId()
+    {
+        try
+        {
+            int storageId = (rx_body[4] & 0xff) + ((rx_body[5] & 0xff) << 8);
+            storageId = storageId + ((rx_body[6] & 0xff) << 16) + ((rx_body[7] & 0xff) << 24);
+            return (storageId);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (0x00010001);
+    }
 }
