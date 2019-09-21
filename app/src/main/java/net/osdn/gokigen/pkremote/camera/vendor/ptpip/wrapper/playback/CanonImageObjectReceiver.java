@@ -139,7 +139,7 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
                 id = id + ((rx_body[dataIndex + 2] & 0xff) << 16);
                 id = id + ((rx_body[dataIndex + 3] & 0xff) << 24);
 
-                PtpIpImageContentInfo content = new PtpIpImageContentInfo(id, rx_body, dataIndex, objectSize);
+                PtpIpImageContentInfo content = new PtpIpImageContentInfo(id, "", rx_body, dataIndex, objectSize);
                 result.add(content);
                 dataIndex = dataIndex + objectSize;
                 if (result.size() >= nofObjects)
