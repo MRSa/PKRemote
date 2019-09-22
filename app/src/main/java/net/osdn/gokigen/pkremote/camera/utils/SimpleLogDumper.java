@@ -2,8 +2,6 @@ package net.osdn.gokigen.pkremote.camera.utils;
 
 import android.util.Log;
 
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpCommandPublisher;
-
 public class SimpleLogDumper
 {
     private static final String TAG = SimpleLogDumper.class.getSimpleName();
@@ -21,7 +19,7 @@ public class SimpleLogDumper
         {
             index++;
             message.append(String.format("%02x ", item));
-            if (index >= 8)
+            if (index >= 16)
             {
                 Log.v(TAG, header + " " + message);
                 index = 0;
