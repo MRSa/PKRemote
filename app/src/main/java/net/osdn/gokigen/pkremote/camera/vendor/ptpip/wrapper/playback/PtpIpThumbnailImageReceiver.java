@@ -6,6 +6,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 
@@ -28,6 +29,13 @@ public class PtpIpThumbnailImageReceiver implements IPtpIpCommandCallback
     {
         try
         {
+            if (rx_body == null)
+            {
+                Log.v(TAG, " BITMAP IS NONE...");
+                callback.onCompleted(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_broken_image_black_24dp), null);
+                return;
+            }
+
             //Log.v(TAG, "  RECV THUMBNAIL START : " + id + " [" + rx_body.length + "] ");
             //SimpleLogDumper.dump_bytes("[THUMB]", rx_body);
             //Log.v(TAG, "  RECV THUMBNAIL END : " + id + " [" + rx_body.length + "] ");

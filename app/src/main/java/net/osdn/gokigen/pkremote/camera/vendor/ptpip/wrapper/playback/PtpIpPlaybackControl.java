@@ -15,6 +15,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.PtpIpInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopStart;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 /**
@@ -76,6 +77,32 @@ public class PtpIpPlaybackControl implements IPlaybackControl
     {
         // Thumbnail と同じ画像を表示する
         downloadContentThumbnail(path, callback);
+/*
+        try
+        {
+            int start = 0;
+            if (path.indexOf("/") == 0)
+            {
+                start = 1;
+            }
+            final String indexStr = path.substring(start);
+            PtpIpImageContentInfo content = canonImageObjectReceiver.getContentObject(indexStr);
+            if (content != null)
+            {
+                IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
+                int storageId = content.getStorageId();
+                int objectId = content.getId();
+                // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
+
+                // RequestInnerDevelopStart
+                publisher.enqueueCommand(new CanonRequestInnerDevelopStart(new PtpIpScreennailImageReceiver(objectId, publisher, callback), true, objectId, objectId));
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+*/
     }
 
     @Override

@@ -12,6 +12,17 @@ public class SimpleLogDumper
      */
     public static void dump_bytes(String header, byte[] data)
     {
+        if (data == null)
+        {
+            Log.v(TAG, "DATA IS NULL");
+            return;
+        }
+        if (data.length > 8192)
+        {
+            Log.v(TAG, " --- DUMP DATA IS TOO LONG... " + data.length + " bytes.");
+            return;
+        }
+
         int index = 0;
         StringBuffer message;
         message = new StringBuffer();

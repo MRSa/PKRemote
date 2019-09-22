@@ -38,6 +38,24 @@ public class PtpIpCommandBase implements IPtpIpCommand, IPtpIpMessages
     }
 
     @Override
+    public int embeddedSequenceNumberIndex()
+    {
+        return (14);
+    }
+
+    @Override
+    public int embeddedSequenceNumberIndex2()
+    {
+        return (8);
+    }
+
+    @Override
+    public int embeddedSequenceNumberIndex3()
+    {
+        return (8);
+    }
+
+    @Override
     public byte[] commandBody()
     {
         return (new byte[12]);
@@ -45,6 +63,12 @@ public class PtpIpCommandBase implements IPtpIpCommand, IPtpIpMessages
 
     @Override
     public byte[] commandBody2()
+    {
+        return (null);
+    }
+
+    @Override
+    public byte[] commandBody3()
     {
         return (null);
     }

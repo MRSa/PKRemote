@@ -17,11 +17,23 @@ public interface IPtpIpCommand
     // コマンドの受信待ち時間(単位:ms)
     int receiveDelayMs();
 
+    // 埋め込むシーケンス番号の位置
+    int embeddedSequenceNumberIndex();
+
+    // 埋め込むシーケンス番号の位置
+    int embeddedSequenceNumberIndex2();
+
+    // 埋め込むシーケンス番号の位置
+    int embeddedSequenceNumberIndex3();
+
     // 送信するメッセージボディ
     byte[] commandBody();
 
     // 送信するメッセージボディ(連続送信する場合)
     byte[] commandBody2();
+
+    // 送信するメッセージボディ(連続送信する場合)
+    byte[] commandBody3();
 
     // コマンド送信結果（応答）の通知先
     IPtpIpCommandCallback responseCallback();

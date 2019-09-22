@@ -194,12 +194,18 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             if (commandBody != null)
             {
                 // コマンドボディが入っていた場合には、コマンド送信（入っていない場合は受信待ち）
-                send_to_camera(command.dumpLog(), commandBody, command.useSequenceNumber());
+                send_to_camera(command.dumpLog(), commandBody, command.useSequenceNumber(), command.embeddedSequenceNumberIndex());
                 byte[] commandBody2 = command.commandBody2();
                 if (commandBody2 != null)
                 {
                     // コマンドボディの２つめが入っていた場合には、コマンドを連続送信する
-                    send_to_camera(command.dumpLog(), commandBody2, command.useSequenceNumber());
+                    send_to_camera(command.dumpLog(), commandBody2, command.useSequenceNumber(), command.embeddedSequenceNumberIndex2());
+                }
+                byte[] commandBody3 = command.commandBody3();
+                if (commandBody3 != null)
+                {
+                    // コマンドボディの３つめが入っていた場合には、コマンドを連続送信する
+                    send_to_camera(command.dumpLog(), commandBody3, command.useSequenceNumber(), command.embeddedSequenceNumberIndex3());
                 }
                 if (command.isIncrementSeqNumber())
                 {
@@ -224,7 +230,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
      *    カメラにコマンドを送信する（メイン部分）
      *
      */
-    private void send_to_camera(boolean isDumpReceiveLog, byte[] byte_array, boolean useSequenceNumber)
+    private void send_to_camera(boolean isDumpReceiveLog, byte[] byte_array, boolean useSequenceNumber, int embeddedSequenceIndex)
     {
         try
         {
@@ -242,10 +248,10 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             if (useSequenceNumber)
             {
                 // Sequence Number を反映させる
-                sendData[14] = (byte) ((0x000000ff & sequenceNumber));
-                sendData[15] = (byte) (((0x0000ff00 & sequenceNumber) >>> 8) & 0x000000ff);
-                sendData[16] = (byte) (((0x00ff0000 & sequenceNumber) >>> 16) & 0x000000ff);
-                sendData[17] = (byte) (((0xff000000 & sequenceNumber) >>> 24) & 0x000000ff);
+                sendData[embeddedSequenceIndex] = (byte) ((0x000000ff & sequenceNumber));
+                sendData[embeddedSequenceIndex + 1] = (byte) (((0x0000ff00 & sequenceNumber) >>> 8) & 0x000000ff);
+                sendData[embeddedSequenceIndex + 2] = (byte) (((0x00ff0000 & sequenceNumber) >>> 16) & 0x000000ff);
+                sendData[embeddedSequenceIndex + 3] = (byte) (((0xff000000 & sequenceNumber) >>> 24) & 0x000000ff);
                 if (isDumpReceiveLog)
                 {
                     Log.v(TAG, "----- SEQ No. : " + sequenceNumber + " -----");
@@ -296,78 +302,76 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             InputStream is = socket.getInputStream();
             if (is != null)
             {
-                int read_bytes = is.read(byte_array, 0, receive_message_buffer_size);
-                byte[] receive_body;
-                if (read_bytes > 4)
+                byte[] receive_body = null;
+                int read_bytes = 0;
+                while (read_bytes == 0)
                 {
-                    if (receiveAgain)
-                    {
-                        int length = ((((int) byte_array[3]) & 0xff) << 24) + ((((int) byte_array[2]) & 0xff) << 16) + ((((int) byte_array[1]) & 0xff) << 8) + (((int) byte_array[0]) & 0xff);
-                        if (length > receive_message_buffer_size)
-                        {
-                            Log.v(TAG, "+++++ TOTAL RECEIVE MESSAGE SIZE IS " + length + " +++++");
-                        }
-                        totalReadBytes = read_bytes;
-                        while ((length > totalReadBytes)||((length == read_bytes)&&((int) byte_array[4] == 0x02)))
-                        {
-                            // データについて、もう一回受信が必要な場合...
-                            if (isDumpReceiveLog)
-                            {
-                                Log.v(TAG, "--- RECEIVE AGAIN --- [" + length + "(" + read_bytes + ") " + byte_array[4]+ "] ");
-                            }
-                            sleep(delayMs);
-                            int availableReadBytes = is.available();
-                            if (availableReadBytes <= 0)
-                            {
-                                // 読めるデータ数がない...よみだし終了にする。
-                                Log.v(TAG, "  is.availableReadBytes() :  " + availableReadBytes);
-                                break;
-                            }
-                            int read_bytes2 = is.read(byte_array, read_bytes, receive_message_buffer_size - read_bytes);
-                            if (read_bytes2 > 0)
-                            {
-                                read_bytes = read_bytes + read_bytes2;
-                                totalReadBytes = totalReadBytes + read_bytes2;
-                            }
-                            else
-                            {
-                                // よみだし終了。
-                                Log.v(TAG, "FINISHED RECEIVE... ");
-                                break;
-                            }
-                            if (callback != null)
-                            {
-                                if (callback.isReceiveMulti())
-                                {
-                                    int offset = 0;
-                                    if (isFirstTime)
-                                    {
-                                        // 先頭のヘッダ部分をカットして送る
-                                        offset = 12;
-                                        isFirstTime = false;
-                                        //Log.v(TAG, " FIRST TIME : " + read_bytes + " " + offset);
-                                    }
-                                    callback.onReceiveProgress(read_bytes - offset, length, Arrays.copyOfRange(byte_array, offset, read_bytes));
-                                    read_bytes = 0;
-                                }
-                                else
-                                {
-                                    callback.onReceiveProgress(read_bytes, length, null);
-                                }
-                            }
-                        }
-                    }
-                    receive_body = Arrays.copyOfRange(byte_array, 0, read_bytes);
+                    read_bytes = is.available();
+                    sleep(delayMs);
+                    Log.v(TAG, " is.available() WAIT... ");
                 }
-                else
+                if (read_bytes > 0)
                 {
-                    receive_body = new byte[1];
+                    read_bytes = is.read(byte_array, 0, receive_message_buffer_size);
+                    if (read_bytes > 4)
+                    {
+                        if (receiveAgain) {
+                            int length = ((((int) byte_array[3]) & 0xff) << 24) + ((((int) byte_array[2]) & 0xff) << 16) + ((((int) byte_array[1]) & 0xff) << 8) + (((int) byte_array[0]) & 0xff);
+                            if (length > receive_message_buffer_size) {
+                                Log.v(TAG, "+++++ TOTAL RECEIVE MESSAGE SIZE IS " + length + " +++++");
+                            }
+                            totalReadBytes = read_bytes;
+                            while ((length > totalReadBytes) || ((length == read_bytes) && ((int) byte_array[4] == 0x02))) {
+                                // データについて、もう一回受信が必要な場合...
+                                if (isDumpReceiveLog) {
+                                    Log.v(TAG, "--- RECEIVE AGAIN --- [" + length + "(" + read_bytes + ") " + byte_array[4] + "] ");
+                                }
+                                sleep(delayMs);
+                                int availableReadBytes = is.available();
+                                if (availableReadBytes <= 0) {
+                                    // 読めるデータ数がない...よみだし終了にする。
+                                    Log.v(TAG, "  is.availableReadBytes() :  " + availableReadBytes);
+                                    break;
+                                }
+                                int read_bytes2 = is.read(byte_array, read_bytes, receive_message_buffer_size - read_bytes);
+                                if (read_bytes2 > 0) {
+                                    read_bytes = read_bytes + read_bytes2;
+                                    totalReadBytes = totalReadBytes + read_bytes2;
+                                } else {
+                                    // よみだし終了。
+                                    Log.v(TAG, "FINISHED RECEIVE... ");
+                                    break;
+                                }
+                                if (callback != null) {
+                                    if (callback.isReceiveMulti()) {
+                                        int offset = 0;
+                                        if (isFirstTime) {
+                                            // 先頭のヘッダ部分をカットして送る
+                                            offset = 12;
+                                            isFirstTime = false;
+                                            //Log.v(TAG, " FIRST TIME : " + read_bytes + " " + offset);
+                                        }
+                                        callback.onReceiveProgress(read_bytes - offset, length, Arrays.copyOfRange(byte_array, offset, read_bytes));
+                                        read_bytes = 0;
+                                    } else {
+                                        callback.onReceiveProgress(read_bytes, length, null);
+                                    }
+                                }
+                            }
+                        }
+                        receive_body = Arrays.copyOfRange(byte_array, 0, read_bytes);
+                    } else {
+                        receive_body = new byte[1];
+                    }
                 }
                 if (isDumpReceiveLog)
                 {
                     // ログに受信メッセージを出力する
                     Log.v(TAG, "receive_from_camera() : " + read_bytes + " bytes.");
-                    dump_bytes("RECV[" + receive_body.length + "] ", receive_body);
+                    if (receive_body != null)
+                    {
+                        dump_bytes("RECV[" + receive_body.length + "] ", receive_body);
+                    }
                 }
                 if (callback != null)
                 {
