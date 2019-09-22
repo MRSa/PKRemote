@@ -1,10 +1,10 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback;
 
 import android.app.Activity;
-import android.graphics.BitmapFactory;
-import android.util.Log;
+import android.content.SharedPreferences;
 
-import net.osdn.gokigen.pkremote.R;
+import androidx.preference.PreferenceManager;
+
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IContentInfoCallback;
@@ -13,9 +13,9 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentList
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.PtpIpInterfaceProvider;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
+import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 /**
  *
@@ -26,10 +26,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl
     private final String TAG = toString();
     private final Activity activity;
     private final PtpIpInterfaceProvider provider;
-    //private List<ICameraContent> imageInfo;
-    //private SparseArray<PtpIpImageContentInfo> imageContentInfo;
-    //private int indexNumber = 0;
-    //private ICameraContentListCallback finishedCallback = null;
+    private String raw_suffix = "CR2";
     private CanonImageObjectReceiver canonImageObjectReceiver;
 
     public PtpIpPlaybackControl(Activity activity, PtpIpInterfaceProvider provider)
@@ -37,13 +34,22 @@ public class PtpIpPlaybackControl implements IPlaybackControl
         this.activity = activity;
         this.provider = provider;
         canonImageObjectReceiver = new CanonImageObjectReceiver(provider);
-        //this.imageContentInfo = new SparseArray<>();
+
+        try
+        {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+            raw_suffix = preferences.getString(IPreferencePropertyAccessor.CANON_RAW_SUFFIX, IPreferencePropertyAccessor.CANON_RAW_SUFFIX_DEFAULT_VALUE);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public String getRawFileSuffix()
     {
-        return (null);
+        return (raw_suffix);
     }
 
     @Override
@@ -95,19 +101,6 @@ public class PtpIpPlaybackControl implements IPlaybackControl
                 // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
                 publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), false, objectId, 0x910a, 8, objectId, 0x00032000));
             }
-/*
-            int index = Integer.parseInt(indexStr);
-            if ((index > 0)&&(index <= imageContentInfo.size()))
-            {
-                IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
-                PtpIpImageContentInfo contentInfo = imageContentInfo.get(index);
-                if (!contentInfo.isReceived())
-                {
-                    publisher.enqueueCommand(new GetImageInfo(index, index, contentInfo));
-                }
-                publisher.enqueueCommand(new GetThumbNail(index, new PtpIpThumbnailImageReceiver(activity, callback)));
-            }
- */
         }
         catch (Exception e)
         {

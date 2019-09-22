@@ -6,12 +6,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
-import net.osdn.gokigen.pkremote.camera.utils.SimpleLogDumper;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 
-import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 
 public class PtpIpThumbnailImageReceiver implements IPtpIpCommandCallback
@@ -31,11 +28,11 @@ public class PtpIpThumbnailImageReceiver implements IPtpIpCommandCallback
     {
         try
         {
-            /////// 受信データから、先頭(0xff 0xd8)を検索  /////
             //Log.v(TAG, "  RECV THUMBNAIL START : " + id + " [" + rx_body.length + "] ");
             //SimpleLogDumper.dump_bytes("[THUMB]", rx_body);
             //Log.v(TAG, "  RECV THUMBNAIL END : " + id + " [" + rx_body.length + "] ");
 
+            /////// 受信データから、サムネイルの先頭(0xff 0xd8)を検索する  /////
             int offset = rx_body.length - 22;
             //byte[] thumbnail0 = Arrays.copyOfRange(rx_body, 0, rx_body.length);
             while (offset > 32)
@@ -46,21 +43,8 @@ public class PtpIpThumbnailImageReceiver implements IPtpIpCommandCallback
                 }
                 offset--;
             }
-            if (rx_body.length > offset)
-            {
-                byte[] thumbnail = Arrays.copyOfRange(rx_body, offset, rx_body.length - 22);
-                callback.onCompleted(BitmapFactory.decodeByteArray(thumbnail, 0, thumbnail.length), null);
-
-                //callback.onCompleted(BitmapFactory.decodeByteArray(rx_body, 0, rx_body.length), null);
-                //callback.onCompleted(BitmapFactory.decodeByteArray(rx_body, offset, rx_body.length - offset - 22), null);
-                //callback.onCompleted(BitmapFactory.decodeStream(new ByteArrayInputStream(rx_body, offset, rx_body.length)), null);
-                //callback.onCompleted(BitmapFactory.decodeStream(new ByteArrayInputStream(rx_body, 0, rx_body.length)), null);
-            }
-            else
-            {
-                Log.v(TAG, "BITMAP IS NONE... : " + rx_body.length);
-                callback.onCompleted(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_broken_image_black_24dp), null);
-            }
+            byte[] thumbnail = Arrays.copyOfRange(rx_body, offset, rx_body.length - 22);
+            callback.onCompleted(BitmapFactory.decodeByteArray(thumbnail, 0, thumbnail.length), null);
         }
         catch (Exception e)
         {

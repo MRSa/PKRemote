@@ -87,6 +87,9 @@ public interface IPreferencePropertyAccessor
 
     String USE_SMARTPHONE_TRANSFER_MODE = "use_smartphone_transfer_mode";
 
+    String CANON_RAW_SUFFIX = "canon_raw_suffix";
+    String CANON_RAW_SUFFIX_DEFAULT_VALUE = "CR2";
+
     /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
     //String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";

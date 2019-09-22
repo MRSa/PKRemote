@@ -293,6 +293,9 @@
     <string name="pref_sony_use_smartphone_transfer">スマートフォン転送モードを使う</string>
     <string name="pref_summary_sony_use_smartphone_transfer">うまく通信できない場合にチェックを入れてください。</string>
 
+    <string name="pref_canon_raw_suffix">RAW拡張子</string>
+    <string name="pref_summary_canon_raw_suffix">カメラのRAW拡張子を設定してください。</string>
+
     <string name="connect_start_2">準備中&#8230;</string>
     <string name="canon_connect_connecting1">接続中&#8230;(1/5)</string>
     <string name="canon_connect_connecting2">接続中&#8230;(2/5)</string>

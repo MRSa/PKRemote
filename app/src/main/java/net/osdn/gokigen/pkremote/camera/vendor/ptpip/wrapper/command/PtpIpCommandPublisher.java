@@ -316,6 +316,13 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
                                 Log.v(TAG, "--- RECEIVE AGAIN --- [" + length + "(" + read_bytes + ") " + byte_array[4]+ "] ");
                             }
                             sleep(delayMs);
+                            int availableReadBytes = is.available();
+                            if (availableReadBytes <= 0)
+                            {
+                                // 読めるデータ数がない...よみだし終了にする。
+                                Log.v(TAG, "  is.availableReadBytes() :  " + availableReadBytes);
+                                break;
+                            }
                             int read_bytes2 = is.read(byte_array, read_bytes, receive_message_buffer_size - read_bytes);
                             if (read_bytes2 > 0)
                             {
@@ -362,7 +369,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
                     Log.v(TAG, "receive_from_camera() : " + read_bytes + " bytes.");
                     dump_bytes("RECV[" + receive_body.length + "] ", receive_body);
                 }
-               if (callback != null)
+                if (callback != null)
                 {
                     if (callback.isReceiveMulti())
                     {

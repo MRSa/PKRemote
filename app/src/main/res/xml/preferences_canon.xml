@@ -20,6 +20,14 @@
     <PreferenceCategory
         android:title="@string/pref_cat_camera">
 
+
+        <EditTextPreference
+            android:key="canon_raw_suffix"
+            android:title="@string/pref_canon_raw_suffix"
+            android:defaultValue="CR2"
+            android:inputType="number"
+            android:summary="@string/pref_summary_canon_raw_suffix" />
+
         <!--
 
         <PreferenceScreen

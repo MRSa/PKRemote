@@ -1,26 +1,26 @@
 package net.osdn.gokigen.pkremote.preference.canon;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.util.Log;
+        import android.content.Context;
+        import android.content.SharedPreferences;
+        import android.os.Bundle;
+        import android.util.Log;
 
-import java.util.Map;
+        import java.util.Map;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentActivity;
-import androidx.preference.CheckBoxPreference;
-import androidx.preference.ListPreference;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
+        import androidx.annotation.NonNull;
+        import androidx.appcompat.app.AppCompatActivity;
+        import androidx.fragment.app.FragmentActivity;
+        import androidx.preference.CheckBoxPreference;
+        import androidx.preference.ListPreference;
+        import androidx.preference.Preference;
+        import androidx.preference.PreferenceFragmentCompat;
+        import androidx.preference.PreferenceManager;
 
-import net.osdn.gokigen.pkremote.R;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.operation.PtpIpCameraPowerOff;
-import net.osdn.gokigen.pkremote.logcat.LogCatViewer;
-import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
-import net.osdn.gokigen.pkremote.scene.IChangeScene;
+        import net.osdn.gokigen.pkremote.R;
+        import net.osdn.gokigen.pkremote.camera.vendor.ptpip.operation.PtpIpCameraPowerOff;
+        import net.osdn.gokigen.pkremote.logcat.LogCatViewer;
+        import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
+        import net.osdn.gokigen.pkremote.scene.IChangeScene;
 
 /**
  *
@@ -117,6 +117,9 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
             if (!items.containsKey(IPreferencePropertyAccessor.CONNECTION_METHOD)) {
                 editor.putString(IPreferencePropertyAccessor.CONNECTION_METHOD, IPreferencePropertyAccessor.CONNECTION_METHOD_DEFAULT_VALUE);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.CANON_RAW_SUFFIX)) {
+                editor.putString(IPreferencePropertyAccessor.CANON_RAW_SUFFIX, IPreferencePropertyAccessor.CANON_RAW_SUFFIX_DEFAULT_VALUE);
+            }
             editor.apply();
         }
         catch (Exception e)
@@ -167,7 +170,7 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
         try
         {
             //super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.preferences_fuji_x);
+            addPreferencesFromResource(R.xml.preferences_canon);
 
             ListPreference connectionMethod = (ListPreference) findPreference(IPreferencePropertyAccessor.CONNECTION_METHOD);
             connectionMethod.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -181,7 +184,7 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
 
             findPreference("exit_application").setOnPreferenceClickListener(powerOffController);
             findPreference("debug_info").setOnPreferenceClickListener(logCatViewer);
-    }
+        }
         catch (Exception e)
         {
             e.printStackTrace();
