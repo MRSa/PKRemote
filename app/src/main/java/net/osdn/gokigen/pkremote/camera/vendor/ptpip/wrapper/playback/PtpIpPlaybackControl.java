@@ -15,6 +15,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.PtpIpInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopEnd;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopStart;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
@@ -76,8 +77,8 @@ public class PtpIpPlaybackControl implements IPlaybackControl
     public void downloadContentScreennail(String path, IDownloadThumbnailImageCallback callback)
     {
         // Thumbnail と同じ画像を表示する
-        downloadContentThumbnail(path, callback);
-/*
+        //downloadContentThumbnail(path, callback);
+/**/
         try
         {
             int start = 0;
@@ -94,15 +95,19 @@ public class PtpIpPlaybackControl implements IPlaybackControl
                 int objectId = content.getId();
                 // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
 
-                // RequestInnerDevelopStart
-                publisher.enqueueCommand(new CanonRequestInnerDevelopStart(new PtpIpScreennailImageReceiver(objectId, publisher, callback), true, objectId, objectId));
+                // 一連の画像取得シーケンス(RequestInnerDevelopStart, GetPartialObject, TransferComplete, RequestInnerDevelopEnd )を送信キューに積み込む
+                PtpIpScreennailImageReceiver receiver = new PtpIpScreennailImageReceiver(activity, objectId, publisher, callback);
+                publisher.enqueueCommand(new CanonRequestInnerDevelopStart(receiver, true, objectId, objectId));                                                                         // 0x9141 : RequestInnerDevelopStart
+                publisher.enqueueCommand(new PtpIpCommandGeneric(receiver, true, (objectId + 1), 0x9107, 12, 0x01, 0x00, 0x00200000));    // 0x9107 : GetPartialObject  (元は 0x00020000)
+                publisher.enqueueCommand(new PtpIpCommandGeneric(receiver, true, (objectId + 2), 0x9117, 4,0x01));                                          // 0x9117 : TransferComplete
+                publisher.enqueueCommand(new CanonRequestInnerDevelopEnd(receiver, true, (objectId + 3)));                                                                               // 0x9143 : RequestInnerDevelopEnd
             }
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
-*/
+/**/
     }
 
     @Override

@@ -19,7 +19,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
     private static final String TAG = PtpIpCommandPublisher.class.getSimpleName();
 
     private static final int SEQUENCE_START_NUMBER = 1;
-    private static final int BUFFER_SIZE = 1024 * 1024 + 8;
+    private static final int BUFFER_SIZE = 1024 * 1024 * 24 + 8;
     private static final int COMMAND_SEND_RECEIVE_DURATION_MS = 50;
     private static final int COMMAND_SEND_RECEIVE_DURATION_MAX = 1000;
     private static final int COMMAND_POLL_QUEUE_MS = 150;
@@ -189,36 +189,40 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
     {
         try
         {
-            //Log.v(TAG, "issueCommand : " + command.getId());
-            byte[] commandBody = command.commandBody();
-            if (commandBody != null)
+            boolean retry_over = true;
+            while (retry_over)
             {
-                // コマンドボディが入っていた場合には、コマンド送信（入っていない場合は受信待ち）
-                send_to_camera(command.dumpLog(), commandBody, command.useSequenceNumber(), command.embeddedSequenceNumberIndex());
-                byte[] commandBody2 = command.commandBody2();
-                if (commandBody2 != null)
+                //Log.v(TAG, "issueCommand : " + command.getId());
+                byte[] commandBody = command.commandBody();
+                if (commandBody != null)
                 {
-                    // コマンドボディの２つめが入っていた場合には、コマンドを連続送信する
-                    send_to_camera(command.dumpLog(), commandBody2, command.useSequenceNumber(), command.embeddedSequenceNumberIndex2());
+                    // コマンドボディが入っていた場合には、コマンド送信（入っていない場合は受信待ち）
+                    send_to_camera(command.dumpLog(), commandBody, command.useSequenceNumber(), command.embeddedSequenceNumberIndex());
+                    byte[] commandBody2 = command.commandBody2();
+                    if (commandBody2 != null)
+                    {
+                        // コマンドボディの２つめが入っていた場合には、コマンドを連続送信する
+                        send_to_camera(command.dumpLog(), commandBody2, command.useSequenceNumber(), command.embeddedSequenceNumberIndex2());
+                    }
+                    byte[] commandBody3 = command.commandBody3();
+                    if (commandBody3 != null)
+                    {
+                        // コマンドボディの３つめが入っていた場合には、コマンドを連続送信する
+                        send_to_camera(command.dumpLog(), commandBody3, command.useSequenceNumber(), command.embeddedSequenceNumberIndex3());
+                    }
+                    if (command.isIncrementSeqNumber())
+                    {
+                        // シーケンス番号を更新する
+                        sequenceNumber++;
+                    }
                 }
-                byte[] commandBody3 = command.commandBody3();
-                if (commandBody3 != null)
+                retry_over = receive_from_camera(command);
+                if ((retry_over)&&(commandBody != null))
                 {
-                    // コマンドボディの３つめが入っていた場合には、コマンドを連続送信する
-                    send_to_camera(command.dumpLog(), commandBody3, command.useSequenceNumber(), command.embeddedSequenceNumberIndex3());
-                }
-                if (command.isIncrementSeqNumber())
-                {
-                    // シーケンス番号を更新する
-                    sequenceNumber++;
+                    // 再送信...のために、シーケンス番号を戻す...
+                    sequenceNumber--;
                 }
             }
-            int delayMs = command.receiveDelayMs();
-            if ((delayMs < 0)||(delayMs > COMMAND_SEND_RECEIVE_DURATION_MAX))
-            {
-                delayMs = COMMAND_SEND_RECEIVE_DURATION_MS;
-            }
-            receive_from_camera(command.dumpLog(), command.getId(), command.responseCallback(), command.receiveAgainShortLengthMessage(), delayMs);
         }
         catch (Exception e)
         {
@@ -290,7 +294,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
      *    カメラからにコマンドの結果を受信する（メイン部分）
      *
      */
-    private void receive_from_camera(boolean isDumpReceiveLog, int id, IPtpIpCommandCallback callback, boolean receiveAgain, int delayMs)
+    private void receive_from_camera_old(boolean isDumpReceiveLog, int id, IPtpIpCommandCallback callback, boolean receiveAgain, int delayMs)
     {
         try
         {
@@ -393,4 +397,152 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
         }
     }
 
+    /**
+     *    カメラからにコマンドの結果を受信する（メイン部分）
+     *
+     */
+    private boolean receive_from_camera(@NonNull IPtpIpCommand command)
+    {
+        boolean isDumpReceiveLog = command.dumpLog();
+        int id = command.getId();
+        IPtpIpCommandCallback callback = command.responseCallback();
+        int delayMs = command.receiveDelayMs();
+        if ((delayMs < 0)||(delayMs > COMMAND_SEND_RECEIVE_DURATION_MAX))
+        {
+            delayMs = COMMAND_SEND_RECEIVE_DURATION_MS;
+        }
+
+        try
+        {
+            boolean isFirstTime = true;
+            int receive_message_buffer_size = BUFFER_SIZE;
+            byte[] byte_array = new byte[receive_message_buffer_size];
+            InputStream is = socket.getInputStream();
+            if (is == null)
+            {
+                Log.v(TAG, " InputStream is NULL... RECEIVE ABORTED");
+                return (false);
+            }
+
+            // 初回データが受信バッファにデータが溜まるまで待つ...
+            int read_bytes = waitForReceive(is, delayMs);
+            if (read_bytes < 0)
+            {
+                // リトライオーバー...
+                Log.v(TAG, " RECEIVE : RETRY OVER...");
+                return (true);
+            }
+
+            int position = 0;
+            int message_length = receive_message_buffer_size;
+            while (read_bytes > 0)
+            {
+                read_bytes = is.read(byte_array, position, receive_message_buffer_size - position);
+                if ((read_bytes <= 0)||(receive_message_buffer_size <= read_bytes + position))
+                {
+                    Log.v(TAG, " RECEIVED MESSAGE FINISHED (" + position + ")");
+                    break;
+                }
+                if (position == 0)
+                {
+                    int lenlen = 0;
+                    int len = ((((int) byte_array[3]) & 0xff) << 24) + ((((int) byte_array[2]) & 0xff) << 16) + ((((int) byte_array[1]) & 0xff) << 8) + (((int) byte_array[0]) & 0xff);
+                    if ((read_bytes > 20)&&((int) byte_array[5] == 9))
+                    {
+                        lenlen = ((((int) byte_array[15]) & 0xff) << 24) + ((((int) byte_array[14]) & 0xff) << 16) + ((((int) byte_array[13]) & 0xff) << 8) + (((int) byte_array[12]) & 0xff);
+                    }
+                    Log.v(TAG, " RECEIVED MESSAGE LENGTH (" + len + ") [" + lenlen + "]. : " + read_bytes);
+                }
+                position = position + read_bytes;
+                //Log.v(TAG, " RECEIVED POSITION ((" + position + "))");
+
+                if (callback != null)
+                {
+                    if (callback.isReceiveMulti())
+                    {
+                        int offset = 0;
+                        if (isFirstTime)
+                        {
+                            // 先頭のヘッダ部分をカットして送る
+                            offset = 12;
+                            isFirstTime = false;
+                            message_length = ((((int) byte_array[3]) & 0xff) << 24) + ((((int) byte_array[2]) & 0xff) << 16) + ((((int) byte_array[1]) & 0xff) << 8) + (((int) byte_array[0]) & 0xff);
+                            //Log.v(TAG, " FIRST TIME : " + read_bytes + " " + offset);
+                        }
+                        callback.onReceiveProgress(read_bytes - offset, message_length, Arrays.copyOfRange(byte_array, offset, read_bytes));
+                    }
+                    else
+                    {
+                        callback.onReceiveProgress(read_bytes, message_length, null);
+                    }
+                }
+
+                sleep(delayMs);
+                read_bytes = is.available();
+                if (read_bytes <= 0)
+                {
+                    //Log.v(TAG, " RECEIVED MESSAGE FINISHED : " + position + " bytes.");
+                }
+            }
+            byte[] receive_body = Arrays.copyOfRange(byte_array, 0, (position < 1) ? 1 : position);
+            Log.v(TAG, " RECEIVED : [" + position + "]");
+            receivedMessage(isDumpReceiveLog, id, receive_body, callback);
+        }
+        catch (Throwable e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+    private int waitForReceive(InputStream is, int delayMs)
+    {
+        int retry_count = 30;
+        int read_bytes = 0;
+        try
+        {
+            while (read_bytes <= 0)
+            {
+                sleep(delayMs);
+                read_bytes = is.available();
+                if (read_bytes == 0)
+                {
+                    Log.v(TAG, " is.available() WAIT... ");
+                    retry_count--;
+                    if (retry_count < 0)
+                    {
+                        return (-1);
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (read_bytes);
+    }
+
+    private void receivedMessage(boolean isDumpReceiveLog, int id, byte[] body, IPtpIpCommandCallback callback)
+    {
+        if (isDumpReceiveLog)
+        {
+            // ログに受信メッセージを出力する
+            Log.v(TAG, "receive_from_camera() : " + body.length + " bytes.");
+            dump_bytes("RECV[" + body.length + "] ", body);
+        }
+        if (callback != null)
+        {
+            if (callback.isReceiveMulti())
+            {
+                callback.receivedMessage(id, null);
+            }
+            else
+            {
+                callback.receivedMessage(id, body);
+                //callback.receivedMessage(id, Arrays.copyOfRange(receive_body, 0, receive_body.length));
+            }
+        }
+    }
 }
+
