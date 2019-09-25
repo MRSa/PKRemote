@@ -95,12 +95,9 @@ public class PtpIpPlaybackControl implements IPlaybackControl
                 int objectId = content.getId();
                 // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
 
-                // 一連の画像取得シーケンス(RequestInnerDevelopStart, GetPartialObject, TransferComplete, RequestInnerDevelopEnd )を送信キューに積み込む
+                // 画像を取得する
                 PtpIpScreennailImageReceiver receiver = new PtpIpScreennailImageReceiver(activity, objectId, publisher, callback);
-                publisher.enqueueCommand(new CanonRequestInnerDevelopStart(receiver, true, objectId, objectId));                                                                         // 0x9141 : RequestInnerDevelopStart
-                publisher.enqueueCommand(new PtpIpCommandGeneric(receiver, true, (objectId + 1), 0x9107, 12, 0x01, 0x00, 0x00200000));    // 0x9107 : GetPartialObject  (元は 0x00020000)
-                publisher.enqueueCommand(new PtpIpCommandGeneric(receiver, true, (objectId + 2), 0x9117, 4,0x01));                                          // 0x9117 : TransferComplete
-                publisher.enqueueCommand(new CanonRequestInnerDevelopEnd(receiver, true, (objectId + 3)));                                                                               // 0x9143 : RequestInnerDevelopEnd
+                publisher.enqueueCommand(new CanonRequestInnerDevelopStart(receiver, objectId, true, objectId, objectId));   // 0x9141 : RequestInnerDevelopStart
             }
         }
         catch (Exception e)
@@ -131,7 +128,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl
                 int storageId = content.getStorageId();
                 int objectId = content.getId();
                 // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
-                publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), false, objectId, 0x910a, 8, objectId, 0x00032000));
+                publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), objectId, false, 0, 0x910a, 8, objectId, 0x00032000));
             }
         }
         catch (Exception e)

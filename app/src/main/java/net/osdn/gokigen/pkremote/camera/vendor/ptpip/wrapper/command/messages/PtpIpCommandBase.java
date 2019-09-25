@@ -80,6 +80,24 @@ public class PtpIpCommandBase implements IPtpIpCommand, IPtpIpMessages
     }
 
     @Override
+    public int getHoldId()
+    {
+        return (0);
+    }
+
+    @Override
+    public boolean isHold()
+    {
+        return (false);
+    }
+
+    @Override
+    public boolean isRelease()
+    {
+        return (false);
+    }
+
+    @Override
     public boolean dumpLog()
     {
         return (true);

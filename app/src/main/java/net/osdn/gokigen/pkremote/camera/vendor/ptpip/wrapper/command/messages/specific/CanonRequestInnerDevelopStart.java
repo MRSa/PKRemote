@@ -10,17 +10,19 @@ public class CanonRequestInnerDevelopStart  extends PtpIpCommandBase
     private final IPtpIpCommandCallback callback;
     private final boolean isDumpLog;
     private final int id;
+    private final int holdId;
 
     private final byte data0;
     private final byte data1;
     private final byte data2;
     private final byte data3;
 
-    public CanonRequestInnerDevelopStart(@NonNull IPtpIpCommandCallback callback, boolean isDumpLog, int id, int objectId)
+    public CanonRequestInnerDevelopStart(@NonNull IPtpIpCommandCallback callback, int id, boolean isDumpLog, int holdId, int objectId)
     {
         this.callback = callback;
         this.isDumpLog = isDumpLog;
         this.id = id;
+        this.holdId = holdId;
 
         data0 = ((byte) (0x000000ff & objectId));
         data1 = ((byte)((0x0000ff00 & objectId) >> 8));
@@ -103,5 +105,24 @@ public class CanonRequestInnerDevelopStart  extends PtpIpCommandBase
                 (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         });
     }
+
+    @Override
+    public int getHoldId()
+    {
+        return (holdId);
+    }
+
+    @Override
+    public boolean isHold()
+    {
+        return (true);
+    }
+
+    @Override
+    public boolean isRelease()
+    {
+        return (false);
+    }
+
 
 }

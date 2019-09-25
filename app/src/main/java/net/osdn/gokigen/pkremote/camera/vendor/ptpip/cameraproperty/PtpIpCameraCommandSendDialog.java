@@ -113,27 +113,27 @@ public class PtpIpCameraCommandSendDialog  extends DialogFragment
                                 // single
                                 if (selectedBodyLengthPosition == 0)
                                 {
-                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, isDumpLog, 999, id));
+                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, 999, isDumpLog, 0, id));
                                 }
                                 else if (selectedBodyLengthPosition == 5)
                                 {
-                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, isDumpLog, 999, id, 16, value1, value2, value3, value4));
+                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, 999, isDumpLog, 0, id, 16, value1, value2, value3, value4));
                                 }
                                 else if (selectedBodyLengthPosition == 4)
                                 {
-                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, isDumpLog, 999, id, 12, value1, value2, value3));
+                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, 999, isDumpLog, 0, id, 12, value1, value2, value3));
                                 }
                                 else if (selectedBodyLengthPosition == 3)
                                 {
-                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, isDumpLog, 999, id, 8, value1, value2));
+                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, 999, isDumpLog, 0, id, 8, value1, value2));
                                 }
                                 else if (selectedBodyLengthPosition == 2)
                                 {
-                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, isDumpLog, 999, id, 4, value1));
+                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, 999, isDumpLog, 0, id, 4, value1));
                                 }
                                 else
                                 {
-                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, isDumpLog, 999, id, 2, value1));
+                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, 999, isDumpLog, 0, id, 2, value1));
                                 }
                             }
                             else
@@ -141,27 +141,27 @@ public class PtpIpCameraCommandSendDialog  extends DialogFragment
                                 // multi
                                 if (selectedBodyLengthPosition == 0)
                                 {
-                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, isDumpLog, 999, id));
+                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, 999, isDumpLog, 0, id));
                                 }
                                 else if (selectedBodyLengthPosition == 5)
                                 {
-                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, isDumpLog, 999, id, 16, value1, value2, value3, value4));
+                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, 999, isDumpLog, 0, id, 16, value1, value2, value3, value4));
                                 }
                                 else if (selectedBodyLengthPosition == 4)
                                 {
-                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, isDumpLog, 999, id, 12, value1, value2, value3));
+                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, 999, isDumpLog, 0, id, 12, value1, value2, value3));
                                 }
                                 else if (selectedBodyLengthPosition == 3)
                                 {
-                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, isDumpLog, 999, id, 8, value1, value2));
+                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, 999, isDumpLog, 0, id, 8, value1, value2));
                                 }
                                 else if (selectedBodyLengthPosition == 2)
                                 {
-                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, isDumpLog, 999, id, 4, value1));
+                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, 999, isDumpLog, 0, id, 4, value1));
                                 }
                                 else
                                 {
-                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, isDumpLog, 999, id, 2, value1));
+                                    commandPublisher.enqueueCommand(new PtpIpCommandGeneric(responseReceiver, 999, isDumpLog, 0, id, 2, value1));
                                 }
                             }
                         }

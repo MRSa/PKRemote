@@ -11,6 +11,7 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
     private final boolean isDumpLog;
     private final int bodySize;
     private final int id;
+    private final int holdId;
 
     private final byte opCode0;
     private final byte opCode1;
@@ -35,13 +36,14 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
     private final byte dataE;
     private final byte dataF;
 
-    public PtpIpCommandGeneric(@NonNull IPtpIpCommandCallback callback, boolean isDumpLog, int id, int opcode)
+    public PtpIpCommandGeneric(@NonNull IPtpIpCommandCallback callback, int id, boolean isDumpLog, int holdId, int opcode)
     {
         this.callback = callback;
         this.bodySize = 0;
         this.isDumpLog = isDumpLog;
 
         this.id = id;
+        this.holdId = holdId;
         opCode0 = ((byte) (0x000000ff & opcode));
         opCode1 = ((byte)((0x0000ff00 & opcode) >> 8));
 
@@ -66,13 +68,14 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         dataF = 0; // ((byte)((0xff000000 & value4) >> 24));
     }
 
-    public PtpIpCommandGeneric(@NonNull IPtpIpCommandCallback callback, boolean isDumpLog, int id, int opcode, int bodySize, int value)
+    public PtpIpCommandGeneric(@NonNull IPtpIpCommandCallback callback, int id, boolean isDumpLog, int holdId, int opcode, int bodySize, int value)
     {
         this.callback = callback;
         this.bodySize = bodySize;
         this.isDumpLog = isDumpLog;
 
         this.id = id;
+        this.holdId = holdId;
         opCode0 = ((byte) (0x000000ff & opcode));
         opCode1 = ((byte)((0x0000ff00 & opcode) >> 8));
 
@@ -97,13 +100,14 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         dataF = 0; // ((byte)((0xff000000 & value4) >> 24));
     }
 
-    public PtpIpCommandGeneric(@NonNull IPtpIpCommandCallback callback, boolean isDumpLog, int id, int opcode, int bodySize, int value, int value2)
+    public PtpIpCommandGeneric(@NonNull IPtpIpCommandCallback callback, int id, boolean isDumpLog, int holdId, int opcode, int bodySize, int value, int value2)
     {
         this.callback = callback;
         this.bodySize = bodySize;
         this.isDumpLog = isDumpLog;
 
         this.id = id;
+        this.holdId = holdId;
         opCode0 = ((byte) (0x000000ff & opcode));
         opCode1 = ((byte)((0x0000ff00 & opcode) >> 8));
 
@@ -128,13 +132,14 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         dataF = 0; // ((byte)((0xff000000 & value4) >> 24));
     }
 
-    public PtpIpCommandGeneric(@NonNull IPtpIpCommandCallback callback, boolean isDumpLog, int id, int opcode, int bodySize, int value, int value2, int value3)
+    public PtpIpCommandGeneric(@NonNull IPtpIpCommandCallback callback, int id, boolean isDumpLog, int holdId, int opcode, int bodySize, int value, int value2, int value3)
     {
         this.callback = callback;
         this.bodySize = bodySize;
         this.isDumpLog = isDumpLog;
 
         this.id = id;
+        this.holdId = holdId;
         opCode0 = ((byte) (0x000000ff & opcode));
         opCode1 = ((byte)((0x0000ff00 & opcode) >> 8));
 
@@ -160,13 +165,14 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
 
     }
 
-    public PtpIpCommandGeneric(@NonNull IPtpIpCommandCallback callback, boolean isDumpLog, int id, int opcode, int bodySize, int value, int value2, int value3, int value4)
+    public PtpIpCommandGeneric(@NonNull IPtpIpCommandCallback callback, int id, boolean isDumpLog, int holdId, int opcode, int bodySize, int value, int value2, int value3, int value4)
     {
         this.callback = callback;
         this.bodySize = bodySize;
         this.isDumpLog = isDumpLog;
 
         this.id = id;
+        this.holdId = holdId;
         opCode0 = ((byte) (0x000000ff & opcode));
         opCode1 = ((byte)((0x0000ff00 & opcode) >> 8));
 
@@ -329,6 +335,12 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
             });
         }
+    }
+
+    @Override
+    public int getHoldId()
+    {
+        return (holdId);
     }
 
     @Override

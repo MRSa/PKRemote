@@ -2,10 +2,8 @@ package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback;
 
 import android.app.Activity;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.util.Log;
 
-import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
@@ -13,11 +11,6 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.Pt
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopEnd;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
 
 import static net.osdn.gokigen.pkremote.camera.utils.SimpleLogDumper.binaryOutputToFile;
 
@@ -55,7 +48,7 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
             }
             if (id == objectId)
             {
-                requestGetPartialObject();
+                getRequestStatusEvent(rx_body);
             }
             else if (id == objectId + 1)
             {
@@ -72,6 +65,11 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
             else if (id == objectId + 4)
             {
                 Log.v(TAG, " RECEIVED  : " + id);
+            }
+            else if (id == objectId + 5)
+            {
+                Log.v(TAG, " RECEIVED STATUS EVENT : " + id);
+                requestGetPartialObject(rx_body);
             }
             else
             {
@@ -100,26 +98,43 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
         return (false);
     }
 
-    private void requestGetPartialObject()
+    private void requestGetPartialObject(byte[] rx_body)
     {
         Log.v(TAG, " requestGetPartialObject() : " + objectId);
-        //publisher.enqueueCommand(new PtpIpCommandGeneric(this, false, (objectId + 1), 0x9107, 12, 0x01, 0x00, 0x00200000));
+
+        // 0x9107 : GetPartialObject  (元は 0x00020000)
+        int pictureLength = 0x00200000;
+        if (rx_body.length > 52)
+        {
+            int dataIndex = 48;
+            pictureLength = (rx_body[dataIndex] & 0xff);
+            pictureLength = pictureLength + ((rx_body[dataIndex + 1]  & 0xff) << 8);
+            pictureLength = pictureLength + ((rx_body[dataIndex + 2] & 0xff) << 16);
+            pictureLength = pictureLength + ((rx_body[dataIndex + 3] & 0xff) << 24);
+        }
+        publisher.enqueueCommand(new PtpIpCommandGeneric(this, (objectId + 1), true, objectId, 0x9107, 12, 0x01, 0x00, pictureLength));
+    }
+
+    private void getRequestStatusEvent(byte[] rx_body)
+    {
+        Log.v(TAG, " getRequestStatusEvent  : " + objectId);
+        publisher.enqueueCommand(new PtpIpCommandGeneric(this,  (objectId + 5), true, objectId, 0x9116));
     }
 
     private void getPartialObject(byte[] rx_body)
     {
         Log.v(TAG, " getPartialObject(), id : " + objectId + " size: " + rx_body.length);
         callback.onCompleted(BitmapFactory.decodeStream(new ByteArrayInputStream(rx_body)), null);
-        //publisher.enqueueCommand(new PtpIpCommandGeneric(this, false, (objectId + 2), 0x9117, 4,0x01));
+        publisher.enqueueCommand(new PtpIpCommandGeneric(this,  (objectId + 2), true, objectId, 0x9117, 4,0x01));  // 0x9117 : TransferComplete
 
         // ファイルにバイナリデータをダンプする
-        //binaryOutputToFile(activity, objectId + "_", rx_body);
+        binaryOutputToFile(activity, objectId + "_", rx_body);
     }
 
     private void requestInnerDevelopEnd()
     {
         Log.v(TAG, " requestInnerDevelopEnd() : " + objectId);
-        //publisher.enqueueCommand(new CanonRequestInnerDevelopEnd(this, true, (objectId + 3)));
+        publisher.enqueueCommand(new CanonRequestInnerDevelopEnd(this, (objectId + 3), true, objectId));  // 0x9143 : RequestInnerDevelopEnd
     }
 
     private void finishedGetScreeennail()
@@ -127,7 +142,7 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
         Log.v(TAG, "  --- SCREENNAIL RECV FINISHED. : " + objectId + " --- ");
 
         // リセットコマンドを送ってみる
-        publisher.enqueueCommand(new PtpIpCommandGeneric(this, false, (objectId + 4), 0x902f));
+        publisher.enqueueCommand(new PtpIpCommandGeneric(this, (objectId + 4), false, objectId, 0x902f));
     }
 
 }

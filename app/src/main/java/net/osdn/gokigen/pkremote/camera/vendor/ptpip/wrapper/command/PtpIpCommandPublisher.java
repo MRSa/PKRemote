@@ -28,19 +28,23 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
     private final int portNumber;
 
     private boolean isStart = false;
+    private boolean isHold = false;
+    private int holdId = 0;
     private Socket socket = null;
     private DataOutputStream dos = null;
     private BufferedReader bufferedReader = null;
     private int sequenceNumber = SEQUENCE_START_NUMBER;
     private Queue<IPtpIpCommand> commandQueue;
-
+    private Queue<IPtpIpCommand> holdCommandQueue;
 
     public PtpIpCommandPublisher(@NonNull String ip, int portNumber)
     {
         this.ipAddress = ip;
         this.portNumber = portNumber;
         this.commandQueue = new ArrayDeque<>();
+        this.holdCommandQueue = new ArrayDeque<>();
         commandQueue.clear();
+        holdCommandQueue.clear();
     }
 
     @Override
@@ -175,6 +179,39 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
     {
         try
         {
+            if (isHold) {
+                if (holdId == command.getHoldId()) {
+                    if (command.isRelease()) {
+                        // コマンドをキューに積んだ後、リリースする
+                        boolean ret = commandQueue.offer(command);
+                        isHold = false;
+
+                        //  溜まっているキューを積みなおす
+                        while (holdCommandQueue.size() != 0) {
+                            IPtpIpCommand queuedCommand = holdCommandQueue.poll();
+                            commandQueue.offer(queuedCommand);
+                            if ((queuedCommand != null)&&(queuedCommand.isHold()))
+                            {
+                                // 特定シーケンスに入った場合は、そこで積みなおすのをやめる
+                                isHold = true;
+                                holdId = queuedCommand.getHoldId();
+                                break;
+                            }
+                        }
+                        return (ret);
+                    }
+                    return (commandQueue.offer(command));
+                } else {
+                    // 特定シーケンスではなかったので HOLD
+                    return (holdCommandQueue.offer(command));
+                }
+            }
+            if (command.isHold())
+            {
+                isHold = true;
+                holdId = command.getHoldId();
+            }
+
             //Log.v(TAG, "Enqueue : "  + command.getId());
             return (commandQueue.offer(command));
         }
@@ -447,9 +484,11 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
                 {
                     int lenlen = 0;
                     int len = ((((int) byte_array[3]) & 0xff) << 24) + ((((int) byte_array[2]) & 0xff) << 16) + ((((int) byte_array[1]) & 0xff) << 8) + (((int) byte_array[0]) & 0xff);
-                    if ((read_bytes > 20)&&((int) byte_array[5] == 9))
+                    message_length = len;
+                    if ((read_bytes > 20)&&((int) byte_array[4] == 0x09))
                     {
                         lenlen = ((((int) byte_array[15]) & 0xff) << 24) + ((((int) byte_array[14]) & 0xff) << 16) + ((((int) byte_array[13]) & 0xff) << 8) + (((int) byte_array[12]) & 0xff);
+                        message_length = lenlen;
                     }
                     Log.v(TAG, " RECEIVED MESSAGE LENGTH (" + len + ") [" + lenlen + "]. : " + read_bytes);
                 }
