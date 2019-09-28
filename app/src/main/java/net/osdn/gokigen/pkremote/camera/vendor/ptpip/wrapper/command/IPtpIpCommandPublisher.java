@@ -7,6 +7,8 @@ public interface IPtpIpCommandPublisher
     boolean isConnected();
     boolean enqueueCommand(@NonNull IPtpIpCommand command);
 
+    boolean flushHoldQueue();
+
     void start();
     void stop();
 }

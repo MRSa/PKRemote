@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Queue;
@@ -19,7 +20,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
     private static final String TAG = PtpIpCommandPublisher.class.getSimpleName();
 
     private static final int SEQUENCE_START_NUMBER = 1;
-    private static final int BUFFER_SIZE = 1024 * 1024 * 24 + 8;
+    private static final int BUFFER_SIZE = 1024 * 1024 * 2 + 8;
     private static final int COMMAND_SEND_RECEIVE_DURATION_MS = 50;
     private static final int COMMAND_SEND_RECEIVE_DURATION_MAX = 1000;
     private static final int COMMAND_POLL_QUEUE_MS = 150;
@@ -220,6 +221,15 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             e.printStackTrace();
         }
         return (false);
+    }
+
+    @Override
+    public boolean flushHoldQueue()
+    {
+        Log.v(TAG, "  flushHoldQueue()");
+        holdCommandQueue.clear();
+        System.gc();
+        return (true);
     }
 
     private void issueCommand(@NonNull IPtpIpCommand command)
@@ -438,7 +448,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
      *    カメラからにコマンドの結果を受信する（メイン部分）
      *
      */
-    private boolean receive_from_camera(@NonNull IPtpIpCommand command)
+    private boolean receive_from_camera_prev(@NonNull IPtpIpCommand command)
     {
         boolean isDumpReceiveLog = command.dumpLog();
         int id = command.getId();
@@ -532,6 +542,192 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             e.printStackTrace();
         }
         return (false);
+    }
+
+    /**
+     *    カメラからにコマンドの結果を受信する（メイン部分）
+     *
+     */
+    private boolean receive_from_camera(@NonNull IPtpIpCommand command)
+    {
+        boolean isDumpReceiveLog = command.dumpLog();
+        int id = command.getId();
+        IPtpIpCommandCallback callback = command.responseCallback();
+        int delayMs = command.receiveDelayMs();
+        if ((delayMs < 0)||(delayMs > COMMAND_SEND_RECEIVE_DURATION_MAX))
+        {
+            delayMs = COMMAND_SEND_RECEIVE_DURATION_MS;
+        }
+
+        try
+        {
+            boolean isFirstTime = true;
+            int receive_message_buffer_size = BUFFER_SIZE;
+            byte[] byte_array = new byte[receive_message_buffer_size];
+            InputStream is = socket.getInputStream();
+            if (is == null)
+            {
+                Log.v(TAG, " InputStream is NULL... RECEIVE ABORTED");
+                return (false);
+            }
+
+            // 初回データが受信バッファにデータが溜まるまで待つ...
+            int read_bytes = waitForReceive(is, delayMs);
+            if (read_bytes < 0)
+            {
+                // リトライオーバー...
+                Log.v(TAG, " RECEIVE : RETRY OVER...");
+                return (true);
+            }
+
+            int remain_bytes = 0;
+            int position = 0;
+            int message_length = receive_message_buffer_size;
+            ByteBuffer multiBlockReceiveBuffer = null;
+            while (read_bytes > 0)
+            {
+                read_bytes = is.read(byte_array, position, receive_message_buffer_size - position);
+                if ((read_bytes <= 0)||(receive_message_buffer_size <= read_bytes + position))
+                {
+                    Log.v(TAG, " RECEIVED MESSAGE FINISHED (" + position + ")");
+                    break;
+                }
+                if ((position == 0)&&(multiBlockReceiveBuffer == null))
+                {
+                    int lenlen = 0;
+                    int len = ((((int) byte_array[3]) & 0xff) << 24) + ((((int) byte_array[2]) & 0xff) << 16) + ((((int) byte_array[1]) & 0xff) << 8) + (((int) byte_array[0]) & 0xff);
+                    message_length = len;
+                    if ((read_bytes > (20 + 12))&&((int) byte_array[4] == 0x09))
+                    {
+                        lenlen = ((((int) byte_array[15]) & 0xff) << 24) + ((((int) byte_array[14]) & 0xff) << 16) + ((((int) byte_array[13]) & 0xff) << 8) + (((int) byte_array[12]) & 0xff);
+                        //lenlen = lenlen + ((((int) byte_array[19]) & 0xff) << 56) + ((((int) byte_array[18]) & 0xff) << 48) + ((((int) byte_array[17]) & 0xff) << 40) + (((int) byte_array[16] << 32) & 0xff);
+                        message_length = lenlen;
+
+                        remain_bytes = ((((int) byte_array[23]) & 0xff) << 24) + ((((int) byte_array[22]) & 0xff) << 16) + ((((int) byte_array[21]) & 0xff) << 8) + (((int) byte_array[20]) & 0xff);
+                    }
+                    Log.v(TAG, " RECEIVED MESSAGE LENGTH (" + len + ") [" + lenlen + "]. : " + read_bytes + " (BLK:" + remain_bytes + ")");
+                    if (lenlen > read_bytes)
+                    {
+                        // マルチブロックのメッセージを受信した場合は、multiBlockReceiveBuffer につっこむ。
+                        multiBlockReceiveBuffer = ByteBuffer.allocate(lenlen + 2560);
+                        remain_bytes = 0;
+                        position = 20;   // マルチブロックのメッセージの先頭バイトを削ってしまう。
+                    }
+                }
+                if (multiBlockReceiveBuffer == null)
+                {
+                    position = position + read_bytes;
+                    //Log.v(TAG, " RECEIVED POSITION ((" + position + "))");
+                }
+                else
+                {
+                    // ヘッダ部分を削ってバッファに突っ込む
+                    remain_bytes = putByteBuffer(multiBlockReceiveBuffer, remain_bytes, byte_array, position, read_bytes - position);
+                    position = 0;
+                }
+
+                if (callback != null)
+                {
+                    if (callback.isReceiveMulti())
+                    {
+                        int offset = 0;
+                        if (isFirstTime)
+                        {
+                            // 先頭のヘッダ部分をカットして送る
+                            offset = 12;
+                            isFirstTime = false;
+                            message_length = ((((int) byte_array[3]) & 0xff) << 24) + ((((int) byte_array[2]) & 0xff) << 16) + ((((int) byte_array[1]) & 0xff) << 8) + (((int) byte_array[0]) & 0xff);
+                            //Log.v(TAG, " FIRST TIME : " + read_bytes + " " + offset);
+                        }
+                        callback.onReceiveProgress(read_bytes - offset, message_length, Arrays.copyOfRange(byte_array, offset, read_bytes));
+                    }
+                    else
+                    {
+                        callback.onReceiveProgress(read_bytes, message_length, null);
+                    }
+                }
+
+                sleep(delayMs);
+                read_bytes = is.available();
+                if (read_bytes <= 0)
+                {
+                    //Log.v(TAG, " RECEIVED MESSAGE FINISHED : " + position + " bytes.");
+                }
+            }
+            byte[] receive_body = (multiBlockReceiveBuffer == null) ? Arrays.copyOfRange(byte_array, 0, (position < 1) ? 1 : position) : multiBlockReceiveBuffer.array();
+            Log.v(TAG, " RECEIVED : [" + position + "]");
+            receivedMessage(isDumpReceiveLog, id, receive_body, callback);
+        }
+        catch (Throwable e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+
+    private int putByteBuffer(ByteBuffer buffer, int remain_read_byte, byte[] byte_array, int offset, int length)
+    {
+        Log.v(TAG, " >>> putByteBuffer() : " + remain_read_byte + " " + offset + " " + length + " " + byte_array.length);
+
+        int copybyte = (length > remain_read_byte) ? remain_read_byte : length;
+        if (copybyte > 0)
+        {
+            Log.v(TAG, " put bytes : " + offset + " " + copybyte + " (" + remain_read_byte + ")" + length + " ");
+            buffer.put(byte_array, offset, copybyte);
+        }
+        int nextByte = length - copybyte;
+        if (nextByte <= 0)
+        {
+            // 足りないバイト数
+            Log.v(TAG, " putByteBuffer() : FINISHED. (" + nextByte + ")");
+            return (nextByte * (-1));
+        }
+        try
+        {
+            int position = copybyte + offset;
+            while (nextByte > 0)
+            {
+                int message_length = ((((int) byte_array[position + 3]) & 0xff) << 24) + ((((int) byte_array[position + 2]) & 0xff) << 16) + ((((int) byte_array[position + 1]) & 0xff) << 8) + (((int) byte_array[position]) & 0xff) - 12;
+                position = position + 12;
+
+                //if (message_length == 0)
+                {
+                    // メッセージレングスがゼロ ... 変...その周辺データをダンプしてみる
+                    int start = (position > 32) ?  (position - 32) : 0;
+                    byte[] currentDump = Arrays.copyOfRange(byte_array, start, (start + 64));
+                    dump_bytes(" DUMMY [" + start + "] ", currentDump);
+                }
+                if (message_length < 0)
+                {
+                    Log.v(TAG, " ADJUST BYTES... : " + message_length);
+
+                    position = position - 12;
+                    message_length = nextByte;
+                }
+
+                copybyte = (nextByte > message_length) ? message_length : nextByte;
+                Log.v(TAG, " PUT BYTES : " + position + " " + copybyte + " (" + nextByte + ")" + " " + message_length);
+                buffer.put(byte_array, position, copybyte);
+
+                position = position + copybyte;
+                nextByte = nextByte - copybyte;
+                if (position >= (offset + length))
+                {
+                    Log.v(TAG, " ...END : " + position + " [" + offset + " " + length + "] " + nextByte);
+                    nextByte = 0; // nextByte * (-1);
+                    break;
+                }
+            }
+            Log.v(TAG, " putByteBuffer() : FINISHED. [" + nextByte + "]");
+            return (nextByte * (-1));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        Log.v(TAG, " putByteBuffer() : FINISHED. ");
+        return (0);
     }
 
     private int waitForReceive(InputStream is, int delayMs)
