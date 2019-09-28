@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.net.Socket;
@@ -20,7 +21,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
     private static final String TAG = PtpIpCommandPublisher.class.getSimpleName();
 
     private static final int SEQUENCE_START_NUMBER = 1;
-    private static final int BUFFER_SIZE = 1024 * 1024 * 2 + 8;
+    private static final int BUFFER_SIZE = 1024 * 256 + 16;  // バッファは 256kB
     private static final int COMMAND_SEND_RECEIVE_DURATION_MS = 50;
     private static final int COMMAND_SEND_RECEIVE_DURATION_MAX = 1000;
     private static final int COMMAND_POLL_QUEUE_MS = 150;
@@ -561,13 +562,13 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
 
         try
         {
-            boolean isFirstTime = true;
+           // boolean isFirstTime = true;
             int receive_message_buffer_size = BUFFER_SIZE;
             byte[] byte_array = new byte[receive_message_buffer_size];
             InputStream is = socket.getInputStream();
             if (is == null)
             {
-                Log.v(TAG, " InputStream is NULL... RECEIVE ABORTED");
+                Log.v(TAG, " InputStream is NULL... RECEIVE ABORTED.");
                 return (false);
             }
 
@@ -580,83 +581,25 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
                 return (true);
             }
 
-            int remain_bytes = 0;
-            int position = 0;
-            int message_length = receive_message_buffer_size;
-            ByteBuffer multiBlockReceiveBuffer = null;
+            // 受信したデータをバッファに突っ込む
+            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             while (read_bytes > 0)
             {
-                read_bytes = is.read(byte_array, position, receive_message_buffer_size - position);
-                if ((read_bytes <= 0)||(receive_message_buffer_size <= read_bytes + position))
-                {
-                    Log.v(TAG, " RECEIVED MESSAGE FINISHED (" + position + ")");
-                    break;
-                }
-                if ((position == 0)&&(multiBlockReceiveBuffer == null))
-                {
-                    int lenlen = 0;
-                    int len = ((((int) byte_array[3]) & 0xff) << 24) + ((((int) byte_array[2]) & 0xff) << 16) + ((((int) byte_array[1]) & 0xff) << 8) + (((int) byte_array[0]) & 0xff);
-                    message_length = len;
-                    if ((read_bytes > (20 + 12))&&((int) byte_array[4] == 0x09))
-                    {
-                        lenlen = ((((int) byte_array[15]) & 0xff) << 24) + ((((int) byte_array[14]) & 0xff) << 16) + ((((int) byte_array[13]) & 0xff) << 8) + (((int) byte_array[12]) & 0xff);
-                        //lenlen = lenlen + ((((int) byte_array[19]) & 0xff) << 56) + ((((int) byte_array[18]) & 0xff) << 48) + ((((int) byte_array[17]) & 0xff) << 40) + (((int) byte_array[16] << 32) & 0xff);
-                        message_length = lenlen;
-
-                        remain_bytes = ((((int) byte_array[23]) & 0xff) << 24) + ((((int) byte_array[22]) & 0xff) << 16) + ((((int) byte_array[21]) & 0xff) << 8) + (((int) byte_array[20]) & 0xff);
-                    }
-                    Log.v(TAG, " RECEIVED MESSAGE LENGTH (" + len + ") [" + lenlen + "]. : " + read_bytes + " (BLK:" + remain_bytes + ")");
-                    if (lenlen > read_bytes)
-                    {
-                        // マルチブロックのメッセージを受信した場合は、multiBlockReceiveBuffer につっこむ。
-                        multiBlockReceiveBuffer = ByteBuffer.allocate(lenlen + 2560);
-                        remain_bytes = 0;
-                        position = 20;   // マルチブロックのメッセージの先頭バイトを削ってしまう。
-                    }
-                }
-                if (multiBlockReceiveBuffer == null)
-                {
-                    position = position + read_bytes;
-                    //Log.v(TAG, " RECEIVED POSITION ((" + position + "))");
-                }
-                else
-                {
-                    // ヘッダ部分を削ってバッファに突っ込む
-                    remain_bytes = putByteBuffer(multiBlockReceiveBuffer, remain_bytes, byte_array, position, read_bytes - position);
-                    position = 0;
-                }
-
-                if (callback != null)
-                {
-                    if (callback.isReceiveMulti())
-                    {
-                        int offset = 0;
-                        if (isFirstTime)
-                        {
-                            // 先頭のヘッダ部分をカットして送る
-                            offset = 12;
-                            isFirstTime = false;
-                            message_length = ((((int) byte_array[3]) & 0xff) << 24) + ((((int) byte_array[2]) & 0xff) << 16) + ((((int) byte_array[1]) & 0xff) << 8) + (((int) byte_array[0]) & 0xff);
-                            //Log.v(TAG, " FIRST TIME : " + read_bytes + " " + offset);
-                        }
-                        callback.onReceiveProgress(read_bytes - offset, message_length, Arrays.copyOfRange(byte_array, offset, read_bytes));
-                    }
-                    else
-                    {
-                        callback.onReceiveProgress(read_bytes, message_length, null);
-                    }
-                }
-
-                sleep(delayMs);
-                read_bytes = is.available();
+                read_bytes = is.read(byte_array, 0, receive_message_buffer_size);
                 if (read_bytes <= 0)
                 {
-                    //Log.v(TAG, " RECEIVED MESSAGE FINISHED : " + position + " bytes.");
+                    Log.v(TAG, " RECEIVED MESSAGE FINISHED (" + read_bytes + ")");
+                    break;
                 }
+                byteStream.write(byte_array, 0, read_bytes);
+                sleep(delayMs);
+                read_bytes = is.available();
             }
-            byte[] receive_body = (multiBlockReceiveBuffer == null) ? Arrays.copyOfRange(byte_array, 0, (position < 1) ? 1 : position) : multiBlockReceiveBuffer.array();
-            Log.v(TAG, " RECEIVED : [" + position + "]");
-            receivedMessage(isDumpReceiveLog, id, receive_body, callback);
+
+            // 積みなおしたByteArrayOutputStreamを取得する
+            ByteArrayOutputStream outputStream = cutHeader(byteStream);
+            receivedMessage(isDumpReceiveLog, id, outputStream.toByteArray(), callback);
+            System.gc();
         }
         catch (Throwable e)
         {
@@ -664,6 +607,44 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
         }
         return (false);
     }
+
+    private ByteArrayOutputStream cutHeader(ByteArrayOutputStream receivedBuffer)
+    {
+        try
+        {
+            byte[] byte_array = receivedBuffer.toByteArray();
+            int limit = byte_array.length;
+            int lenlen = 0;
+            int len = ((((int) byte_array[3]) & 0xff) << 24) + ((((int) byte_array[2]) & 0xff) << 16) + ((((int) byte_array[1]) & 0xff) << 8) + (((int) byte_array[0]) & 0xff);
+            if ((limit == len)||(limit < 65536))
+            {
+                // 応答は１つしか入っていない。もしくは受信データサイズが64kBの場合は、そのまま返す。
+                return (receivedBuffer);
+            }
+            if ((int) byte_array[4] == 0x09)
+            {
+                lenlen = ((((int) byte_array[15]) & 0xff) << 24) + ((((int) byte_array[14]) & 0xff) << 16) + ((((int) byte_array[13]) & 0xff) << 8) + (((int) byte_array[12]) & 0xff);
+            }
+            Log.v(TAG, " --- <<< RECEIVED LARGE BLOCK MESSAGE : " + len + " bytes. (" + byte_array.length + " bytes.)" + " lenlen : " + lenlen + " >>> --- ");
+            ByteArrayOutputStream outputStream =  new ByteArrayOutputStream();
+            //outputStream.write(byte_array, 0, 20);  //
+            int position = 20;  // ヘッダ込の先頭
+            while (position < limit)
+            {
+                lenlen = ((((int) byte_array[position + 3]) & 0xff) << 24) + ((((int) byte_array[position + 2]) & 0xff) << 16) + ((((int) byte_array[position + 1]) & 0xff) << 8) + (((int) byte_array[position]) & 0xff);
+                int copyByte = ((lenlen - 12) > (limit - (position + 12))) ? (limit - (position + 12)) : (lenlen - 12);
+                outputStream.write(byte_array, (position + 12), copyByte);
+                position = position + lenlen;
+            }
+            return (outputStream);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (receivedBuffer);
+    }
+
 
 
     private int putByteBuffer(ByteBuffer buffer, int remain_read_byte, byte[] byte_array, int offset, int length)

@@ -123,12 +123,20 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
 
     private void getPartialObject(byte[] rx_body)
     {
-        Log.v(TAG, " getPartialObject(), id : " + objectId + " size: " + rx_body.length);
-        callback.onCompleted(BitmapFactory.decodeStream(new ByteArrayInputStream(rx_body)), null);
+        try
+        {
+            Log.v(TAG, " getPartialObject(), id : " + objectId + " size: " + rx_body.length);
+            callback.onCompleted(BitmapFactory.decodeStream(new ByteArrayInputStream(rx_body)), null);
+        }
+        catch (Throwable t)
+        {
+            t.printStackTrace();
+            System.gc();
+        }
         publisher.enqueueCommand(new PtpIpCommandGeneric(this,  (objectId + 2), true, objectId, 0x9117, 4,0x01));  // 0x9117 : TransferComplete
 
         // ファイルにバイナリデータをダンプする
-        binaryOutputToFile(activity, objectId + "_", rx_body);
+        // binaryOutputToFile(activity, objectId + "_", rx_body);
     }
 
     private void requestInnerDevelopEnd()
