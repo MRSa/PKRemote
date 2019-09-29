@@ -397,4 +397,14 @@ public class OlyCameraPlaybackControl implements IPlaybackControl
             callback.onErrorOccurred(e);
         }
     }
+
+    @Override
+    public void showPictureStarted() {
+
+    }
+
+    @Override
+    public void showPictureFinished() {
+
+    }
 }

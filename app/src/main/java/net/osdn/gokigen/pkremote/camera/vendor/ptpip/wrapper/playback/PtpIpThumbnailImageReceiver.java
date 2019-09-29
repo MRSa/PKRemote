@@ -1,6 +1,6 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback;
 
-import android.content.Context;
+import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
@@ -12,13 +12,18 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpComma
 
 import java.util.Arrays;
 
+/**
+ *   Canonサムネイル画像の受信
+ *
+ *
+ */
 public class PtpIpThumbnailImageReceiver implements IPtpIpCommandCallback
 {
     private final String TAG = toString();
-    private final Context context;
+    private final Activity context;
     private final IDownloadThumbnailImageCallback callback;
 
-    PtpIpThumbnailImageReceiver(@NonNull Context context, @NonNull IDownloadThumbnailImageCallback callback)
+    PtpIpThumbnailImageReceiver(@NonNull Activity context, @NonNull IDownloadThumbnailImageCallback callback)
     {
         this.context = context;
         this.callback = callback;
@@ -36,10 +41,6 @@ public class PtpIpThumbnailImageReceiver implements IPtpIpCommandCallback
                 return;
             }
 
-            //Log.v(TAG, "  RECV THUMBNAIL START : " + id + " [" + rx_body.length + "] ");
-            //SimpleLogDumper.dump_bytes("[THUMB]", rx_body);
-            //Log.v(TAG, "  RECV THUMBNAIL END : " + id + " [" + rx_body.length + "] ");
-
             /////// 受信データから、サムネイルの先頭(0xff 0xd8)を検索する  /////
             int offset = rx_body.length - 22;
             //byte[] thumbnail0 = Arrays.copyOfRange(rx_body, 0, rx_body.length);
@@ -52,6 +53,7 @@ public class PtpIpThumbnailImageReceiver implements IPtpIpCommandCallback
                 offset--;
             }
             byte[] thumbnail = Arrays.copyOfRange(rx_body, offset, rx_body.length - 22);
+            //binaryOutputToFile(context, id + "_", thumbnail);
             callback.onCompleted(BitmapFactory.decodeByteArray(thumbnail, 0, thumbnail.length), null);
         }
         catch (Exception e)

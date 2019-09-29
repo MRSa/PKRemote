@@ -16,4 +16,7 @@ public interface IPlaybackControl
     void downloadContent(String  path, boolean isSmallSize, IDownloadContentCallback callback);
 
     void getCameraContentList(ICameraContentListCallback callback);
+
+    void showPictureStarted();
+    void showPictureFinished();
 }

@@ -340,6 +340,16 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         getCameraContentListImpl(callback);
     }
 
+    @Override
+    public void showPictureStarted() {
+
+    }
+
+    @Override
+    public void showPictureFinished() {
+
+    }
+
     /**
      *   RICOH GR2用のカメラ内画像ファイル一覧取得処理
      *   （エラー発生時には、通常のPENTAX用のカメラ内画像ファイル一覧取得処理を使う）

@@ -340,6 +340,16 @@ public class SonyPlaybackControl implements IPlaybackControl
         contentListIsCreating = false;
     }
 
+    @Override
+    public void showPictureStarted() {
+
+    }
+
+    @Override
+    public void showPictureFinished() {
+
+    }
+
     private boolean changeContentsTransferMode()
     {
         try

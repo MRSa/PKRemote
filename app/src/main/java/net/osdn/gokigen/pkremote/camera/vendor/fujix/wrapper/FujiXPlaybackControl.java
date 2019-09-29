@@ -148,6 +148,16 @@ public class FujiXPlaybackControl implements IPlaybackControl, IFujiXCommandCall
         }
     }
 
+    @Override
+    public void showPictureStarted() {
+
+    }
+
+    @Override
+    public void showPictureFinished() {
+
+    }
+
     private void getCameraContents(ICameraContentListCallback callback)
     {
         int nofFiles = -1;

@@ -355,6 +355,16 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         }
     }
 
+    @Override
+    public void showPictureStarted() {
+
+    }
+
+    @Override
+    public void showPictureFinished() {
+
+    }
+
     /**
      *   スクリーンネイルの取得キューで使用するクラス
      */

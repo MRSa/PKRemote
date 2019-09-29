@@ -2,6 +2,7 @@ package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
@@ -15,7 +16,6 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.PtpIpInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopEnd;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopStart;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
@@ -76,9 +76,11 @@ public class PtpIpPlaybackControl implements IPlaybackControl
     @Override
     public void downloadContentScreennail(String path, IDownloadThumbnailImageCallback callback)
     {
+        Log.v(TAG, " downloadContentScreennail() " + path);
+
         // Thumbnail と同じ画像を表示する
         //downloadContentThumbnail(path, callback);
-/**/
+
         try
         {
             int start = 0;
@@ -91,7 +93,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl
             if (content != null)
             {
                 IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
-                int storageId = content.getStorageId();
+                //int storageId = content.getStorageId();
                 int objectId = content.getId();
                 // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
 
@@ -104,7 +106,6 @@ public class PtpIpPlaybackControl implements IPlaybackControl
         {
             e.printStackTrace();
         }
-/**/
     }
 
     @Override
@@ -125,7 +126,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl
             if (content != null)
             {
                 IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
-                int storageId = content.getStorageId();
+                //int storageId = content.getStorageId();
                 int objectId = content.getId();
                 // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
                 publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), objectId, false, 0, 0x910a, 8, objectId, 0x00032000));
@@ -187,6 +188,40 @@ public class PtpIpPlaybackControl implements IPlaybackControl
         {
             e.printStackTrace();
             callback.onErrorOccurred(e);
+        }
+    }
+
+    @Override
+    public void showPictureStarted()
+    {
+        try
+        {
+            Log.v(TAG, "showPictureStarted() ");
+
+            IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
+            publisher.flushHoldQueue();
+            System.gc();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void showPictureFinished()
+    {
+        try
+        {
+            Log.v(TAG, "showPictureFinished() ");
+
+            IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
+            publisher.flushHoldQueue();
+            System.gc();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 

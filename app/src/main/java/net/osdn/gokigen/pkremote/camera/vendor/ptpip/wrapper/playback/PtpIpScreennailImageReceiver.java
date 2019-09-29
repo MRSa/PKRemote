@@ -4,16 +4,13 @@ import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopEnd;
-
-import java.io.ByteArrayInputStream;
-
-import static net.osdn.gokigen.pkremote.camera.utils.SimpleLogDumper.binaryOutputToFile;
-
 
 public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
 {
@@ -98,19 +95,23 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
         return (false);
     }
 
-    private void requestGetPartialObject(byte[] rx_body)
+    private void requestGetPartialObject(@Nullable byte[] rx_body)
     {
         Log.v(TAG, " requestGetPartialObject() : " + objectId);
 
         // 0x9107 : GetPartialObject  (元は 0x00020000)
-        int pictureLength = 0x00200000;
-        if (rx_body.length > 52)
+        int pictureLength;
+        if ((rx_body != null)&&(rx_body.length > 52))
         {
             int dataIndex = 48;
             pictureLength = (rx_body[dataIndex] & 0xff);
             pictureLength = pictureLength + ((rx_body[dataIndex + 1]  & 0xff) << 8);
             pictureLength = pictureLength + ((rx_body[dataIndex + 2] & 0xff) << 16);
             pictureLength = pictureLength + ((rx_body[dataIndex + 3] & 0xff) << 24);
+        }
+        else
+        {
+            pictureLength = 0x02000;
         }
         publisher.enqueueCommand(new PtpIpCommandGeneric(this, (objectId + 1), true, objectId, 0x9107, 12, 0x01, 0x00, pictureLength));
     }
@@ -126,7 +127,8 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
         try
         {
             Log.v(TAG, " getPartialObject(), id : " + objectId + " size: " + rx_body.length);
-            callback.onCompleted(BitmapFactory.decodeStream(new ByteArrayInputStream(rx_body)), null);
+            callback.onCompleted(BitmapFactory.decodeByteArray(rx_body, 0, rx_body.length), null);
+            //callback.onCompleted(BitmapFactory.decodeStream(new ByteArrayInputStream(rx_body)), null);
         }
         catch (Throwable t)
         {

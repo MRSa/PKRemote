@@ -22,9 +22,9 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
 
     private static final int SEQUENCE_START_NUMBER = 1;
     private static final int BUFFER_SIZE = 1024 * 256 + 16;  // バッファは 256kB
-    private static final int COMMAND_SEND_RECEIVE_DURATION_MS = 50;
+    private static final int COMMAND_SEND_RECEIVE_DURATION_MS = 30;
     private static final int COMMAND_SEND_RECEIVE_DURATION_MAX = 1000;
-    private static final int COMMAND_POLL_QUEUE_MS = 150;
+    private static final int COMMAND_POLL_QUEUE_MS = 30;
 
     private final String ipAddress;
     private final int portNumber;
@@ -616,9 +616,9 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             int limit = byte_array.length;
             int lenlen = 0;
             int len = ((((int) byte_array[3]) & 0xff) << 24) + ((((int) byte_array[2]) & 0xff) << 16) + ((((int) byte_array[1]) & 0xff) << 8) + (((int) byte_array[0]) & 0xff);
-            if ((limit == len)||(limit < 65536))
+            if ((limit == len)||(limit < 16384))
             {
-                // 応答は１つしか入っていない。もしくは受信データサイズが64kBの場合は、そのまま返す。
+                // 応答は１つしか入っていない。もしくは受信データサイズが16kBの場合は、そのまま返す。
                 return (receivedBuffer);
             }
             if ((int) byte_array[4] == 0x09)
@@ -761,4 +761,3 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
         }
     }
 }
-

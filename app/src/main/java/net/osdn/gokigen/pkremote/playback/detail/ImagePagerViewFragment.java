@@ -80,7 +80,7 @@ public class ImagePagerViewFragment extends Fragment
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		imageCache = new LruCache<>(7);
+		imageCache = new LruCache<>(5);
 		setHasOptionsMenu(true);
 	}
 
@@ -97,7 +97,7 @@ public class ImagePagerViewFragment extends Fragment
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
 	{
 		try
 		{
@@ -289,6 +289,16 @@ public class ImagePagerViewFragment extends Fragment
             runMode.changeRunMode(false);
         }
 
+		try
+        {
+            // 画像表示が開始することを通知する
+            playbackControl.showPictureStarted();
+        }
+		catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         viewPager.setCurrentItem(contentIndex);
 	}
 
@@ -304,6 +314,16 @@ public class ImagePagerViewFragment extends Fragment
             {
                 bar.hide();
             }
+        }
+
+        try
+        {
+            // 画像表示が終わったことを通知する
+            playbackControl.showPictureFinished();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
 
         if (!runMode.isRecordingMode())
