@@ -142,6 +142,7 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
             catch (Exception ex)
             {
                 ex.printStackTrace();
+                System.gc();
             }
             // 画像の縮小サイズを決定する (縦幅、横幅の小さいほうにあわせる)
             int widthBounds = opt.outWidth / BITMAP_MAX_PIXEL;

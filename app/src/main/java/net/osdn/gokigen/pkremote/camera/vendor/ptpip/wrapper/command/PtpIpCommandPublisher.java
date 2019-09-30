@@ -22,9 +22,9 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
 
     private static final int SEQUENCE_START_NUMBER = 1;
     private static final int BUFFER_SIZE = 1024 * 256 + 16;  // バッファは 256kB
-    private static final int COMMAND_SEND_RECEIVE_DURATION_MS = 30;
+    private static final int COMMAND_SEND_RECEIVE_DURATION_MS = 10;
     private static final int COMMAND_SEND_RECEIVE_DURATION_MAX = 1000;
-    private static final int COMMAND_POLL_QUEUE_MS = 30;
+    private static final int COMMAND_POLL_QUEUE_MS = 10;
 
     private final String ipAddress;
     private final int portNumber;
@@ -604,6 +604,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
         catch (Throwable e)
         {
             e.printStackTrace();
+            System.gc();
         }
         return (false);
     }
@@ -626,6 +627,11 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
                 lenlen = ((((int) byte_array[15]) & 0xff) << 24) + ((((int) byte_array[14]) & 0xff) << 16) + ((((int) byte_array[13]) & 0xff) << 8) + (((int) byte_array[12]) & 0xff);
             }
             Log.v(TAG, " --- <<< RECEIVED LARGE BLOCK MESSAGE : " + len + " bytes. (" + byte_array.length + " bytes.)" + " lenlen : " + lenlen + " >>> --- ");
+            if (lenlen == 0)
+            {
+                // データとしては変なので、なにもしない
+                return (receivedBuffer);
+            }
             ByteArrayOutputStream outputStream =  new ByteArrayOutputStream();
             //outputStream.write(byte_array, 0, 20);  //
             int position = 20;  // ヘッダ込の先頭
@@ -638,9 +644,10 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             }
             return (outputStream);
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             e.printStackTrace();
+            System.gc();
         }
         return (receivedBuffer);
     }
