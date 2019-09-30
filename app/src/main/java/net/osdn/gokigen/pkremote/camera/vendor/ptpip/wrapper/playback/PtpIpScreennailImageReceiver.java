@@ -15,6 +15,9 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.sp
 public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
 {
     private static final String TAG = PtpIpScreennailImageReceiver.class.getSimpleName();
+
+    private static final int BITMAP_MAX_PIXEL = 1024;  // 小さい方のサイズ
+
     private final Activity activity;
     private final IDownloadThumbnailImageCallback callback;
     private final IPtpIpCommandPublisher publisher;
@@ -127,7 +130,27 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
         try
         {
             Log.v(TAG, " getPartialObject(), id : " + objectId + " size: " + rx_body.length);
-            callback.onCompleted(BitmapFactory.decodeByteArray(rx_body, 0, rx_body.length), null);
+
+            BitmapFactory.Options opt = new BitmapFactory.Options();
+            try
+            {
+                // OutOfMemoryエラー対策...一度読み込んで画像サイズを取得
+                opt.inJustDecodeBounds = true;
+                //opt.inDither = true;
+                BitmapFactory.decodeByteArray(rx_body, 0, rx_body.length);
+            }
+            catch (Exception ex)
+            {
+                ex.printStackTrace();
+            }
+            // 画像の縮小サイズを決定する (縦幅、横幅の小さいほうにあわせる)
+            int widthBounds = opt.outWidth / BITMAP_MAX_PIXEL;
+            int heightBounds = opt.outHeight / BITMAP_MAX_PIXEL;
+            opt.inSampleSize = Math.min(widthBounds, heightBounds);
+            opt.inJustDecodeBounds = false;
+
+            // ビットマップをリサイズして返す
+            callback.onCompleted(BitmapFactory.decodeByteArray(rx_body, 0, rx_body.length, opt), null);
             //callback.onCompleted(BitmapFactory.decodeStream(new ByteArrayInputStream(rx_body)), null);
         }
         catch (Throwable t)
