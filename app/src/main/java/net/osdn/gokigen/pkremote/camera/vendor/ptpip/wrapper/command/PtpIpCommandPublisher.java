@@ -22,9 +22,9 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
 
     private static final int SEQUENCE_START_NUMBER = 1;
     private static final int BUFFER_SIZE = 1024 * 256 + 16;  // バッファは 256kB
-    private static final int COMMAND_SEND_RECEIVE_DURATION_MS = 10;
+    private static final int COMMAND_SEND_RECEIVE_DURATION_MS = 5;
     private static final int COMMAND_SEND_RECEIVE_DURATION_MAX = 1000;
-    private static final int COMMAND_POLL_QUEUE_MS = 10;
+    private static final int COMMAND_POLL_QUEUE_MS = 5;
 
     private final String ipAddress;
     private final int portNumber;

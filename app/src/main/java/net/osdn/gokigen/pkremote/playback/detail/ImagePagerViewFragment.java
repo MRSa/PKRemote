@@ -3,6 +3,8 @@ package net.osdn.gokigen.pkremote.playback.detail;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -461,6 +463,22 @@ public class ImagePagerViewFragment extends Fragment
                         @Override
                         public void run()
                         {
+                            try
+                            {
+                                BitmapDrawable draw = ((BitmapDrawable)view.getDrawable());
+                                if (draw != null)
+                                {
+                                    Bitmap bmp =  draw.getBitmap();
+                                    if (bmp != null)
+                                    {
+                                        bmp.recycle();
+                                    }
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                e.printStackTrace();
+                            }
                             view.setImageBitmap(bitmap);
                         }
                     });
@@ -496,6 +514,22 @@ public class ImagePagerViewFragment extends Fragment
                         public void run() {
                             if ((bitmap != null) && (view != null) && (viewPager.indexOfChild(view) > -1))
                             {
+                                try
+                                {
+                                    BitmapDrawable draw = ((BitmapDrawable)view.getDrawable());
+                                    if (draw != null)
+                                    {
+                                        Bitmap bmp =  draw.getBitmap();
+                                        if (bmp != null)
+                                        {
+                                            bmp.recycle();
+                                        }
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    e.printStackTrace();
+                                }
                                 view.setImageBitmap(bitmap);
                             }
                         }
