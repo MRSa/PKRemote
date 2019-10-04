@@ -52,7 +52,7 @@ public class PtpIpThumbnailImageReceiver implements IPtpIpCommandCallback
                 }
                 offset--;
             }
-            byte[] thumbnail = Arrays.copyOfRange(rx_body, offset, rx_body.length - 22);
+            byte[] thumbnail = Arrays.copyOfRange(rx_body, offset, rx_body.length);
             //binaryOutputToFile(context, id + "_", thumbnail);
             callback.onCompleted(BitmapFactory.decodeByteArray(thumbnail, 0, thumbnail.length), null);
         }
