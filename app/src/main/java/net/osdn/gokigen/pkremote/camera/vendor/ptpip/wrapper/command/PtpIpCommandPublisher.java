@@ -21,7 +21,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
     private static final String TAG = PtpIpCommandPublisher.class.getSimpleName();
 
     private static final int SEQUENCE_START_NUMBER = 1;
-    private static final int BUFFER_SIZE = 1024 * 256 + 16;  // バッファは 256kB
+    private static final int BUFFER_SIZE = 1024 * 256 + 16;  // 受信バッファは 256kB
     private static final int COMMAND_SEND_RECEIVE_DURATION_MS = 5;
     private static final int COMMAND_SEND_RECEIVE_DURATION_MAX = 1000;
     private static final int COMMAND_POLL_QUEUE_MS = 5;
@@ -213,7 +213,6 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
                 isHold = true;
                 holdId = command.getHoldId();
             }
-
             //Log.v(TAG, "Enqueue : "  + command.getId());
             return (commandQueue.offer(command));
         }
@@ -536,7 +535,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             }
             byte[] receive_body = Arrays.copyOfRange(byte_array, 0, (position < 1) ? 1 : position);
             Log.v(TAG, " RECEIVED : [" + position + "]");
-            receivedMessage(isDumpReceiveLog, id, receive_body, callback);
+            receivedAllMessage(isDumpReceiveLog, id, receive_body, callback);
         }
         catch (Throwable e)
         {
@@ -551,6 +550,18 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
      */
     private boolean receive_from_camera(@NonNull IPtpIpCommand command)
     {
+        IPtpIpCommandCallback callback = command.responseCallback();
+        if ((callback != null)&&(callback.isReceiveMulti()))
+        {
+            // 受信したら逐次「受信したよ」と応答するパターン
+            return (receive_multi(command));
+        }
+        //  受信した後、すべてをまとめて「受信したよ」と応答するパターン
+        return (receive_single(command));
+    }
+
+    private boolean receive_single(@NonNull IPtpIpCommand command)
+    {
         boolean isDumpReceiveLog = command.dumpLog();
         int id = command.getId();
         IPtpIpCommandCallback callback = command.responseCallback();
@@ -562,7 +573,6 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
 
         try
         {
-           // boolean isFirstTime = true;
             int receive_message_buffer_size = BUFFER_SIZE;
             byte[] byte_array = new byte[receive_message_buffer_size];
             InputStream is = socket.getInputStream();
@@ -595,10 +605,8 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
                 sleep(delayMs);
                 read_bytes = is.available();
             }
-
-            // 積みなおしたByteArrayOutputStreamを取得する
             ByteArrayOutputStream outputStream = cutHeader(byteStream);
-            receivedMessage(isDumpReceiveLog, id, outputStream.toByteArray(), callback);
+            receivedAllMessage(isDumpReceiveLog, id, outputStream.toByteArray(), callback);
             System.gc();
         }
         catch (Throwable e)
@@ -607,6 +615,139 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             System.gc();
         }
         return (false);
+    }
+
+    private void receivedAllMessage(boolean isDumpReceiveLog, int id, byte[] body, IPtpIpCommandCallback callback)
+    {
+        if (isDumpReceiveLog)
+        {
+            // ログに受信メッセージを出力する
+            Log.v(TAG, "receive_from_camera() : " + body.length + " bytes.");
+            dump_bytes("RECV[" + body.length + "] ", body);
+        }
+        if (callback != null)
+        {
+            callback.receivedMessage(id, body);
+        }
+    }
+
+    private boolean receive_multi(@NonNull IPtpIpCommand command)
+    {
+        boolean isDumpReceiveLog = command.dumpLog();
+        int id = command.getId();
+        IPtpIpCommandCallback callback = command.responseCallback();
+        int delayMs = command.receiveDelayMs();
+        if ((delayMs < 0)||(delayMs > COMMAND_SEND_RECEIVE_DURATION_MAX))
+        {
+            delayMs = COMMAND_SEND_RECEIVE_DURATION_MS;
+        }
+
+        try
+        {
+            int receive_message_buffer_size = BUFFER_SIZE;
+            byte[] byte_array = new byte[receive_message_buffer_size];
+            InputStream is = socket.getInputStream();
+            if (is == null)
+            {
+                Log.v(TAG, " InputStream is NULL... RECEIVE ABORTED.");
+                return (false);
+            }
+
+            // 初回データが受信バッファにデータが溜まるまで待つ...
+            int received_length = 0;
+            int read_bytes = waitForReceive(is, delayMs);
+            if (read_bytes < 0)
+            {
+                // リトライオーバー...
+                Log.v(TAG, " RECEIVE : RETRY OVER...");
+                return (true);
+            }
+            // 受信したデータをバッファに突っ込む
+            //ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+
+            // 初回データの読み込み
+            read_bytes = is.read(byte_array, 0, receive_message_buffer_size);
+            int target_length = parseDataLength(byte_array, read_bytes);
+            received_length = read_bytes;
+
+            //  一時的な処理
+            if (callback != null)
+            {
+                callback.onReceiveProgress(received_length, target_length, byte_array);
+            }
+
+            sleep(delayMs);
+            read_bytes = is.available();
+            while (read_bytes > 0)
+            {
+                read_bytes = is.read(byte_array, 0, receive_message_buffer_size);
+                if (read_bytes <= 0)
+                {
+                    Log.v(TAG, " RECEIVED MESSAGE FINISHED (" + read_bytes + ")");
+                    break;
+                }
+                received_length = received_length + read_bytes;
+
+                //  一時的な処理
+                if (callback != null)
+                {
+                    callback.onReceiveProgress(received_length, target_length, Arrays.copyOfRange(byte_array, 0, read_bytes));
+                }
+
+                //byteStream.write(byte_array, 0, read_bytes);
+                sleep(delayMs);
+                read_bytes = is.available();
+            }
+            //ByteArrayOutputStream outputStream = cutHeader(byteStream);
+            //receivedMessage(isDumpReceiveLog, id, outputStream.toByteArray(), callback);
+
+            //  終了報告...一時的？
+            if (callback != null)
+            {
+                callback.receivedMessage(id, null);
+            }
+            System.gc();
+        }
+        catch (Throwable e)
+        {
+            e.printStackTrace();
+            System.gc();
+        }
+        return (false);
+    }
+
+    private void receivedMessage(boolean isDumpReceivedLog, int currentBytes, int totalBytes, byte[] body, IPtpIpCommandCallback callback)
+    {
+        if (isDumpReceivedLog)
+        {
+            // ログに受信メッセージを出力する
+            Log.v(TAG, "receive_from_camera() : " + body.length + " bytes.");
+            dump_bytes("RECV[" + body.length + "] ", body);
+        }
+        if (callback != null)
+        {
+            callback.onReceiveProgress(currentBytes, totalBytes, body);
+        }
+    }
+
+
+
+    private int parseDataLength(byte[] byte_array, int read_bytes)
+    {
+        int lenlen = 0;
+        try
+        {
+            if ((read_bytes > 20)&&((int) byte_array[4] == 0x09))
+            {
+                lenlen = ((((int) byte_array[15]) & 0xff) << 24) + ((((int) byte_array[14]) & 0xff) << 16) + ((((int) byte_array[13]) & 0xff) << 8) + (((int) byte_array[12]) & 0xff);
+            }
+            Log.v(TAG, " --- [[[ RECEIVED LARGE BLOCK MESSAGE : " + lenlen + " bytes. ]]] --- ");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (lenlen);
     }
 
     private ByteArrayOutputStream cutHeader(ByteArrayOutputStream receivedBuffer)
@@ -720,7 +861,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
 
     private int waitForReceive(InputStream is, int delayMs)
     {
-        int retry_count = 30;
+        int retry_count = 50;
         int read_bytes = 0;
         try
         {
@@ -744,27 +885,5 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             e.printStackTrace();
         }
         return (read_bytes);
-    }
-
-    private void receivedMessage(boolean isDumpReceiveLog, int id, byte[] body, IPtpIpCommandCallback callback)
-    {
-        if (isDumpReceiveLog)
-        {
-            // ログに受信メッセージを出力する
-            Log.v(TAG, "receive_from_camera() : " + body.length + " bytes.");
-            dump_bytes("RECV[" + body.length + "] ", body);
-        }
-        if (callback != null)
-        {
-            if (callback.isReceiveMulti())
-            {
-                callback.receivedMessage(id, null);
-            }
-            else
-            {
-                callback.receivedMessage(id, body);
-                //callback.receivedMessage(id, Arrays.copyOfRange(receive_body, 0, receive_body.length));
-            }
-        }
     }
 }

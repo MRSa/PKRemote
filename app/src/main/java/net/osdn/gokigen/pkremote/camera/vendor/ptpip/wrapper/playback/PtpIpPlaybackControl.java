@@ -28,6 +28,8 @@ public class PtpIpPlaybackControl implements IPlaybackControl
     private final String TAG = toString();
     private final Activity activity;
     private final PtpIpInterfaceProvider provider;
+    private final PtpIpFullImageReceiver fullImageReceiver;
+    private final PtpIpSmallImageReceiver smallImageReciever;
     private String raw_suffix = "CR2";
     private CanonImageObjectReceiver canonImageObjectReceiver;
 
@@ -35,6 +37,8 @@ public class PtpIpPlaybackControl implements IPlaybackControl
     {
         this.activity = activity;
         this.provider = provider;
+        this.fullImageReceiver = new PtpIpFullImageReceiver(activity, provider.getCommandPublisher());
+        this.smallImageReciever = new PtpIpSmallImageReceiver(activity, provider.getCommandPublisher());
         canonImageObjectReceiver = new CanonImageObjectReceiver(provider);
 
         try
@@ -141,7 +145,6 @@ public class PtpIpPlaybackControl implements IPlaybackControl
     @Override
     public void downloadContent(String path, boolean isSmallSize, IDownloadContentCallback callback)
     {
-/*
         try
         {
             int start = 0;
@@ -149,21 +152,26 @@ public class PtpIpPlaybackControl implements IPlaybackControl
             {
                 start = 1;
             }
-            String indexStr = path.substring(start, path.indexOf("."));
-            Log.v(TAG, "FujiX::downloadContent() : " + path + " " + indexStr);
-            int index = Integer.parseInt(indexStr);
-            //PtpIpImageContentInfo contentInfo = imageContentInfo.get(index);   // 特にデータを更新しないから大丈夫か？
-            if ((index > 0)&&(index <= imageContentInfo.size()))
+            final String indexStr = path.substring(start);
+            PtpIpImageContentInfo content = canonImageObjectReceiver.getContentObject(indexStr);
+            if (content != null)
             {
-                IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
-                publisher.enqueueCommand(new GetFullImage(index, new PtpIpFullImageReceiver(callback)));
+                if (isSmallSize)
+                {
+                    // スモールサイズの画像取得コマンド（シーケンス）を発行する
+                    smallImageReciever.issueCommand(content.getId(), callback);
+                }
+                else
+                {
+                    // オリジナル画像の取得コマンド（シーケンス）を発行する
+                    fullImageReceiver.issueCommand(content.getId(), content.getOriginalSize(), callback);
+                }
             }
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             e.printStackTrace();
         }
-*/
     }
 
     @Override
@@ -196,7 +204,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl
     {
         try
         {
-            Log.v(TAG, "showPictureStarted() ");
+            Log.v(TAG, "   showPictureStarted() ");
 
             IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
             publisher.flushHoldQueue();
@@ -213,7 +221,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl
     {
         try
         {
-            Log.v(TAG, "showPictureFinished() ");
+            Log.v(TAG, "   showPictureFinished() ");
 
             IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
             publisher.flushHoldQueue();
@@ -224,66 +232,5 @@ public class PtpIpPlaybackControl implements IPlaybackControl
             e.printStackTrace();
         }
     }
-
-/*
-    @Override
-    public void onReceiveProgress(int currentBytes, int totalBytes, byte[] body)
-    {
-        Log.v(TAG, " " + currentBytes + "/" + totalBytes);
-    }
-
-    @Override
-    public boolean isReceiveMulti()
-    {
-        return (false);
-    }
-
-    @Override
-    public void receivedMessage(int id, byte[] rx_body)
-    {
-        // イメージ数の一覧が取得できなかった場合にここで作る。
-        if (rx_body.length < 16)
-        {
-            // インデックスデータがなくなったことを検出...データがそろったとして応答する。
-            //Log.v(TAG, "IMAGE LIST : " + imageContentInfo.size());
-            finishedCallback.onCompleted(getCameraContentList());
-            finishedCallback = null;
-            return;
-        }
-        try
-        {
-            Log.v(TAG, "RECEIVED IMAGE INFO : " + indexNumber);
-
-            // 受信データを保管しておく
-            imageContentInfo.append(indexNumber, new PtpIpImageContentInfo(indexNumber, rx_body));
-
-            // 次のインデックスの情報を要求する
-            indexNumber++;
-            IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
-            publisher.enqueueCommand(new GetImageInfo(indexNumber, indexNumber, this));
-        }
-        catch (Exception e)
-        {
-            // エラーになったら、そこで終了にする
-            e.printStackTrace();
-            finishedCallback.onCompleted(getCameraContentList());
-            finishedCallback = null;
-        }
-    }
-*/
-
-/*
-    private List<ICameraContent> getCameraContentList()
-    {
-        /// ダサいけど...コンテナクラスを詰め替えて応答する
-        List<ICameraContent> contentList = new ArrayList<>();
-        int listSize = imageContentInfo.size();
-        for(int index = 0; index < listSize; index++)
-        {
-            contentList.add(imageContentInfo.valueAt(index));
-        }
-        return (contentList);
-    }
-*/
 
 }

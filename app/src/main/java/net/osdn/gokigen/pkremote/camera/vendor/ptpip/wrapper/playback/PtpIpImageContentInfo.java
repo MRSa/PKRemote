@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 
-
 public class PtpIpImageContentInfo implements ICameraContent
 {
     private final String TAG = toString();
@@ -112,13 +111,27 @@ public class PtpIpImageContentInfo implements ICameraContent
         return (indexNumber);
     }
 
+    int getOriginalSize()
+    {
+        try
+        {
+            return((rx_body[0x14] & 0xff) + ((rx_body[0x15] & 0xff) << 8) +
+                    ((rx_body[0x16] & 0xff) << 16) + ((rx_body[0x17] & 0xff) << 24));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        // ちょっと大きめサイズを返す
+        return (0x02800000);
+    }
+
     int getStorageId()
     {
         try
         {
-            int storageId = (rx_body[4] & 0xff) + ((rx_body[5] & 0xff) << 8);
-            storageId = storageId + ((rx_body[6] & 0xff) << 16) + ((rx_body[7] & 0xff) << 24);
-            return (storageId);
+            return ((rx_body[4] & 0xff) + ((rx_body[5] & 0xff) << 8) +
+                     ((rx_body[6] & 0xff) << 16) + ((rx_body[7] & 0xff) << 24));
         }
         catch (Exception e)
         {
