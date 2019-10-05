@@ -1,7 +1,6 @@
 package net.osdn.gokigen.pkremote.playback.grid;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 
 import net.osdn.gokigen.pkremote.R;
