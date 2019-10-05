@@ -34,7 +34,7 @@ public class PtpIpCommandBase implements IPtpIpCommand, IPtpIpMessages
     @Override
     public int receiveDelayMs()
     {
-        return (100);
+        return (15);
     }
 
     @Override

@@ -117,6 +117,8 @@ public class ImageGridViewAdapter extends BaseAdapter implements AbsListView.OnS
         if (item == null)
         {
             viewHolder.getImageView().setImageResource(R.drawable.ic_satellite_grey_24dp);
+
+
             viewHolder.getIconView().setImageDrawable(null);
             viewHolder.getSelectView().setImageDrawable(null);
             return (convertView);

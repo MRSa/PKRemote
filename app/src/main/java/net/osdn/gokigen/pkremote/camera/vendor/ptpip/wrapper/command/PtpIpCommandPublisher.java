@@ -622,7 +622,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
         if (isDumpReceiveLog)
         {
             // ログに受信メッセージを出力する
-            Log.v(TAG, "receive_from_camera() : " + body.length + " bytes.");
+            Log.v(TAG, "receivedAllMessage() : " + body.length + " bytes.");
             dump_bytes("RECV[" + body.length + "] ", body);
         }
         if (callback != null)
@@ -721,7 +721,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
         if (isDumpReceivedLog)
         {
             // ログに受信メッセージを出力する
-            Log.v(TAG, "receive_from_camera() : " + body.length + " bytes.");
+            Log.v(TAG, "receivedMessage() : " + body.length + " bytes.");
             dump_bytes("RECV[" + body.length + "] ", body);
         }
         if (callback != null)

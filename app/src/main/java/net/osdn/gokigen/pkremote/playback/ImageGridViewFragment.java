@@ -109,7 +109,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 		super.onCreate(savedInstanceState);
         Log.v(TAG, "ImageGridViewFragment::onCreate()");
 
-        imageCache = new LruCache<>(200);
+        imageCache = new LruCache<>(120);
 		executor = Executors.newFixedThreadPool(1);
 		setHasOptionsMenu(true);
 	}

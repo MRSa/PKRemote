@@ -21,17 +21,19 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
 
     private final Activity activity;
     private final IPtpIpCommandPublisher publisher;
-
+    private final IPtpIpCommandCallback mine;
     private IDownloadContentCallback callback = null;
     private int objectId = 0;
+    private boolean isReceiveMulti = false;
 
     PtpIpSmallImageReceiver(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher publisher)
     {
         this.activity = activity;
         this.publisher = publisher;
+        this.mine = this;
     }
 
-    void issueCommand(int objectId, IDownloadContentCallback callback)
+    void issueCommand(final int objectId, IDownloadContentCallback callback)
     {
         if (this.objectId != 0)
         {
@@ -41,7 +43,23 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
         }
         this.callback = callback;
         this.objectId = objectId;
-        publisher.enqueueCommand(new CanonRequestInnerDevelopStart(this, objectId, true, objectId, objectId));   // 0x9141 : RequestInnerDevelopStart
+        publisher.enqueueCommand(new CanonRequestInnerDevelopStart(new IPtpIpCommandCallback() {
+            @Override
+            public void receivedMessage(int id, byte[] rx_body) {
+                Log.v(TAG, " getRequestStatusEvent  : " + objectId + " " + ((rx_body != null) ? rx_body.length : 0));
+                publisher.enqueueCommand(new PtpIpCommandGeneric(mine,  (objectId + 5), true, objectId, 0x9116));
+            }
+
+            @Override
+            public void onReceiveProgress(int currentBytes, int totalBytes, byte[] rx_body) {
+
+            }
+
+            @Override
+            public boolean isReceiveMulti() {
+                return (false);
+            }
+        }, objectId, true, objectId, objectId));   // 0x9141 : RequestInnerDevelopStart
     }
 
     @Override
@@ -57,21 +75,21 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
             {
                 Log.v(TAG, "  receivedMessage() : " + id + " NULL.");
             }
-            if (id == objectId)
+            if (id == objectId + 1)
             {
-                getRequestStatusEvent(rx_body);
-            }
-            else if (id == objectId + 1)
-            {
-                getPartialObject(rx_body);
+                sendTransferComplete(rx_body);
             }
             else if (id == objectId + 2)
             {
-                requestInnerDevelopEnd();
+                Log.v(TAG, " requestInnerDevelopEnd() : " + objectId);
+                publisher.enqueueCommand(new CanonRequestInnerDevelopEnd(this, (objectId + 3), true, objectId));  // 0x9143 : RequestInnerDevelopEnd
             }
             else if (id == objectId + 3)
             {
-                finishedGetSmallImage();
+                Log.v(TAG, "  --- SMALL IMAGE RECV FINISHED. : " + objectId + " --- ");
+
+                // リセットコマンドを送ってみる
+                publisher.enqueueCommand(new PtpIpCommandGeneric(this, (objectId + 4), false, objectId, 0x902f));
             }
             else if (id == objectId + 4)
             {
@@ -127,12 +145,13 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
     @Override
     public boolean isReceiveMulti()
     {
-        return (true);
+        return (isReceiveMulti);
     }
 
     private void requestGetPartialObject(@Nullable byte[] rx_body)
     {
         Log.v(TAG, " requestGetPartialObject() : " + objectId);
+        isReceiveMulti = true;
 
         // 0x9107 : GetPartialObject  (元は 0x00020000)
         int pictureLength;
@@ -151,33 +170,10 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
         publisher.enqueueCommand(new PtpIpCommandGeneric(this, (objectId + 1), true, objectId, 0x9107, 12, 0x01, 0x00, pictureLength));
     }
 
-    private void getRequestStatusEvent(byte[] rx_body)
+    private void sendTransferComplete(byte[] rx_body)
     {
-        Log.v(TAG, " getRequestStatusEvent  : " + objectId + " " + ((rx_body != null) ? rx_body.length : 0));
-        publisher.enqueueCommand(new PtpIpCommandGeneric(this,  (objectId + 5), true, objectId, 0x9116));
-    }
-
-    private void getPartialObject(byte[] rx_body)
-    {
-        Log.v(TAG, " getPartialObject(), id : " + objectId + " size: " + ((rx_body != null) ? rx_body.length : 0));
+        Log.v(TAG, " sendTransferComplete(), id : " + objectId + " size: " + ((rx_body != null) ? rx_body.length : 0));
         publisher.enqueueCommand(new PtpIpCommandGeneric(this,  (objectId + 2), true, objectId, 0x9117, 4,0x01));  // 0x9117 : TransferComplete
-
-        // ファイルにバイナリデータをダンプする
-        // binaryOutputToFile(activity, objectId + "_", rx_body);
+        isReceiveMulti = false;
     }
-
-    private void requestInnerDevelopEnd()
-    {
-        Log.v(TAG, " requestInnerDevelopEnd() : " + objectId);
-        publisher.enqueueCommand(new CanonRequestInnerDevelopEnd(this, (objectId + 3), true, objectId));  // 0x9143 : RequestInnerDevelopEnd
-    }
-
-    private void finishedGetSmallImage()
-    {
-        Log.v(TAG, "  --- SMALL IMAGE RECV FINISHED. : " + objectId + " --- ");
-
-        // リセットコマンドを送ってみる
-        publisher.enqueueCommand(new PtpIpCommandGeneric(this, (objectId + 4), false, objectId, 0x902f));
-    }
-
 }

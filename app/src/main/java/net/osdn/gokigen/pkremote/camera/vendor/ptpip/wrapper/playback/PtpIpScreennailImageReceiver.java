@@ -10,6 +10,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailIm
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonGetPartialObject;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopEnd;
 
 public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
@@ -116,7 +117,7 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
         {
             pictureLength = 0x02000;
         }
-        publisher.enqueueCommand(new PtpIpCommandGeneric(this, (objectId + 1), true, objectId, 0x9107, 12, 0x01, 0x00, pictureLength));
+        publisher.enqueueCommand(new CanonGetPartialObject(this, (objectId + 1), true, objectId, 0, pictureLength));
     }
 
     private void getRequestStatusEvent(byte[] rx_body)
@@ -135,13 +136,15 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
             try
             {
                 // OutOfMemoryエラー対策...一度読み込んで画像サイズを取得
+                //System.gc();
                 opt.inJustDecodeBounds = true;
                 //opt.inDither = true;
                 BitmapFactory.decodeByteArray(rx_body, 0, rx_body.length);
             }
-            catch (Exception ex)
+            catch (Throwable ex)
             {
                 ex.printStackTrace();
+                Log.v(TAG, " LENGTH : " + ((rx_body != null) ? rx_body.length : 0));
                 System.gc();
             }
             // 画像の縮小サイズを決定する (縦幅、横幅の小さいほうにあわせる)
@@ -157,6 +160,7 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
         catch (Throwable t)
         {
             t.printStackTrace();
+            Log.v(TAG, " LENGTH : " + ((rx_body != null) ? rx_body.length : 0));
             System.gc();
         }
         publisher.enqueueCommand(new PtpIpCommandGeneric(this,  (objectId + 2), true, objectId, 0x9117, 4,0x01));  // 0x9117 : TransferComplete
