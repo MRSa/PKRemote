@@ -14,6 +14,8 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.Pt
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopEnd;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopStart;
 
+import java.io.ByteArrayOutputStream;
+
 
 public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
 {
@@ -25,6 +27,9 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
     private IDownloadContentCallback callback = null;
     private int objectId = 0;
     private boolean isReceiveMulti = false;
+
+    private int received_total_bytes = 0;
+    private int received_remain_bytes = 0;
 
     PtpIpSmallImageReceiver(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher publisher)
     {
@@ -98,6 +103,8 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
                 callback.onCompleted();
                 this.objectId = 0;
                 this.callback = null;
+                this.received_total_bytes = 0;
+                this.received_remain_bytes = 0;
                 System.gc();
             }
             else if (id == objectId + 5)
@@ -122,9 +129,10 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
     @Override
     public void onReceiveProgress(final int currentBytes, final int totalBytes, byte[] rx_body)
     {
-        int length = (rx_body == null) ? 0 : rx_body.length;
+        byte[] body = cutHeader(rx_body);
+        int length = (body == null) ? 0 : body.length;
         Log.v(TAG, " onReceiveProgress() " + currentBytes + "/" + totalBytes + " (" + length + " bytes.)");
-        callback.onProgress(rx_body, length, new IProgressEvent() {
+        callback.onProgress(body, length, new IProgressEvent() {
             @Override
             public float getProgress() {
                 return ((float) currentBytes / (float) totalBytes);
@@ -140,6 +148,74 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
 
             }
         });
+    }
+
+    private byte[] cutHeader(byte[] rx_body)
+    {
+        if (rx_body == null)
+        {
+            return (null);
+        }
+        int length = rx_body.length;
+        int data_position = 0;
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        if (received_total_bytes == 0)
+        {
+            // データを最初に読んだとき。ヘッダ部分を読み飛ばす
+            data_position = (int) rx_body[0] & (0xff);
+        }
+        else if (received_remain_bytes > 0)
+        {
+            // データの読み込みが途中だった場合...
+            if (length < received_remain_bytes)
+            {
+                // 全部コピーする、足りないバイト数は残す
+                received_remain_bytes = received_remain_bytes - length;
+                received_total_bytes = received_total_bytes + rx_body.length;
+                return (rx_body);
+            }
+            else
+            {
+                byteStream.write(rx_body, data_position, received_remain_bytes);
+                received_remain_bytes = 0;
+                data_position = received_remain_bytes;
+            }
+        }
+
+        while (data_position < (length - 12))
+        {
+            int body_size =  (rx_body[data_position] & 0xff) + ((rx_body[data_position + 1]  & 0xff) << 8) +
+                            ((rx_body[data_position + 2] & 0xff) << 16) + ((rx_body[data_position + 3] & 0xff) << 24);
+            if (body_size <= 12)
+            {
+                Log.v(TAG, "  BODY SIZE IS SMALL : " + data_position + " ");
+                break;
+            }
+            if ((data_position + body_size) > length)
+            {
+                // データがすべてバッファ内になかったときは、バッファすべてコピーして残ったサイズを記憶しておく。
+                int copysize = (length - ((data_position + 12)));
+                byteStream.write(rx_body, (data_position + 12), copysize);
+                received_remain_bytes = body_size - copysize;
+                received_total_bytes = received_total_bytes + copysize;
+                Log.v(TAG, " --- copy : " + (data_position + 12) + " " + copysize + " remain : " + received_remain_bytes);
+                break;
+            }
+            try
+            {
+                byteStream.write(rx_body, (data_position + 12), (body_size - 12));
+                data_position = data_position + body_size;
+                received_total_bytes = received_total_bytes + 12;
+                Log.v(TAG, " --- COPY : " + (data_position + 12) + " " + (body_size - 12) + " remain : " + received_remain_bytes);
+
+            }
+            catch (Exception e)
+            {
+                Log.v(TAG, "  pos : " + data_position + "  size : " + body_size + " length : " + length);
+                e.printStackTrace();
+            }
+        }
+        return (byteStream.toByteArray());
     }
 
     @Override
