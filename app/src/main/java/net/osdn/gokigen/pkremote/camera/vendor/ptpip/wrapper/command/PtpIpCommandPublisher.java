@@ -673,7 +673,8 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             //  一時的な処理
             if (callback != null)
             {
-                callback.onReceiveProgress(received_length, target_length, byte_array);
+                //Log.v(TAG, "  --- CALL : read_bytes : "+ received_length + " : total_length : " + target_length + "  buffer SIZE : " + byte_array.length);
+                callback.onReceiveProgress(received_length, target_length, Arrays.copyOfRange(byte_array, 0, read_bytes));
             }
 
             sleep(delayMs);
@@ -691,6 +692,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
                 //  一時的な処理
                 if (callback != null)
                 {
+                    //Log.v(TAG, "  --- CALL : read_bytes : "+ read_bytes + " total_read : " + received_length + " : total_length : " + target_length + "  buffer SIZE : " + byte_array.length);
                     callback.onReceiveProgress(received_length, target_length, Arrays.copyOfRange(byte_array, 0, read_bytes));
                 }
 
@@ -729,8 +731,6 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             callback.onReceiveProgress(currentBytes, totalBytes, body);
         }
     }
-
-
 
     private int parseDataLength(byte[] byte_array, int read_bytes)
     {

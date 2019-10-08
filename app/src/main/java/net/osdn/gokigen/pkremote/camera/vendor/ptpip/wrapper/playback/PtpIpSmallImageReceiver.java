@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IProgressEvent;
+import net.osdn.gokigen.pkremote.camera.utils.SimpleLogDumper;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
@@ -15,6 +16,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.sp
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopStart;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 
 public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
@@ -166,6 +168,10 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
         }
         else if (received_remain_bytes > 0)
         {
+
+            Log.v(TAG, "  >>> [ remain_bytes : " + received_remain_bytes + "] ( length : " + length + ") " + data_position);
+            SimpleLogDumper.dump_bytes("[zzz]", Arrays.copyOfRange(rx_body, data_position, (data_position + 160)));
+
             // データの読み込みが途中だった場合...
             if (length < received_remain_bytes)
             {
@@ -177,28 +183,37 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
             else
             {
                 byteStream.write(rx_body, data_position, received_remain_bytes);
-                received_remain_bytes = 0;
                 data_position = received_remain_bytes;
+                received_remain_bytes = 0;
             }
         }
 
-        while (data_position < (length - 12))
+        while (data_position <= (length - 12))
         {
             int body_size =  (rx_body[data_position] & 0xff) + ((rx_body[data_position + 1]  & 0xff) << 8) +
                             ((rx_body[data_position + 2] & 0xff) << 16) + ((rx_body[data_position + 3] & 0xff) << 24);
             if (body_size <= 12)
             {
-                Log.v(TAG, "  BODY SIZE IS SMALL : " + data_position + " ");
+                Log.v(TAG, "  BODY SIZE IS SMALL : " + data_position + " (" + body_size + ") [" + received_remain_bytes + "] " + rx_body.length + "  ");
+
+                int startpos = (data_position > 48) ? (data_position - 48) : 0;
+                SimpleLogDumper.dump_bytes("[xxx]", Arrays.copyOfRange(rx_body, startpos, (data_position + 48)));
+
                 break;
             }
+
+            Log.v(TAG, " RX DATA : " + data_position + " (" + body_size + ") [" + received_remain_bytes + "] (" + received_total_bytes + ")");
+            SimpleLogDumper.dump_bytes("[yyy] " + data_position + ": ", Arrays.copyOfRange(rx_body, data_position, (data_position + 64)));
+
+
             if ((data_position + body_size) > length)
             {
                 // データがすべてバッファ内になかったときは、バッファすべてコピーして残ったサイズを記憶しておく。
                 int copysize = (length - ((data_position + 12)));
                 byteStream.write(rx_body, (data_position + 12), copysize);
-                received_remain_bytes = body_size - copysize;
+                received_remain_bytes = body_size - copysize - 12;  // マイナス12は、ヘッダ分
                 received_total_bytes = received_total_bytes + copysize;
-                Log.v(TAG, " --- copy : " + (data_position + 12) + " " + copysize + " remain : " + received_remain_bytes);
+                Log.v(TAG, " --- copy : " + (data_position + 12) + " " + copysize + " remain : " + received_remain_bytes + "  body size : " + body_size);
                 break;
             }
             try
