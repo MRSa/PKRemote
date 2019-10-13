@@ -1,26 +1,26 @@
 package net.osdn.gokigen.pkremote.preference.canon;
 
-        import android.content.Context;
-        import android.content.SharedPreferences;
-        import android.os.Bundle;
-        import android.util.Log;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.util.Log;
 
-        import java.util.Map;
+import java.util.Map;
 
-        import androidx.annotation.NonNull;
-        import androidx.appcompat.app.AppCompatActivity;
-        import androidx.fragment.app.FragmentActivity;
-        import androidx.preference.CheckBoxPreference;
-        import androidx.preference.ListPreference;
-        import androidx.preference.Preference;
-        import androidx.preference.PreferenceFragmentCompat;
-        import androidx.preference.PreferenceManager;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
-        import net.osdn.gokigen.pkremote.R;
-        import net.osdn.gokigen.pkremote.camera.vendor.ptpip.operation.PtpIpCameraPowerOff;
-        import net.osdn.gokigen.pkremote.logcat.LogCatViewer;
-        import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
-        import net.osdn.gokigen.pkremote.scene.IChangeScene;
+import net.osdn.gokigen.pkremote.R;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.operation.PtpIpCameraPowerOff;
+import net.osdn.gokigen.pkremote.logcat.LogCatViewer;
+import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
+import net.osdn.gokigen.pkremote.scene.IChangeScene;
 
 /**
  *
@@ -120,6 +120,9 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
             if (!items.containsKey(IPreferencePropertyAccessor.CANON_RAW_SUFFIX)) {
                 editor.putString(IPreferencePropertyAccessor.CANON_RAW_SUFFIX, IPreferencePropertyAccessor.CANON_RAW_SUFFIX_DEFAULT_VALUE);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL)) {
+                editor.putBoolean(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL, false);
+            }
             editor.apply();
         }
         catch (Exception e)
@@ -148,6 +151,11 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
 
                 case IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW:
                     value = preferences.getBoolean(key, true);
+                    Log.v(TAG, " " + key + " , " + value);
+                    break;
+
+                case IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL:
+                    value = preferences.getBoolean(key, false);
                     Log.v(TAG, " " + key + " , " + value);
                     break;
 
@@ -200,7 +208,6 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
     {
         super.onResume();
         Log.v(TAG, "onResume() Start");
-
         try
         {
             synchronizedProperty();
@@ -209,9 +216,7 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
         {
             e.printStackTrace();
         }
-
         Log.v(TAG, "onResume() End");
-
     }
 
     /**
@@ -303,6 +308,7 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
                         // Preferenceの画面に反映させる
                         setBooleanPreference(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, true);
                         setBooleanPreference(IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW, IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW, true);
+                        setBooleanPreference(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL, IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL, false);
                     }
                     catch (Exception e)
                     {
@@ -312,5 +318,4 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
             });
         }
     }
-
 }

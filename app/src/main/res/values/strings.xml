@@ -305,4 +305,6 @@
     <string name="canon_connect_connecting4">Connecting&#8230;(4/5)</string>
     <string name="canon_connect_connecting5">Connecting&#8230;(5/5)</string>
 
+    <string name="pref_canon_get_screennail_as_small_picture">Use small image as screen nail</string>
+    <string name="pref_summary_canon_get_screennail_as_small_picture">Use small size image as </string>
 </resources>

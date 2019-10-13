@@ -9,6 +9,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentCall
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IProgressEvent;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandCanonGetPartialObject;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
 
 import java.io.ByteArrayOutputStream;
@@ -21,6 +22,7 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
     private final IPtpIpCommandPublisher publisher;
     private IDownloadContentCallback callback = null;
 
+    private boolean isReceiveMulti = true;
     private int objectId = 0;
 
     private int received_total_bytes = 0;
@@ -45,9 +47,10 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
         this.callback = callback;
         this.objectId = objectId;
         this.target_image_size = imageSize;
+        this.isReceiveMulti = true;
 
         Log.v(TAG, " getPartialObject (id : " + objectId + ", size:" + imageSize + ")");
-        publisher.enqueueCommand(new PtpIpCommandGeneric(this, (objectId + 1), false, objectId, 0x9107, 12, objectId, 0x00, imageSize)); // 0x9107 : GetPartialObject
+        publisher.enqueueCommand(new PtpIpCommandCanonGetPartialObject(this, (objectId + 1), false, objectId, objectId, 0x00, imageSize, imageSize)); // 0x9107 : GetPartialObject
     }
 
     @Override
@@ -189,7 +192,7 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
     @Override
     public boolean isReceiveMulti()
     {
-        return (true);
+        return (isReceiveMulti);
     }
 
     private void getPartialObjectFinished()
@@ -198,6 +201,7 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
         {
             //   すべてのデータを受信した後に...終わりを送信する
             Log.v(TAG, " getPartialObjectFinished(), id : " + objectId + " (size : " + target_image_size + ")");
+            isReceiveMulti = false;
             publisher.enqueueCommand(new PtpIpCommandGeneric(this,  (objectId + 2), false, objectId, 0x9117, 4,0x01));  // 0x9117 : TransferComplete
         }
         catch (Throwable t)

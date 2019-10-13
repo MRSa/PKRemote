@@ -56,6 +56,12 @@ public class PtpIpCommandBase implements IPtpIpCommand, IPtpIpMessages
     }
 
     @Override
+    public int estimatedReceiveDataSize()
+    {
+        return (-1);
+    }
+
+    @Override
     public byte[] commandBody()
     {
         return (new byte[12]);

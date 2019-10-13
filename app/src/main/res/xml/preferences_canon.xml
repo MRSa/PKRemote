@@ -20,6 +20,10 @@
     <PreferenceCategory
         android:title="@string/pref_cat_camera">
 
+        <CheckBoxPreference
+            android:key="canon_get_screennail_as_small_picture"
+            android:title="@string/pref_canon_get_screennail_as_small_picture"
+            android:summary="@string/pref_summary_canon_get_screennail_as_small_picture" />
 
         <EditTextPreference
             android:key="canon_raw_suffix"

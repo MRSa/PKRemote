@@ -12,6 +12,7 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
     private final int bodySize;
     private final int id;
     private final int holdId;
+    private final int estimatedObjectSize;
 
     private final byte opCode0;
     private final byte opCode1;
@@ -41,6 +42,7 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         this.callback = callback;
         this.bodySize = 0;
         this.isDumpLog = isDumpLog;
+        this.estimatedObjectSize = -1;
 
         this.id = id;
         this.holdId = holdId;
@@ -73,6 +75,7 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         this.callback = callback;
         this.bodySize = bodySize;
         this.isDumpLog = isDumpLog;
+        this.estimatedObjectSize = -1;
 
         this.id = id;
         this.holdId = holdId;
@@ -105,6 +108,7 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         this.callback = callback;
         this.bodySize = bodySize;
         this.isDumpLog = isDumpLog;
+        this.estimatedObjectSize = -1;
 
         this.id = id;
         this.holdId = holdId;
@@ -137,6 +141,7 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         this.callback = callback;
         this.bodySize = bodySize;
         this.isDumpLog = isDumpLog;
+        this.estimatedObjectSize = -1;
 
         this.id = id;
         this.holdId = holdId;
@@ -170,6 +175,7 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         this.callback = callback;
         this.bodySize = bodySize;
         this.isDumpLog = isDumpLog;
+        this.estimatedObjectSize = -1;
 
         this.id = id;
         this.holdId = holdId;
@@ -207,6 +213,12 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
     public int getId()
     {
         return (id);
+    }
+
+    @Override
+    public int estimatedReceiveDataSize()
+    {
+        return (estimatedObjectSize);
     }
 
     @Override

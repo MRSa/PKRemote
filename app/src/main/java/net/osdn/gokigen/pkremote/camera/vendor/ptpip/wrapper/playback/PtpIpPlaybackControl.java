@@ -31,6 +31,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl
     private final PtpIpFullImageReceiver fullImageReceiver;
     private final PtpIpSmallImageReceiver smallImageReciever;
     private String raw_suffix = "CR2";
+    private boolean use_screennail_image = false;
     private CanonImageObjectReceiver canonImageObjectReceiver;
 
     public PtpIpPlaybackControl(Activity activity, PtpIpInterfaceProvider provider)
@@ -45,6 +46,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl
         {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
             raw_suffix = preferences.getString(IPreferencePropertyAccessor.CANON_RAW_SUFFIX, IPreferencePropertyAccessor.CANON_RAW_SUFFIX_DEFAULT_VALUE);
+            use_screennail_image = preferences.getBoolean(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL, false);
         }
         catch (Exception e)
         {
@@ -82,8 +84,12 @@ public class PtpIpPlaybackControl implements IPlaybackControl
     {
         Log.v(TAG, " downloadContentScreennail() " + path);
 
-        // Thumbnail と同じ画像を表示する
-        //downloadContentThumbnail(path, callback);
+        if (!use_screennail_image)
+        {
+            // Thumbnail と同じ画像を表示する
+            downloadContentThumbnail(path, callback);
+            return;
+        }
 
         try
         {

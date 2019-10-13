@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
@@ -13,7 +14,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.Pt
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonGetPartialObject;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopEnd;
 
-public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
+public class PtpIpScreennailImageReceiver implements IPtpIpCommandCallback
 {
     private static final String TAG = PtpIpScreennailImageReceiver.class.getSimpleName();
 
@@ -31,7 +32,6 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
         this.publisher = publisher;
         this.objectId = objectId;
         Log.v(TAG, "PtpIpScreennailImageReceiver CREATED : " + objectId);
-
     }
 
     @Override
@@ -39,6 +39,7 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
     {
         try
         {
+            /*
             if (rx_body != null)
             {
                 Log.v(TAG, "  receivedMessage() : " + id +  " " + rx_body.length + " bytes.");
@@ -47,6 +48,7 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
             {
                 Log.v(TAG, "  receivedMessage() : " + id + " NULL.");
             }
+            */
             if (id == objectId)
             {
                 getRequestStatusEvent(rx_body);
@@ -65,7 +67,7 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
             }
             else if (id == objectId + 4)
             {
-                Log.v(TAG, " RECEIVED  : " + id);
+                Log.v(TAG, " GET SCREEN NAIL COMPLETED  : " + id);
             }
             else if (id == objectId + 5)
             {
@@ -117,21 +119,20 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
         {
             pictureLength = 0x02000;
         }
-        publisher.enqueueCommand(new CanonGetPartialObject(this, (objectId + 1), true, objectId, 0, pictureLength));
+        publisher.enqueueCommand(new CanonGetPartialObject(this, (objectId + 1), false, objectId, 0, pictureLength));
     }
 
     private void getRequestStatusEvent(byte[] rx_body)
     {
         Log.v(TAG, " getRequestStatusEvent  : " + objectId);
-        publisher.enqueueCommand(new PtpIpCommandGeneric(this,  (objectId + 5), true, objectId, 0x9116));
+        publisher.enqueueCommand(new PtpIpCommandGeneric(this,  (objectId + 5), false, objectId, 0x9116));
     }
 
-    private void getPartialObject(byte[] rx_body)
+    private void getPartialObject(@NonNull byte[] rx_body)
     {
         try
         {
             Log.v(TAG, " getPartialObject(), id : " + objectId + " size: " + rx_body.length);
-
             BitmapFactory.Options opt = new BitmapFactory.Options();
             try
             {
@@ -144,7 +145,7 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
             catch (Throwable ex)
             {
                 ex.printStackTrace();
-                Log.v(TAG, " LENGTH : " + ((rx_body != null) ? rx_body.length : 0));
+                Log.v(TAG, " LENGTH : " + (rx_body.length));
                 System.gc();
             }
             // 画像の縮小サイズを決定する (縦幅、横幅の小さいほうにあわせる)
@@ -160,10 +161,10 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
         catch (Throwable t)
         {
             t.printStackTrace();
-            Log.v(TAG, " LENGTH : " + ((rx_body != null) ? rx_body.length : 0));
+            Log.v(TAG, " LENGTH : " + (rx_body.length));
             System.gc();
         }
-        publisher.enqueueCommand(new PtpIpCommandGeneric(this,  (objectId + 2), true, objectId, 0x9117, 4,0x01));  // 0x9117 : TransferComplete
+        publisher.enqueueCommand(new PtpIpCommandGeneric(this,  (objectId + 2), false, objectId, 0x9117, 4,0x01));  // 0x9117 : TransferComplete
 
         // ファイルにバイナリデータをダンプする
         // binaryOutputToFile(activity, objectId + "_", rx_body);
@@ -172,7 +173,7 @@ public class PtpIpScreennailImageReceiver  implements IPtpIpCommandCallback
     private void requestInnerDevelopEnd()
     {
         Log.v(TAG, " requestInnerDevelopEnd() : " + objectId);
-        publisher.enqueueCommand(new CanonRequestInnerDevelopEnd(this, (objectId + 3), true, objectId));  // 0x9143 : RequestInnerDevelopEnd
+        publisher.enqueueCommand(new CanonRequestInnerDevelopEnd(this, (objectId + 3), false, objectId));  // 0x9143 : RequestInnerDevelopEnd
     }
 
     private void finishedGetScreeennail()

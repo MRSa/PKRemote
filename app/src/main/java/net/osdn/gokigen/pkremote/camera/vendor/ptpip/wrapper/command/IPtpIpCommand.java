@@ -26,6 +26,9 @@ public interface IPtpIpCommand
     // 埋め込むシーケンス番号の位置
     int embeddedSequenceNumberIndex3();
 
+    // 予定している受信データのサイズ
+    int estimatedReceiveDataSize();
+
     // 送信するメッセージボディ
     byte[] commandBody();
 
