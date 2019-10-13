@@ -436,6 +436,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
 
         try
         {
+            Log.v(TAG, " ===== receive_multi() =====");
             int receive_message_buffer_size = BUFFER_SIZE;
             byte[] byte_array = new byte[receive_message_buffer_size];
             InputStream is = socket.getInputStream();
@@ -518,7 +519,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
                 lenlen = ((((int) byte_array[15]) & 0xff) << 24) + ((((int) byte_array[14]) & 0xff) << 16) + ((((int) byte_array[13]) & 0xff) << 8) + (((int) byte_array[12]) & 0xff);
                 packetType = (((int)byte_array[16]) & 0xff);
             }
-            Log.v(TAG, " --- [[[ RECEIVED LARGE BLOCK MESSAGE : " + lenlen + " bytes. ]]] --- TYPE : " + packetType);
+            Log.v(TAG, " --- parseDataLength() length: " + lenlen + " TYPE: " + packetType + " read_bytes: " + read_bytes);
         }
         catch (Exception e)
         {
@@ -546,7 +547,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
                 lenlen = ((((int) byte_array[15]) & 0xff) << 24) + ((((int) byte_array[14]) & 0xff) << 16) + ((((int) byte_array[13]) & 0xff) << 8) + (((int) byte_array[12]) & 0xff);
                 packetType = (((int) byte_array[16]) & 0xff);
             }
-            Log.v(TAG, " --- <<< RECEIVED LARGE BLOCK MESSAGE : " + len + " bytes. (" + byte_array.length + " bytes.)" + " lenlen : " + lenlen + " >>> --- TYPE : " + packetType);
+            Log.v(TAG, " ---  RECEIVED MESSAGE : " + len + " bytes (BUFFER: " + byte_array.length + " bytes)" + " length : " + lenlen + " TYPE : " + packetType + " --- ");
             if (lenlen == 0)
             {
                 // データとしては変なので、なにもしない

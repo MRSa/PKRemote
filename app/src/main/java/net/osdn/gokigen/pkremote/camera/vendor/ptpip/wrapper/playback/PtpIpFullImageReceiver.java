@@ -61,10 +61,12 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
             }
             else if (id == objectId + 2)
             {
-                Log.v(TAG, " RECEIVED  : " + id);
+                Log.v(TAG, " TransferComplete() RECEIVED  : " + id + " (" + objectId + ") size : " + target_image_size);
 
                 // end of receive sequence.
                 callback.onCompleted();
+                received_remain_bytes = 0;
+                received_total_bytes = 0;
                 target_image_size = 0;
                 objectId = 0;
                 callback = null;
@@ -90,7 +92,7 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
         // 受信したデータから、通信のヘッダ部分を削除する
         byte[] body = cutHeader(rx_body);
         int length = (body == null) ? 0 : body.length;
-        Log.v(TAG, " onReceiveProgress() " + currentBytes + "/" + totalBytes + " (" + length + " bytes.) : image : " + target_image_size);
+        Log.v(TAG, " onReceiveProgress() " + currentBytes + "/" + totalBytes + " (" + length + " bytes.)");
         callback.onProgress(body, length, new IProgressEvent() {
             @Override
             public float getProgress() {
@@ -120,6 +122,8 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
         {
             // データを最初に読んだとき。ヘッダ部分を読み飛ばす
             data_position = (int) rx_body[0] & (0xff);
+            Log.v(TAG, " FIRST DATA POS. : " + data_position);
+            //SimpleLogDumper.dump_bytes(" [sss]", Arrays.copyOfRange(rx_body, 0, (64)));
         }
         else if (received_remain_bytes > 0)
         {
