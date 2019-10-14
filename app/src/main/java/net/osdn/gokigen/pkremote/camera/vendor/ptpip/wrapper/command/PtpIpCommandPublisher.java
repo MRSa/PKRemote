@@ -458,12 +458,19 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
             //  一時的な処理
             if (callback != null)
             {
-                //Log.v(TAG, "  --- CALL : read_bytes : "+ received_length + " : total_length : " + target_length + "  buffer SIZE : " + byte_array.length);
-                callback.onReceiveProgress(received_length, target_length, Arrays.copyOfRange(byte_array, 0, read_bytes));
+                Log.v(TAG, "  --- 1st CALL : read_bytes : "+ read_bytes + "(" + received_length + ") : total_length : " + target_length + "  buffer SIZE : " + byte_array.length);
+                callback.onReceiveProgress(received_length, target_length, Arrays.copyOfRange(byte_array, 0, received_length));
             }
 
-            sleep(delayMs);
-            read_bytes = is.available();
+            do
+            {
+                sleep(delayMs);
+                read_bytes = is.available();
+                if (read_bytes == 0)
+                {
+                    Log.v(TAG, " WAIT is.available() ... " + received_length + " < " + estimatedSize);
+                }
+            } while ((read_bytes == 0)&&(estimatedSize > 0)&&(received_length < estimatedSize));
             while (read_bytes > 0)
             {
                 read_bytes = is.read(byte_array, 0, receive_message_buffer_size);
@@ -486,7 +493,7 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
                 {
                     sleep(delayMs);
                     read_bytes = is.available();
-                    Log.v(TAG, "  is.available() read_bytes : " + read_bytes + " " + received_length + " < " + estimatedSize);
+                    //Log.v(TAG, "  is.available() read_bytes : " + read_bytes + " " + received_length + " < " + estimatedSize);
                 } while ((read_bytes == 0)&&(estimatedSize > 0)&&(received_length < estimatedSize));
             }
             //ByteArrayOutputStream outputStream = cutHeader(byteStream);

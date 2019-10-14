@@ -29,6 +29,7 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
     private int received_remain_bytes = 0;
 
     private int target_image_size = 0;
+    private boolean receivedFirstData = false;
 
     PtpIpFullImageReceiver(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher publisher)
     {
@@ -48,6 +49,7 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
         this.objectId = objectId;
         this.target_image_size = imageSize;
         this.isReceiveMulti = true;
+        this.receivedFirstData = false;
 
         Log.v(TAG, " getPartialObject (id : " + objectId + ", size:" + imageSize + ")");
         publisher.enqueueCommand(new PtpIpCommandCanonGetPartialObject(this, (objectId + 1), false, objectId, objectId, 0x00, imageSize, imageSize)); // 0x9107 : GetPartialObject
@@ -68,6 +70,7 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
 
                 // end of receive sequence.
                 callback.onCompleted();
+                receivedFirstData = false;
                 received_remain_bytes = 0;
                 received_total_bytes = 0;
                 target_image_size = 0;
@@ -121,9 +124,10 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
         int length = rx_body.length;
         int data_position = 0;
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        if (received_total_bytes == 0)
+        if (!receivedFirstData)
         {
             // データを最初に読んだとき。ヘッダ部分を読み飛ばす
+            receivedFirstData = true;
             data_position = (int) rx_body[0] & (0xff);
             Log.v(TAG, " FIRST DATA POS. : " + data_position);
             //SimpleLogDumper.dump_bytes(" [sss]", Arrays.copyOfRange(rx_body, 0, (64)));

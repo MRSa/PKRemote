@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IProgressEvent;
-import net.osdn.gokigen.pkremote.camera.utils.SimpleLogDumper;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandCanonGetPartialObject;
@@ -17,7 +16,6 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.sp
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopStart;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 
 
 public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
@@ -30,6 +28,7 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
     private IDownloadContentCallback callback = null;
     private int objectId = 0;
     private boolean isReceiveMulti = false;
+    private boolean receivedFirstData = false;
 
     private int received_total_bytes = 0;
     private int received_remain_bytes = 0;
@@ -99,6 +98,7 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
                 this.callback = null;
                 this.received_total_bytes = 0;
                 this.received_remain_bytes = 0;
+                this.receivedFirstData = false;
                 System.gc();
             }
             else if (id == objectId + 5)
@@ -152,8 +152,11 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
         int length = rx_body.length;
         int data_position = 0;
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        if (received_total_bytes == 0)
+        if (!receivedFirstData)
         {
+            // 初回データを読み込んだ
+            receivedFirstData = true;
+
             // データを最初に読んだとき。ヘッダ部分を読み飛ばす
             data_position = (int) rx_body[0] & (0xff);
         }
@@ -228,6 +231,7 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
     {
         Log.v(TAG, " requestGetPartialObject() : " + objectId);
         isReceiveMulti = true;
+        receivedFirstData = false;
 
         // 0x9107 : GetPartialObject  (元は 0x00020000)
         int pictureLength;
