@@ -2,6 +2,7 @@ package net.osdn.gokigen.pkremote.playback.detail;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,7 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.R;
+import net.osdn.gokigen.pkremote.camera.interfaces.IInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
@@ -45,6 +48,7 @@ public class ImagePagerViewFragment extends Fragment
 
     private IPlaybackControl playbackControl;
     private ICameraRunMode runMode;
+    private IInformationReceiver informationReceiver;
 
 	private List<CameraContentEx> contentList = null;
 	private int contentIndex = 0;
@@ -54,19 +58,20 @@ public class ImagePagerViewFragment extends Fragment
 	private LruCache<String, Bitmap> imageCache =null;
 
 
-    public static ImagePagerViewFragment newInstance(@NonNull IPlaybackControl playbackControl, @NonNull ICameraRunMode runMode, @NonNull List<CameraContentEx> contentList, int contentIndex)
+   //public static ImagePagerViewFragment newInstance(@NonNull IPlaybackControl playbackControl, @NonNull ICameraRunMode runMode, @NonNull List<CameraContentEx> contentList, int contentIndex)
+    public static ImagePagerViewFragment newInstance( @NonNull IInterfaceProvider interfaceProvider, @NonNull List<CameraContentEx> contentList, int contentIndex)
 	{
 		ImagePagerViewFragment fragment = new ImagePagerViewFragment();
-		fragment.setInterface(playbackControl, runMode);
+		fragment.setInterface(interfaceProvider);
 		fragment.setContentList(contentList, contentIndex);
 		return (fragment);
 	}
 
-
-	private void setInterface(@NonNull IPlaybackControl playbackControl, @NonNull ICameraRunMode runMode)
+	private void setInterface(@NonNull IInterfaceProvider interfaceProvider)
     {
-        this.playbackControl = playbackControl;
-        this.runMode = runMode;
+        this.playbackControl = interfaceProvider.getPlaybackControl();
+        this.runMode = interfaceProvider.getCameraRunMode();
+        this.informationReceiver = interfaceProvider.getInformationReceiver();
     }
 
 
@@ -320,6 +325,12 @@ public class ImagePagerViewFragment extends Fragment
         {
             // 画像表示が終わったことを通知する
             playbackControl.showPictureFinished();
+
+            // 表示をクリアする
+            if (informationReceiver != null)
+            {
+                informationReceiver.updateMessage("", false, true, Color.BLACK);
+            }
         }
         catch (Exception e)
         {
@@ -335,7 +346,6 @@ public class ImagePagerViewFragment extends Fragment
 
 	private class ImagePagerAdapter extends PagerAdapter
     {
-
 		@Override
 		public int getCount()
         {
@@ -506,6 +516,10 @@ public class ImagePagerViewFragment extends Fragment
                     catch (Exception e)
                     {
                         e.printStackTrace();
+                        if (informationReceiver != null)
+                        {
+                            informationReceiver.updateMessage(e.getMessage(), false, true, Color.YELLOW);
+                        }
                     }
                     runOnUiThread(new Runnable() {
                         @Override
@@ -527,11 +541,21 @@ public class ImagePagerViewFragment extends Fragment
                                 catch (Exception e)
                                 {
                                     e.printStackTrace();
+                                    if (informationReceiver != null)
+                                    {
+                                        informationReceiver.updateMessage(e.getMessage(), false, true, Color.YELLOW);
+                                    }
                                 }
+                                view.setImageBitmap(null);
                                 view.setImageBitmap(bitmap);
                             }
                         }
                     });
+                    // 表示をクリアする
+                    if (informationReceiver != null)
+                    {
+                        informationReceiver.updateMessage(getString(R.string.canon_get_image_screennail_done), false, true, Color.LTGRAY);
+                    }
                 }
 
                 @Override

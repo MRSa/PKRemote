@@ -139,6 +139,7 @@ public class PtpIpScreennailImageReceiver implements IPtpIpCommandCallback
                 // OutOfMemoryエラー対策...一度読み込んで画像サイズを取得
                 //System.gc();
                 opt.inJustDecodeBounds = true;
+                opt.inPurgeable = true;
                 //opt.inDither = true;
                 BitmapFactory.decodeByteArray(rx_body, 0, rx_body.length);
             }
@@ -153,6 +154,7 @@ public class PtpIpScreennailImageReceiver implements IPtpIpCommandCallback
             int heightBounds = opt.outHeight / BITMAP_MAX_PIXEL;
             opt.inSampleSize = Math.min(widthBounds, heightBounds);
             opt.inJustDecodeBounds = false;
+            opt.inPurgeable = true;
 
             // ビットマップをリサイズして返す
             callback.onCompleted(BitmapFactory.decodeByteArray(rx_body, 0, rx_body.length, opt), null);

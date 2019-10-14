@@ -3,6 +3,7 @@ package net.osdn.gokigen.pkremote.playback.detail;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.AttributeSet;
@@ -68,6 +69,7 @@ public class ScalableImageView extends AppCompatImageView
     @Override
     public void setImageDrawable(Drawable drawable)
     {
+        super.setImageDrawable(null);
         super.setImageDrawable(drawable);
         reset();
     }
@@ -75,6 +77,22 @@ public class ScalableImageView extends AppCompatImageView
     @Override
     public void setImageBitmap(Bitmap bm)
     {
+        try
+        {
+            BitmapDrawable bd = (BitmapDrawable) super.getDrawable();
+            if (bd != null)
+            {
+                Bitmap bitmap = bd.getBitmap();
+                if (bitmap != null)
+                {
+                    bitmap.recycle();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         super.setImageBitmap(bm);
         reset();
     }

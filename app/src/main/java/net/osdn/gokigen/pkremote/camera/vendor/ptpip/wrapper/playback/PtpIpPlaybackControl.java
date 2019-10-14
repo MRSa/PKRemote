@@ -2,10 +2,13 @@ package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
+import net.osdn.gokigen.pkremote.IInformationReceiver;
+import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IContentInfoCallback;
@@ -105,7 +108,14 @@ public class PtpIpPlaybackControl implements IPlaybackControl
                 IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
                 //int storageId = content.getStorageId();
                 int objectId = content.getId();
-                // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
+
+                // 画像表示中...のメッセージを表示する
+                IInformationReceiver display = provider.getInformationReceiver();
+                if (display != null)
+                {
+                    String message = activity.getString(R.string.canon_get_image_screennail);
+                    display.updateMessage(message, false, true, Color.LTGRAY);
+                }
 
                 // 画像を取得する
                 PtpIpScreennailImageReceiver receiver = new PtpIpScreennailImageReceiver(activity, objectId, publisher, callback);

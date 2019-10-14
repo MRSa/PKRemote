@@ -306,4 +306,6 @@
 
     <string name="pref_canon_get_screennail_as_small_picture">表示画像はスモール画像を使用</string>
     <string name="pref_summary_canon_get_screennail_as_small_picture">すこし時間がかかりますが、画像表示にスモール画像を使用します。</string>
+    <string name="canon_get_image_screennail">画像取得中&#8230;</string>
+    <string name="canon_get_image_screennail_done">完了</string>
 </resources>

@@ -63,7 +63,9 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	private static final String PENTAX_RAW_PEF_SUFFIX = ".pef";
     private static final String PANASONIC_RAW_SUFFIX = ".rw2";
     private static final String SONY_RAW_SUFFIX = ".arw";
-
+    private static final String CANON_RAW_SUFFIX = ".crw";
+    private static final String CANON_RAW_SUFFIX2 = ".cr2";
+    private static final String CANON_RAW_SUFFIX3 = ".cr3";
 
     private MyContentDownloader contentDownloader;
     private GridView gridView;
@@ -134,7 +136,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	}
 	
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+	public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater)
 	{
 		inflater.inflate(R.menu.image_grid_view, menu);
 		String title = getString(R.string.app_name);
@@ -464,6 +466,18 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
             {
                 contentItems.add(new CameraContentEx(item, true, SONY_RAW_SUFFIX));
             }
+            else if (path.endsWith(CANON_RAW_SUFFIX))
+            {
+                contentItems.add(new CameraContentEx(item, true, CANON_RAW_SUFFIX));
+            }
+            else if (path.endsWith(CANON_RAW_SUFFIX2))
+            {
+                contentItems.add(new CameraContentEx(item, true, CANON_RAW_SUFFIX2));
+            }
+            else if (path.endsWith(CANON_RAW_SUFFIX3))
+            {
+                contentItems.add(new CameraContentEx(item, true, CANON_RAW_SUFFIX3));
+            }
         }
 
         for (CameraContentEx item : contentItems)
@@ -668,7 +682,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
             e.printStackTrace();
         }
 
-        ImagePagerViewFragment fragment = ImagePagerViewFragment.newInstance(playbackControl, runMode, imageContentList, position);
+        ImagePagerViewFragment fragment = ImagePagerViewFragment.newInstance(interfaceProvider, imageContentList, position);
         FragmentActivity activity = getActivity();
         if (activity != null)
         {
