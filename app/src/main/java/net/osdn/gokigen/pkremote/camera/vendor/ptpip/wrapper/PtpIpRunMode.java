@@ -11,7 +11,7 @@ public class PtpIpRunMode implements ICameraRunMode, IPtpIpRunModeHolder
     private boolean isChanging = false;
     private boolean isRecordingMode = false;
 
-    PtpIpRunMode()
+    public PtpIpRunMode()
     {
         //
     }

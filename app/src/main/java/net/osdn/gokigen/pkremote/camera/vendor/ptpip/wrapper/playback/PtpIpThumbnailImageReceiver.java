@@ -23,7 +23,7 @@ public class PtpIpThumbnailImageReceiver implements IPtpIpCommandCallback
     private final Activity context;
     private final IDownloadThumbnailImageCallback callback;
 
-    PtpIpThumbnailImageReceiver(@NonNull Activity context, @NonNull IDownloadThumbnailImageCallback callback)
+    public PtpIpThumbnailImageReceiver(@NonNull Activity context, @NonNull IDownloadThumbnailImageCallback callback)
     {
         this.context = context;
         this.callback = callback;

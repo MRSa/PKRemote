@@ -1,4 +1,4 @@
-package net.osdn.gokigen.pkremote.preference.nikon;
+package net.osdn.gokigen.pkremote.preference.olympuspen;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -17,7 +17,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.R;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.operation.PtpIpCameraPowerOff;
+import net.osdn.gokigen.pkremote.camera.vendor.olympuspen.operation.OlympusPenCameraPowerOff;
 import net.osdn.gokigen.pkremote.logcat.LogCatViewer;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 import net.osdn.gokigen.pkremote.scene.IChangeScene;
@@ -26,20 +26,20 @@ import net.osdn.gokigen.pkremote.scene.IChangeScene;
  *
  *
  */
-public class NikonPreferenceFragment  extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener
+public class OlympusPenPreferenceFragment  extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener
 {
     private final String TAG = toString();
     private SharedPreferences preferences = null;
-    private PtpIpCameraPowerOff powerOffController = null;
+    private OlympusPenCameraPowerOff powerOffController = null;
     private LogCatViewer logCatViewer = null;
 
     /**
      *
      *
      */
-    public static NikonPreferenceFragment newInstance(@NonNull AppCompatActivity context, @NonNull IChangeScene changeScene)
+    public static OlympusPenPreferenceFragment newInstance(@NonNull AppCompatActivity context, @NonNull IChangeScene changeScene)
     {
-        NikonPreferenceFragment instance = new NikonPreferenceFragment();
+        OlympusPenPreferenceFragment instance = new OlympusPenPreferenceFragment();
         instance.prepare(context, changeScene);
 
         // パラメータはBundleにまとめておく
@@ -59,7 +59,7 @@ public class NikonPreferenceFragment  extends PreferenceFragmentCompat implement
     {
         try
         {
-            powerOffController = new PtpIpCameraPowerOff(context, changeScene);
+            powerOffController = new OlympusPenCameraPowerOff(context, changeScene);
             powerOffController.prepare();
 
             logCatViewer = new LogCatViewer(changeScene);
@@ -167,9 +167,9 @@ public class NikonPreferenceFragment  extends PreferenceFragmentCompat implement
         try
         {
             //super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.preferences_nikon);
+            addPreferencesFromResource(R.xml.preferences_olympus);
 
-            ListPreference connectionMethod =findPreference(IPreferencePropertyAccessor.CONNECTION_METHOD);
+            ListPreference connectionMethod = findPreference(IPreferencePropertyAccessor.CONNECTION_METHOD);
             connectionMethod.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -181,7 +181,7 @@ public class NikonPreferenceFragment  extends PreferenceFragmentCompat implement
 
             findPreference("exit_application").setOnPreferenceClickListener(powerOffController);
             findPreference("debug_info").setOnPreferenceClickListener(logCatViewer);
-    }
+        }
         catch (Exception e)
         {
             e.printStackTrace();

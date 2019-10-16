@@ -25,7 +25,7 @@ public class PtpIpScreennailImageReceiver implements IPtpIpCommandCallback
     private final IPtpIpCommandPublisher publisher;
     private final int objectId;
 
-    PtpIpScreennailImageReceiver(Activity activity, int objectId, IPtpIpCommandPublisher publisher, IDownloadThumbnailImageCallback callback)
+    public PtpIpScreennailImageReceiver(Activity activity, int objectId, IPtpIpCommandPublisher publisher, IDownloadThumbnailImageCallback callback)
     {
         this.activity = activity;
         this.callback = callback;

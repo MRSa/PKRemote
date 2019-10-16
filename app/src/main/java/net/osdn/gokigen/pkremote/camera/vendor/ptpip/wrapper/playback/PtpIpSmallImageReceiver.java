@@ -33,14 +33,14 @@ public class PtpIpSmallImageReceiver implements IPtpIpCommandCallback
     private int received_total_bytes = 0;
     private int received_remain_bytes = 0;
 
-    PtpIpSmallImageReceiver(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher publisher)
+    public PtpIpSmallImageReceiver(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher publisher)
     {
         this.activity = activity;
         this.publisher = publisher;
         this.mine = this;
     }
 
-    void issueCommand(final int objectId, IDownloadContentCallback callback)
+    public void issueCommand(final int objectId, IDownloadContentCallback callback)
     {
         if (this.objectId != 0)
         {

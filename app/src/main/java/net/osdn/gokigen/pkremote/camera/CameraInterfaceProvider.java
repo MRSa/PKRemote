@@ -25,6 +25,7 @@ import net.osdn.gokigen.pkremote.camera.utils.CameraStatusListener;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.FujiXInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.olympus.IOlympusInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.olympus.wrapper.OlympusInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.vendor.olympuspen.wrapper.OlympusPenInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.PanasonicCameraWrapper;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.IPtpIpInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.PtpIpInterfaceProvider;
@@ -49,6 +50,7 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     private final FujiXInterfaceProvider fujiX;
     private final PanasonicCameraWrapper panasonic;
     private final PtpIpInterfaceProvider ptpip;
+    private final OlympusPenInterfaceProvider olympuspen;
     private final IInformationReceiver informationReceiver;
     private final CameraContentsRecognizer cameraContentsRecognizer;
     private final AppCompatActivity context;
@@ -74,6 +76,7 @@ public class CameraInterfaceProvider implements IInterfaceProvider
         sony = new SonyCameraWrapper(context, provider, statusListener, informationReceiver);
         ptpip = new PtpIpInterfaceProvider(context, provider, statusListener, informationReceiver);
         panasonic = new PanasonicCameraWrapper(context, provider, statusListener, informationReceiver);
+        olympuspen = new OlympusPenInterfaceProvider(context, provider);
         this.informationReceiver = informationReceiver;
         this.cameraContentsRecognizer = new CameraContentsRecognizer(context, this);
     }
@@ -130,6 +133,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (ptpip.getPtpIpCameraConnection());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getOlyCameraConnection());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getRicohGr2CameraConnection());
@@ -171,6 +178,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.NIKON)
             {
                 return (ptpip.getButtonControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getButtonControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -214,6 +225,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (ptpip.getDisplayInjector());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getDisplayInjector());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getDisplayInjector());
@@ -255,6 +270,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.NIKON)
             {
                 return (ptpip.getLiveViewControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getLiveViewControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -298,6 +317,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (ptpip.getLiveViewListener());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getLiveViewListener());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getLiveViewListener());
@@ -339,6 +362,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.NIKON)
             {
                 return (ptpip.getFocusingControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getFocusingControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -382,6 +409,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (ptpip.getCameraInformation());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getCameraInformation());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCameraInformation());
@@ -423,6 +454,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.NIKON)
             {
                 return (ptpip.getZoomLensControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getZoomLensControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -466,6 +501,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (ptpip.getCaptureControl());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getCaptureControl());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCaptureControl());
@@ -507,6 +546,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.NIKON)
             {
                 return (ptpip.getCameraStatusListHolder());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getCameraStatusListHolder());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -550,6 +593,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (ptpip.getCameraStatusWatcher());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getCameraStatusWatcher());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getCameraStatusWatcher());
@@ -591,6 +638,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.NIKON)
             {
                 return (ptpip.getPlaybackControl());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getPlaybackControl());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -634,6 +685,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             {
                 return (ptpip.getHardwareStatus());
             }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getHardwareStatus());
+            }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
                 return (ricohGr2.getHardwareStatus());
@@ -675,6 +730,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod == ICameraConnection.CameraConnectionMethod.NIKON)
             {
                 return (ptpip.getCameraRunMode());
+            }
+            else if (connectionMethod == ICameraConnection.CameraConnectionMethod.OLYMPUS)
+            {
+                return (olympuspen.getCameraRunMode());
             }
             else // if (connectionMethod == ICameraConnection.CameraConnectionMethod.RICOH)
             {
@@ -762,6 +821,10 @@ public class CameraInterfaceProvider implements IInterfaceProvider
             else if (connectionMethod.contains("NIKON"))
             {
                 ret = ICameraConnection.CameraConnectionMethod.NIKON;
+            }
+            else if (connectionMethod.contains("OLYMPUS"))
+            {
+                ret = ICameraConnection.CameraConnectionMethod.OLYMPUS;
             }
             else // if (connectionMethod.contains("OPC"))
             {

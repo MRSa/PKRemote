@@ -17,7 +17,7 @@ public class PtpIpImageContentInfo implements ICameraContent
     private Date date;
     private final byte[] rx_body;
 
-    PtpIpImageContentInfo(int indexNumber, String contentPath, byte[] binaryData, int offset, int length)
+    public PtpIpImageContentInfo(int indexNumber, String contentPath, byte[] binaryData, int offset, int length)
     {
         this.indexNumber = indexNumber;
         this.contentPath = contentPath;
@@ -111,7 +111,7 @@ public class PtpIpImageContentInfo implements ICameraContent
         return (indexNumber);
     }
 
-    int getOriginalSize()
+    public int getOriginalSize()
     {
         try
         {

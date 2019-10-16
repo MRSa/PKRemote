@@ -31,13 +31,13 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
     private int target_image_size = 0;
     private boolean receivedFirstData = false;
 
-    PtpIpFullImageReceiver(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher publisher)
+    public PtpIpFullImageReceiver(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher publisher)
     {
         this.activity = activity;
         this.publisher = publisher;
     }
 
-    void issueCommand(int objectId, int imageSize, IDownloadContentCallback callback)
+    public void issueCommand(int objectId, int imageSize, IDownloadContentCallback callback)
     {
         if (this.objectId != 0)
         {
