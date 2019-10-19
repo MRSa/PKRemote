@@ -76,7 +76,7 @@
     <string name="dialog_title_connect_failed_fuji">Connect failed (FUJI)</string>
     <string name="dialog_title_connect_failed_canon">Connect failed (Canon)</string>
     <string name="dialog_title_connect_failed_nikon">Connect failed (Nikon)</string>
-
+    <string name="dialog_title_connect_failed_olympus">Connect failed (Olympus)</string>
 
     <string name="dialog_title_button_retry">Retry</string>
     <string name="dialog_title_button_network_settings">WiFi Settings</string>

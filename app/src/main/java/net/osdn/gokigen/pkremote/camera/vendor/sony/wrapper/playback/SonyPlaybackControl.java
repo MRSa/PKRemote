@@ -98,7 +98,7 @@ public class SonyPlaybackControl implements IPlaybackControl
                 }
                 if (url.length() > 1)
                 {
-                    Bitmap bmp = SimpleHttpClient.httpGetBitmap(url, timeoutMs);
+                    Bitmap bmp = SimpleHttpClient.httpGetBitmap(url, null, timeoutMs);
                     HashMap<String, Object> map = new HashMap<>();
                     map.put("Orientation", 0);
                     callback.onCompleted(bmp, map);
@@ -133,7 +133,7 @@ public class SonyPlaybackControl implements IPlaybackControl
                 String url = content.getThumbnailUrl();
                 if (url.length() > 1)
                 {
-                    Bitmap bmp = SimpleHttpClient.httpGetBitmap(url, timeoutMs);
+                    Bitmap bmp = SimpleHttpClient.httpGetBitmap(url, null, timeoutMs);
                     HashMap<String, Object> map = new HashMap<>();
                     map.put("Orientation", 0);
                     callback.onCompleted(bmp, map);
@@ -179,7 +179,7 @@ public class SonyPlaybackControl implements IPlaybackControl
                 }
                 Log.v(TAG, "downloadContent()  PATH : " + path + "  [SMALL:" + isSmallSize + "][VGA:" + isVgaSize + "]" + " GET URL : " + url);
 
-                SimpleHttpClient.httpGetBytes(url, timeoutMs, new SimpleHttpClient.IReceivedMessageCallback()
+                SimpleHttpClient.httpGetBytes(url, null, timeoutMs, new SimpleHttpClient.IReceivedMessageCallback()
                 {
                     @Override
                     public void onCompleted() {

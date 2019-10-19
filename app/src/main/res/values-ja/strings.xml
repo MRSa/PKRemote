@@ -76,6 +76,7 @@
     <string name="dialog_title_connect_failed_fuji">接続失敗(FUJI)</string>
     <string name="dialog_title_connect_failed_canon">接続失敗(Canon)</string>
     <string name="dialog_title_connect_failed_nikon">接続失敗(Nikon)</string>
+    <string name="dialog_title_connect_failed_olympus">接続失敗(Olympus)</string>
 
 
     <string name="dialog_title_button_retry">再接続</string>

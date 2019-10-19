@@ -130,7 +130,7 @@ public class SimpleHttpClient
      *
      *
      */
-    public static void httpGetBytes(String url, int timeoutMs, @NonNull IReceivedMessageCallback callback)
+    public static void httpGetBytes(String url, Map<String, String> setProperty, int timeoutMs, @NonNull IReceivedMessageCallback callback)
     {
         HttpURLConnection httpConn = null;
         InputStream inputStream = null;
@@ -146,6 +146,14 @@ public class SimpleHttpClient
             final URL urlObj = new URL(url);
             httpConn = (HttpURLConnection) urlObj.openConnection();
             httpConn.setRequestMethod("GET");
+            if (setProperty != null)
+            {
+                for (String key : setProperty.keySet())
+                {
+                    String value = setProperty.get(key);
+                    httpConn.setRequestProperty(key, value);
+                }
+            }
             httpConn.setConnectTimeout(timeout);
             httpConn.setReadTimeout(timeout);
             httpConn.connect();
@@ -200,7 +208,10 @@ public class SimpleHttpClient
                     List<String> valueList = headers.get("X-FILE_SIZE");
                     try
                     {
-                        contentLength = Integer.parseInt(getValue(valueList));
+                        if (valueList != null)
+                        {
+                            contentLength = Integer.parseInt(getValue(valueList));
+                        }
                     }
                     catch (Exception ee)
                     {
@@ -270,7 +281,7 @@ public class SimpleHttpClient
      *
      *
      */
-    public static Bitmap httpGetBitmap(String url, int timeoutMs)
+    public static Bitmap httpGetBitmap(String url, Map<String, String> setProperty, int timeoutMs)
     {
         HttpURLConnection httpConn = null;
         InputStream inputStream = null;
@@ -288,6 +299,14 @@ public class SimpleHttpClient
             final URL urlObj = new URL(url);
             httpConn = (HttpURLConnection) urlObj.openConnection();
             httpConn.setRequestMethod("GET");
+            if (setProperty != null)
+            {
+                for (String key : setProperty.keySet())
+                {
+                    String value = setProperty.get(key);
+                    httpConn.setRequestProperty(key, value);
+                }
+            }
             httpConn.setConnectTimeout(timeout);
             httpConn.setReadTimeout(timeout);
             httpConn.connect();

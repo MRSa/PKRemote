@@ -212,7 +212,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         Log.v(TAG, "downloadContentScreennail() GET URL : " + url);
         try
         {
-            Bitmap bmp = SimpleHttpClient.httpGetBitmap(url, timeoutValue);
+            Bitmap bmp = SimpleHttpClient.httpGetBitmap(url, null, timeoutValue);
             HashMap<String, Object> map = new HashMap<>();
             map.put("Orientation", 0);
             callback.onCompleted(bmp, map);
@@ -236,7 +236,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         Log.v(TAG, "downloadContentThumbnail() GET URL : " + url);
         try
         {
-            Bitmap bmp = SimpleHttpClient.httpGetBitmap(url, timeoutValue);
+            Bitmap bmp = SimpleHttpClient.httpGetBitmap(url, null, timeoutValue);
             HashMap<String, Object> map = new HashMap<>();
             map.put("Orientation", 0);
             callback.onCompleted(bmp, map);
@@ -261,7 +261,7 @@ public class RicohGr2PlaybackControl implements IPlaybackControl
         Log.v(TAG, "downloadContent() GET URL : " + url);
         try
         {
-            SimpleHttpClient.httpGetBytes(url, timeoutValue, new SimpleHttpClient.IReceivedMessageCallback() {
+            SimpleHttpClient.httpGetBytes(url, null, timeoutValue, new SimpleHttpClient.IReceivedMessageCallback() {
                 @Override
                 public void onCompleted() {
                     callback.onCompleted();

@@ -1,12 +1,12 @@
 package net.osdn.gokigen.pkremote.camera.vendor.olympuspen.wrapper.connection;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
-import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class OlympusPenCameraDisconnectSequence  implements Runnable
 {
@@ -26,23 +26,16 @@ public class OlympusPenCameraDisconnectSequence  implements Runnable
         // カメラをPowerOffして接続を切る
         try
         {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-            if (preferences.getBoolean(IPreferencePropertyAccessor.GR2_LCD_SLEEP, false))
-            {
-                final String screenOnUrl = "http://192.168.0.1/_gr";
-                final String postData = "lcd sleep off";
-                final int TIMEOUT_MS = 5000;
-                String response = SimpleHttpClient.httpPost(screenOnUrl, postData, TIMEOUT_MS);
-                Log.v(TAG, screenOnUrl + " " + response);
-            }
+            Map<String, String> headerMap = new HashMap<>();
+            headerMap.put("User-Agent", "OlympusCameraKit"); // "OI.Share"
+            headerMap.put("X-Protocol", "OlympusCameraKit"); // "OI.Share"
 
             if (powerOff)
             {
-                final String cameraPowerOffUrl = "http://192.168.0.1/v1/device/finish";
-                final String postData = "";
+                final String cameraPowerOffUrl = "http://192.168.0.10/exec_pwoff.cgi";
                 final int TIMEOUT_MS = 5000;
-                String response = SimpleHttpClient.httpPost(cameraPowerOffUrl, postData, TIMEOUT_MS);
-                Log.v(TAG, cameraPowerOffUrl + " " + response);
+                String response = SimpleHttpClient.httpGetWithHeader(cameraPowerOffUrl, headerMap, null, TIMEOUT_MS);
+                Log.v(TAG, " " + cameraPowerOffUrl + " " + response);
             }
         }
         catch (Exception e)

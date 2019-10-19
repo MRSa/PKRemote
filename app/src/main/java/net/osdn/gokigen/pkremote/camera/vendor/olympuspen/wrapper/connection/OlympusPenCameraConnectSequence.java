@@ -1,17 +1,17 @@
 package net.osdn.gokigen.pkremote.camera.vendor.olympuspen.wrapper.connection;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
-import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 import androidx.annotation.NonNull;
+
+import java.util.HashMap;
+import java.util.Map;
 
 class OlympusPenCameraConnectSequence implements Runnable
 {
@@ -31,31 +31,27 @@ class OlympusPenCameraConnectSequence implements Runnable
     @Override
     public void run()
     {
-        final String areYouThereUrl = "http://192.168.0.1/v1/ping";
-        final String grCommandUrl = "http://192.168.0.1/_gr";
+        final String camInfoUrl = "http://192.168.0.10/get_caminfo.cgi";
+        final String getCommandListUrl = "http://192.168.0.10/get_commandlist.cgi";
+        final String getConnectModeUrl = "http://192.168.0.10/get_connectmode.cgi";
+
         final int TIMEOUT_MS = 5000;
         try
         {
-            String response = SimpleHttpClient.httpGet(areYouThereUrl, TIMEOUT_MS);
-            Log.v(TAG, areYouThereUrl + " " + response);
+            Map<String, String> headerMap = new HashMap<>();
+            headerMap.put("User-Agent", "OlympusCameraKit"); // "OI.Share"
+            headerMap.put("X-Protocol", "OlympusCameraKit"); // "OI.Share"
+
+            String response = SimpleHttpClient.httpGetWithHeader(getConnectModeUrl, headerMap, null, TIMEOUT_MS);
+            Log.v(TAG, " " + getConnectModeUrl + " " + response);
             if (response.length() > 0)
             {
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                String response2 = SimpleHttpClient.httpGetWithHeader(getCommandListUrl, headerMap, null, TIMEOUT_MS);
+                Log.v(TAG, " " + getCommandListUrl + " " + response2);
 
-                // 接続時、レンズロックOFF
-                {
-                    final String postData = "cmd=acclock off";
-                    String response0 = SimpleHttpClient.httpPost(grCommandUrl, postData, TIMEOUT_MS);
-                    Log.v(TAG, grCommandUrl + " " + response0);
-                }
+                String response3 = SimpleHttpClient.httpGetWithHeader(camInfoUrl, headerMap, null, TIMEOUT_MS);
+                Log.v(TAG, " " + camInfoUrl + " " + response3);
 
-                // 接続時、カメラの画面を消す
-                if (preferences.getBoolean(IPreferencePropertyAccessor.GR2_LCD_SLEEP, false))
-                {
-                    final String postData = "cmd=lcd sleep on";
-                    String response0 = SimpleHttpClient.httpPost(grCommandUrl, postData, TIMEOUT_MS);
-                    Log.v(TAG, grCommandUrl + " " + response0);
-                }
                 onConnectNotify();
             }
             else
@@ -92,21 +88,6 @@ class OlympusPenCameraConnectSequence implements Runnable
             e.printStackTrace();
         }
     }
-
-/*
-    private void waitForAMoment(long mills)
-    {
-        if (mills > 0)
-        {
-            try {
-                Log.v(TAG, " WAIT " + mills + "ms");
-                Thread.sleep(mills);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-*/
 
     private void onConnectError(String reason)
     {

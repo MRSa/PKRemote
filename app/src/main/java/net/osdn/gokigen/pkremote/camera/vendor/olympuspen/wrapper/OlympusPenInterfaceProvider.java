@@ -40,8 +40,6 @@ import androidx.preference.PreferenceManager;
 public class OlympusPenInterfaceProvider implements IOlympusPenInterfaceProvider, IDisplayInjector
 {
     private final String TAG = toString();
-    //private final Activity activity;
-    //private final ICameraStatusReceiver provider;
     private final OlympusPenConnection olympusPenConnection;
     private final OlympusPenButtonControl buttonControl;
     private final OlympusPenPlaybackControl playbackControl;
@@ -55,8 +53,6 @@ public class OlympusPenInterfaceProvider implements IOlympusPenInterfaceProvider
     public OlympusPenInterfaceProvider(@NonNull Activity context, @NonNull ICameraStatusReceiver provider)
     {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        //useGrCommand = preferences.getBoolean(IPreferencePropertyAccessor.USE_GR2_SPECIAL_COMMAND, true);
-        //pentaxCaptureAfterAf = preferences.getBoolean(IPreferencePropertyAccessor.PENTAX_CAPTURE_AFTER_AF, false);
         int communicationTimeoutMs = 10000;  // デフォルトは 10000ms とする
         try
         {
@@ -70,27 +66,11 @@ public class OlympusPenInterfaceProvider implements IOlympusPenInterfaceProvider
         {
             e.printStackTrace();
         }
-        int maxCount = 3000;  // デフォルトは 3000枚 とする
-        try
-        {
-            maxCount = Integer.parseInt(preferences.getString(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_MAX_COUNT, IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_MAX_COUNT_DEFAULT_VALUE));
-            if (maxCount < 300)
-            {
-                maxCount = 300;  // 最小値は 300枚とする。
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
 
         //this.activity = context;
         //this.provider = provider;
         olympusPenConnection = new OlympusPenConnection(context, provider);
-        //liveViewControl = new RicohGr2LiveViewControl(useGrCommand);
-        //zoomControl = new RicohGr2CameraZoomLensControl();
         buttonControl = new OlympusPenButtonControl();
-        //statusChecker = new RicohGr2StatusChecker(500, useGrCommand);
         playbackControl = new OlympusPenPlaybackControl(communicationTimeoutMs);
         hardwareStatus = new OlympusPenHardwareStatus();
         runMode = new OlympusPenRunMode();
@@ -105,8 +85,6 @@ public class OlympusPenInterfaceProvider implements IOlympusPenInterfaceProvider
     public void injectDisplay(IAutoFocusFrameDisplay frameDisplayer, IIndicatorControl indicator, IFocusingModeNotify focusingModeNotify)
     {
         Log.v(TAG, "injectDisplay()");
-        //focusControl = new RicohGr2CameraFocusControl(useGrCommand, frameDisplayer, indicator);
-        //captureControl = new RicohGr2CameraCaptureControl(useGrCommand, pentaxCaptureAfterAf, frameDisplayer, statusChecker);
     }
 
     @Override

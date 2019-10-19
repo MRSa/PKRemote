@@ -224,7 +224,7 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         Log.v(TAG, " downloadContentScreennail() : " + requestUrl + "  ");
         try
         {
-            Bitmap bmp = SimpleHttpClient.httpGetBitmap(requestUrl, timeoutMs);
+            Bitmap bmp = SimpleHttpClient.httpGetBitmap(requestUrl, null, timeoutMs);
             HashMap<String, Object> map = new HashMap<>();
             map.put("Orientation", 0);
             callback.onCompleted(bmp, map);
@@ -247,7 +247,7 @@ public class PanasonicPlaybackControl implements IPlaybackControl
         Log.v(TAG, " downloadContentThumbnail() : " + path + "  [" +  requestUrl + "]");
         try
         {
-            Bitmap bmp = SimpleHttpClient.httpGetBitmap(requestUrl, timeoutMs);
+            Bitmap bmp = SimpleHttpClient.httpGetBitmap(requestUrl, null, timeoutMs);
             HashMap<String, Object> map = new HashMap<>();
             map.put("Orientation", 0);
             callback.onCompleted(bmp, map);
@@ -275,7 +275,7 @@ public class PanasonicPlaybackControl implements IPlaybackControl
 
         try
         {
-            SimpleHttpClient.httpGetBytes(url, timeoutMs, new SimpleHttpClient.IReceivedMessageCallback() {
+            SimpleHttpClient.httpGetBytes(url, null, timeoutMs, new SimpleHttpClient.IReceivedMessageCallback() {
                 @Override
                 public void onCompleted() {
                     callback.onCompleted();
