@@ -155,6 +155,9 @@ public class OpcPreferenceFragment extends PreferenceFragmentCompat implements S
         if (!items.containsKey(IPreferencePropertyAccessor.SMALL_PICTURE_SIZE)) {
             editor.putString(IPreferencePropertyAccessor.SMALL_PICTURE_SIZE, IPreferencePropertyAccessor.SMALL_PICTURE_SIZE_DEFAULT_VALUE);
         }
+        if (!items.containsKey(IPreferencePropertyAccessor.PEN_SMALL_PICTURE_SIZE)) {
+            editor.putString(IPreferencePropertyAccessor.PEN_SMALL_PICTURE_SIZE, IPreferencePropertyAccessor.PEN_SMALL_PICTURE_SIZE_DEFAULT_VALUE);
+        }
         editor.apply();
     }
 

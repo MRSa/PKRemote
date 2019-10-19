@@ -1,4 +1,6 @@
 package net.osdn.gokigen.pkremote.camera.vendor.olympuspen.wrapper.playback;
+import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.util.Log;
 
@@ -11,11 +13,13 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailIm
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.playback.ProgressEvent;
 import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
+import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
 
 /**
  *
@@ -25,12 +29,14 @@ public class OlympusPenPlaybackControl implements IPlaybackControl
 {
     private final String TAG = toString();
     private static final int DEFAULT_TIMEOUT = 3000;
+    private final Activity activity;
     private final int timeoutValue;
     private OlympusPenObjectDataHolder imageListHolder = new OlympusPenObjectDataHolder();
 
-    public OlympusPenPlaybackControl(int timeoutMs)
+    public OlympusPenPlaybackControl(@NonNull Activity activity, int timeoutMs)
     {
         Log.v(TAG, "OlympusPenPlaybackControl()");
+        this.activity = activity;
         this.timeoutValue  = (timeoutMs < DEFAULT_TIMEOUT) ? DEFAULT_TIMEOUT : timeoutMs;
     }
 
@@ -115,8 +121,18 @@ public class OlympusPenPlaybackControl implements IPlaybackControl
             String url;
             if ((isSmallSize)&&(path.contains(".JPG")))
             {
+                String smallSize = "1600";
+                try
+                {
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+                    smallSize = preferences.getString(IPreferencePropertyAccessor.PEN_SMALL_PICTURE_SIZE, IPreferencePropertyAccessor.PEN_SMALL_PICTURE_SIZE_DEFAULT_VALUE);
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
                 // 縮小サイズで画像をとる
-                url = "http://192.168.0.10/get_resizeimg.cgi?DIR=" + path + "&size=" + "1600";
+                url = "http://192.168.0.10/get_resizeimg.cgi?DIR=" + path + "&size=" + smallSize;
             }
             else
             {

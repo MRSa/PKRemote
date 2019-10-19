@@ -71,7 +71,7 @@ public class OlympusPenInterfaceProvider implements IOlympusPenInterfaceProvider
         //this.provider = provider;
         olympusPenConnection = new OlympusPenConnection(context, provider);
         buttonControl = new OlympusPenButtonControl();
-        playbackControl = new OlympusPenPlaybackControl(communicationTimeoutMs);
+        playbackControl = new OlympusPenPlaybackControl(context, communicationTimeoutMs);
         hardwareStatus = new OlympusPenHardwareStatus();
         runMode = new OlympusPenRunMode();
     }

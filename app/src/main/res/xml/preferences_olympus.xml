@@ -20,27 +20,13 @@
     <PreferenceCategory
         android:title="@string/pref_cat_camera">
 
-        <!--
+        <ListPreference
+            android:title="@string/pref_download_small_picture_size"
+            android:entryValues="@array/pen_picture_quality_value"
+            android:entries="@array/pen_picture_quality"
+            android:key="pen_download_small_picture_size"
+            android:defaultValue="1600"/>
 
-        <PreferenceScreen
-            android:key="sony_api_list"
-            android:title="@string/pref_sony_api_list"
-            android:summary="@string/pref_summary_sony_api_list" />
-
-        <CheckBoxPreference
-            android:key="use_smartphone_transfer_mode"
-            android:title="@string/pref_sony_use_smartphone_transfer"
-            android:summary="@string/pref_summary_sony_use_smartphone_transfer" />
-
-        <CheckBoxPreference
-            android:key="get_small_picture_as_vga"
-            android:title="@string/pref_get_small_picture_as_vga"
-            android:summary="@string/pref_summary_get_small_picture_as_vga" />
-
-                <CheckBoxPreference
-                    android:key="capture_both_camera_and_live_view"
-                    android:title="@string/pref_capture_both_camera_and_live_view" />
-        -->
     </PreferenceCategory>
 
     <PreferenceCategory

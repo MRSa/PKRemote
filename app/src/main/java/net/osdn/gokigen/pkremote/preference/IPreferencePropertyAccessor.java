@@ -28,6 +28,10 @@ public interface IPreferencePropertyAccessor
     String SMALL_PICTURE_SIZE = "download_small_picture_size";
     String SMALL_PICTURE_SIZE_DEFAULT_VALUE = "1600";
 
+    String PEN_SMALL_PICTURE_SIZE = "pen_download_small_picture_size";
+    String PEN_SMALL_PICTURE_SIZE_DEFAULT_VALUE = "1600";
+
+
     String CAMERAKIT_VERSION = "camerakit_version";
 
     String SHOW_GRID_STATUS = "show_grid";

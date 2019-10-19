@@ -117,6 +117,9 @@ public class OlympusPenPreferenceFragment  extends PreferenceFragmentCompat impl
             if (!items.containsKey(IPreferencePropertyAccessor.CONNECTION_METHOD)) {
                 editor.putString(IPreferencePropertyAccessor.CONNECTION_METHOD, IPreferencePropertyAccessor.CONNECTION_METHOD_DEFAULT_VALUE);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.PEN_SMALL_PICTURE_SIZE)) {
+                editor.putString(IPreferencePropertyAccessor.PEN_SMALL_PICTURE_SIZE, IPreferencePropertyAccessor.PEN_SMALL_PICTURE_SIZE_DEFAULT_VALUE);
+            }
             editor.apply();
         }
         catch (Exception e)
@@ -178,6 +181,16 @@ public class OlympusPenPreferenceFragment  extends PreferenceFragmentCompat impl
                 }
             });
             connectionMethod.setSummary(connectionMethod.getValue() + " ");
+
+            ListPreference smallPictureSize = findPreference(IPreferencePropertyAccessor.PEN_SMALL_PICTURE_SIZE);
+            smallPictureSize.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    preference.setSummary(newValue + " ");
+                    return (true);
+                }
+            });
+            smallPictureSize.setSummary(smallPictureSize.getValue() + " ");
 
             findPreference("exit_application").setOnPreferenceClickListener(powerOffController);
             findPreference("debug_info").setOnPreferenceClickListener(logCatViewer);
