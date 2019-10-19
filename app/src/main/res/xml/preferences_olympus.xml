@@ -27,6 +27,11 @@
             android:key="pen_download_small_picture_size"
             android:defaultValue="1600"/>
 
+        <CheckBoxPreference
+            android:key="olympus_get_screennail_as_small_picture"
+            android:title="@string/pref_olympus_get_screennail_as_small_picture"
+            android:summary="@string/pref_summary_olympus_get_screennail_as_small_picture" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

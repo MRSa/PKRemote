@@ -77,10 +77,44 @@ public class OlympusPenPlaybackControl implements IPlaybackControl
             Map<String, String> headerMap = new HashMap<>();
             headerMap.put("User-Agent", "OlympusCameraKit"); // "OI.Share"
             headerMap.put("X-Protocol", "OlympusCameraKit"); // "OI.Share"
+
             Bitmap bmp = SimpleHttpClient.httpGetBitmap(url, headerMap, timeoutValue);
-            HashMap<String, Object> map = new HashMap<>();
-            map.put("Orientation", 0);
-            callback.onCompleted(bmp, map);
+            if (bmp != null)
+            {
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("Orientation", 0);
+                callback.onCompleted(bmp, map);
+                return;
+            }
+
+            // screennail取得失敗時...リカバリする
+            try
+            {
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+                boolean smallSize = preferences.getBoolean(IPreferencePropertyAccessor.OLYMPUS_USE_SCREENNAIL_AS_SMALL, false);
+                if (smallSize)
+                {
+                    // 小さい画像をscreennailとして利用する
+                    url = "http://192.168.0.10/get_resizeimg.cgi?DIR=" + path + "&size=1024";
+                    bmp = SimpleHttpClient.httpGetBitmap(url, headerMap, timeoutValue);
+                    if (bmp != null)
+                    {
+                        HashMap<String, Object> map = new HashMap<>();
+                        map.put("Orientation", 0);
+                        callback.onCompleted(bmp, map);
+                        return;
+                    }
+                    // それでもダメな場合はサムネイル画像を使う...
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
+
+            // サムネイルでscreennail表示...
+            downloadContentThumbnail(path, callback);
         }
         catch (Throwable e)
         {

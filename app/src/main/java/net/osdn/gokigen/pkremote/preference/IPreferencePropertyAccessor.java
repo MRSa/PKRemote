@@ -96,6 +96,8 @@ public interface IPreferencePropertyAccessor
 
     String CANON_USE_SCREENNAIL_AS_SMALL = "canon_get_screennail_as_small_picture";
 
+    String OLYMPUS_USE_SCREENNAIL_AS_SMALL = "olympus_get_screennail_as_small_picture";
+
     /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
     //String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";
