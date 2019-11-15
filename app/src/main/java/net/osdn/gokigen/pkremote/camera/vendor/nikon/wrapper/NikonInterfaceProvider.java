@@ -1,9 +1,11 @@
 package net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
@@ -25,6 +27,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraInformation;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher;
+import net.osdn.gokigen.pkremote.camera.vendor.nikon.INikonInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.playback.NikonPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.IPtpIpInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.operation.PtpIpZoomControl;
@@ -36,12 +39,15 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpComma
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommunication;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpAsyncResponseReceiver;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpCommandPublisher;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection.CanonConnection;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection.NikonConnection;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.liveview.PtpIpLiveViewControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.IPtpIpRunModeHolder;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.PtpIpStatusChecker;
 
-public class NikonInterfaceProvider implements IPtpIpInterfaceProvider, IDisplayInjector
+import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS;
+import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS_DEFAULT_VALUE;
+
+public class NikonInterfaceProvider implements INikonInterfaceProvider, IDisplayInjector
 {
     private final String TAG = toString();
 
@@ -49,13 +55,13 @@ public class NikonInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
     private static final int ASYNC_RESPONSE_PORT = 15741;  // ??
     private static final int CONTROL_PORT = 15740;
     private static final int EVENT_PORT = 15740;
-    private static final String CAMERA_IP = "192.168.0.1";
+    private static final String DEFAULT_CAMERA_IP_ADDR = "192.168.1.1";
 
     private final Activity activity;
     private final PtpIpRunMode runmode;
     private final PtpIpHardwareStatus hardwareStatus;
     private PtpIpButtonControl ptpIpButtonControl;
-    private CanonConnection canonConnection;
+    private NikonConnection nikonConnection;
     private PtpIpCommandPublisher commandPublisher;
     private PtpIpLiveViewControl liveViewControl;
     private PtpIpAsyncResponseReceiver asyncReceiver;
@@ -70,11 +76,21 @@ public class NikonInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
     public NikonInterfaceProvider(@NonNull Activity context, @NonNull ICameraStatusReceiver provider, @NonNull ICameraStatusUpdateNotify statusListener, @NonNull IInformationReceiver informationReceiver)
     {
         this.activity = context;
-        commandPublisher = new PtpIpCommandPublisher(CAMERA_IP, CONTROL_PORT);
-        liveViewControl = new PtpIpLiveViewControl(context, CAMERA_IP, STREAM_PORT);
-        asyncReceiver = new PtpIpAsyncResponseReceiver(CAMERA_IP, ASYNC_RESPONSE_PORT);
-        statusChecker = new PtpIpStatusChecker(activity, commandPublisher, CAMERA_IP, EVENT_PORT);
-        canonConnection = new CanonConnection(context, provider, this, statusChecker);
+        String ipAddress = DEFAULT_CAMERA_IP_ADDR;
+        try
+        {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+            ipAddress = preferences.getString(NIKON_CAMERA_IP_ADDRESS, NIKON_CAMERA_IP_ADDRESS_DEFAULT_VALUE);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        commandPublisher = new PtpIpCommandPublisher(ipAddress, CONTROL_PORT);
+        liveViewControl = new PtpIpLiveViewControl(context, ipAddress, STREAM_PORT);
+        asyncReceiver = new PtpIpAsyncResponseReceiver(ipAddress, ASYNC_RESPONSE_PORT);
+        statusChecker = new PtpIpStatusChecker(activity, commandPublisher, ipAddress, EVENT_PORT);
+        nikonConnection = new NikonConnection(context, provider, this, statusChecker);
         zoomControl = new PtpIpZoomControl();
         this.statusListener = statusListener;
         this.runmode = new PtpIpRunMode();
@@ -95,7 +111,7 @@ public class NikonInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
     @Override
     public ICameraConnection getPtpIpCameraConnection()
     {
-        return (canonConnection);
+        return (nikonConnection);
     }
 
     @Override

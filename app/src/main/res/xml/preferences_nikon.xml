@@ -20,27 +20,17 @@
     <PreferenceCategory
         android:title="@string/pref_cat_camera">
 
-        <!--
-
-        <PreferenceScreen
-            android:key="sony_api_list"
-            android:title="@string/pref_sony_api_list"
-            android:summary="@string/pref_summary_sony_api_list" />
-
-        <CheckBoxPreference
-            android:key="use_smartphone_transfer_mode"
-            android:title="@string/pref_sony_use_smartphone_transfer"
-            android:summary="@string/pref_summary_sony_use_smartphone_transfer" />
+        <EditTextPreference
+            android:key="nikon_host_ip"
+            android:title="@string/pref_nikon_host_ip"
+            android:defaultValue="192.168.1.1"
+            android:summary="@string/pref_summary_nikon_host_ip" />
 
         <CheckBoxPreference
-            android:key="get_small_picture_as_vga"
-            android:title="@string/pref_get_small_picture_as_vga"
-            android:summary="@string/pref_summary_get_small_picture_as_vga" />
+            android:key="ble_wifi_on"
+            android:title="@string/pref_ble_wifi_on"
+            android:summary="@string/pref_summary_ble_wifi_on"/>
 
-                <CheckBoxPreference
-                    android:key="capture_both_camera_and_live_view"
-                    android:title="@string/pref_capture_both_camera_and_live_view" />
-        -->
     </PreferenceCategory>
 
     <PreferenceCategory

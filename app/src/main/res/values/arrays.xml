@@ -8,9 +8,7 @@
         <item>Sony</item>
         <item>Canon</item>
         <item>Olympus(OM-D/PEN)</item>
-<!--
         <item>Nikon</item>
--->
     </string-array>
 
     <string-array name="connection_method_value">
@@ -21,9 +19,7 @@
         <item>SONY</item>
         <item>CANON</item>
         <item>OLYMPUS</item>
-<!--
         <item>NIKON</item>
--->
     </string-array>
 
     <string-array name="sound_volume_level">

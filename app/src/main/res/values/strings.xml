@@ -312,4 +312,11 @@
     <string name="pref_summary_canon_get_screennail_as_small_picture">Use small size image as </string>
     <string name="canon_get_image_screennail">Get Image&#8230;</string>
     <string name="canon_get_image_screennail_done">Done.</string>
+
+    <string name="pref_nikon_host_ip">Camera IP Address</string>
+    <string name="pref_summary_nikon_host_ip"> </string>
+
+    <string name="pref_ble_wifi_on">WIFI ON via Bluetooth LE</string>
+    <string name="pref_summary_ble_wifi_on">Check ON for \'SnapBridge\' Cameras.</string>
+
 </resources>

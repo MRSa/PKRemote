@@ -311,4 +311,11 @@
     <string name="pref_summary_canon_get_screennail_as_small_picture">すこし時間がかかりますが、画像表示にスモール画像を使用します。</string>
     <string name="canon_get_image_screennail">画像取得中&#8230;</string>
     <string name="canon_get_image_screennail_done">完了</string>
+
+    <string name="pref_nikon_host_ip">カメラIPアドレス</string>
+    <string name="pref_summary_nikon_host_ip">通常、変更は不要です</string>
+
+    <string name="pref_ble_wifi_on">Bluetooth LEでWIFIをONにする</string>
+    <string name="pref_summary_ble_wifi_on">SnapBridge対応カメラは、チェックを入れてください。</string>
+
 </resources>

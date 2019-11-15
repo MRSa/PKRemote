@@ -10,7 +10,9 @@ public interface IPreferencePropertyAccessor
     String EXIT_APPLICATION = "exit_application";
 
     String AUTO_CONNECT_TO_CAMERA = "auto_connect_to_camera";
+
     String BLE_POWER_ON = "ble_power_on";
+    String BLE_WIFI_ON = "ble_wifi_on";
 
     String TAKE_MODE =  "take_mode";
     String TAKE_MODE_DEFAULT_VALUE =  "P";
@@ -97,6 +99,9 @@ public interface IPreferencePropertyAccessor
     String CANON_USE_SCREENNAIL_AS_SMALL = "canon_get_screennail_as_small_picture";
 
     String OLYMPUS_USE_SCREENNAIL_AS_SMALL = "olympus_get_screennail_as_small_picture";
+
+    String NIKON_CAMERA_IP_ADDRESS = "nikon_host_ip";
+    String NIKON_CAMERA_IP_ADDRESS_DEFAULT_VALUE = "192.168.1.1";
 
     /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
