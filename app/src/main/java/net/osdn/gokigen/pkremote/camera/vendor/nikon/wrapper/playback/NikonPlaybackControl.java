@@ -38,9 +38,9 @@ public class NikonPlaybackControl implements IPlaybackControl
     private final NikonInterfaceProvider provider;
     private final PtpIpFullImageReceiver fullImageReceiver;
     private final PtpIpSmallImageReceiver smallImageReciever;
-    private String raw_suffix = "CR2";
+    private String raw_suffix = "NEF";
     private boolean use_screennail_image = false;
-    private NikonImageObjectReceiver canonImageObjectReceiver;
+    private NikonImageObjectReceiver nikonImageObjectReceiver;
 
     public NikonPlaybackControl(Activity activity, NikonInterfaceProvider provider)
     {
@@ -48,7 +48,7 @@ public class NikonPlaybackControl implements IPlaybackControl
         this.provider = provider;
         this.fullImageReceiver = new PtpIpFullImageReceiver(activity, provider.getCommandPublisher());
         this.smallImageReciever = new PtpIpSmallImageReceiver(activity, provider.getCommandPublisher());
-        canonImageObjectReceiver = new NikonImageObjectReceiver(provider);
+        nikonImageObjectReceiver = new NikonImageObjectReceiver(provider);
 
         try
         {
@@ -107,7 +107,7 @@ public class NikonPlaybackControl implements IPlaybackControl
                 start = 1;
             }
             final String indexStr = path.substring(start);
-            PtpIpImageContentInfo content = canonImageObjectReceiver.getContentObject(indexStr);
+            PtpIpImageContentInfo content = nikonImageObjectReceiver.getContentObject(indexStr);
             if (content != null)
             {
                 IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
@@ -147,7 +147,7 @@ public class NikonPlaybackControl implements IPlaybackControl
             final String indexStr = path.substring(start);
             //Log.v(TAG, "downloadContentThumbnail() : [" + path + "] " + indexStr);
 
-            PtpIpImageContentInfo content = canonImageObjectReceiver.getContentObject(indexStr);
+            PtpIpImageContentInfo content = nikonImageObjectReceiver.getContentObject(indexStr);
             if (content != null)
             {
                 IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
@@ -174,7 +174,7 @@ public class NikonPlaybackControl implements IPlaybackControl
                 start = 1;
             }
             final String indexStr = path.substring(start);
-            PtpIpImageContentInfo content = canonImageObjectReceiver.getContentObject(indexStr);
+            PtpIpImageContentInfo content = nikonImageObjectReceiver.getContentObject(indexStr);
             if (content != null)
             {
                 if (isSmallSize)
@@ -208,7 +208,7 @@ public class NikonPlaybackControl implements IPlaybackControl
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    canonImageObjectReceiver.getCameraContents(callback);
+                    nikonImageObjectReceiver.getCameraContents(callback);
                 }
             });
             thread.start();

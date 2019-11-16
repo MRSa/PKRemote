@@ -1,8 +1,10 @@
 package net.osdn.gokigen.pkremote.preference.panasonic;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -22,13 +24,18 @@ import net.osdn.gokigen.pkremote.scene.IChangeScene;
 
 import java.util.Map;
 
+import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.DEBUG_INFO;
+import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.EXIT_APPLICATION;
+import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.WIFI_SETTINGS;
+
 /**
  *
  *
  */
-public class PanasonicPreferenceFragment  extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener
+public class PanasonicPreferenceFragment  extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceClickListener
 {
     private final String TAG = toString();
+    private AppCompatActivity context = null;
     private SharedPreferences preferences = null;
     private CameraPowerOffPanasonic powerOffController = null;
     private LogCatViewer logCatViewer = null;
@@ -68,6 +75,8 @@ public class PanasonicPreferenceFragment  extends PreferenceFragmentCompat imple
 
             //cameraApiListViewer = new PanasonicCameraApiListViewer(changeScene);
             //cameraApiListViewer.prepare();
+
+            this.context = context;
         }
         catch (Exception e)
         {
@@ -183,8 +192,9 @@ public class PanasonicPreferenceFragment  extends PreferenceFragmentCompat imple
             });
             connectionMethod.setSummary(connectionMethod.getValue() + " ");
 
-            findPreference("exit_application").setOnPreferenceClickListener(powerOffController);
-            findPreference("debug_info").setOnPreferenceClickListener(logCatViewer);
+            findPreference(EXIT_APPLICATION).setOnPreferenceClickListener(powerOffController);
+            findPreference(DEBUG_INFO).setOnPreferenceClickListener(logCatViewer);
+            findPreference(WIFI_SETTINGS).setOnPreferenceClickListener(this);
             //findPreference("panasonic_api_list").setOnPreferenceClickListener(cameraApiListViewer);
         }
         catch (Exception e)
@@ -316,4 +326,27 @@ public class PanasonicPreferenceFragment  extends PreferenceFragmentCompat imple
         }
     }
 
+    @Override
+    public boolean onPreferenceClick(Preference preference)
+    {
+        try
+        {
+            String preferenceKey = preference.getKey();
+            if (preferenceKey.contains(WIFI_SETTINGS))
+            {
+                // Wifi 設定画面を表示する
+                Log.v(TAG, " onPreferenceClick : " + preferenceKey);
+                if (context != null)
+                {
+                    context.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                }
+            }
+            return (true);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
 }

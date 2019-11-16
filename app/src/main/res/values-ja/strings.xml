@@ -318,4 +318,7 @@
     <string name="pref_ble_wifi_on">Bluetooth LEでWIFIをONにする</string>
     <string name="pref_summary_ble_wifi_on">SnapBridge対応カメラは、チェックを入れてください。</string>
 
+    <string name="pref_wifi_settings">WiFi設定</string>
+    <string name="pref_summary_wifi_settings"> </string>
+
 </resources>

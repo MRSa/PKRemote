@@ -113,7 +113,7 @@ public class NikonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
                 if (checkEventInitialize(rx_body))
                 {
                     interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting1), false, false, 0);
-                    commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, isDumpLog, 0, 0x1002, 4, 0x41));
+                    commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, isDumpLog, 0, 0x1002, 4, 0x41));  // OpenSession
                 }
                 else
                 {
@@ -123,20 +123,14 @@ public class NikonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
 
             case SEQ_OPEN_SESSION:
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting2), false, false, 0);
-                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_INIT_SESSION, isDumpLog, 0, 0x902f));
+                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_INIT_SESSION, isDumpLog, 0, 0x1001));  // GetDeviceInfo
                 break;
 
             case SEQ_INIT_SESSION:
-                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting3), false, false, 0);
-                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_CHANGE_REMOTE, isDumpLog, 0, 0x9114, 4, 0x15));
-                break;
-
             case SEQ_CHANGE_REMOTE:
-                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting4), false, false, 0);
-                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_SET_EVENT_MODE, isDumpLog, 0, 0x902f, 4, 0x02));
-                break;
-
             case SEQ_SET_EVENT_MODE:
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting3), false, false, 0);
+                interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting4), false, false, 0);
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting5), false, false, 0);
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connect_finished), false, false, 0);
                 connectFinished();

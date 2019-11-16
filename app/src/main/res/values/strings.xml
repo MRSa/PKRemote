@@ -319,4 +319,7 @@
     <string name="pref_ble_wifi_on">WIFI ON via Bluetooth LE</string>
     <string name="pref_summary_ble_wifi_on">Check ON for \'SnapBridge\' Cameras.</string>
 
+    <string name="pref_wifi_settings">WIFI Settings</string>
+    <string name="pref_summary_wifi_settings"> </string>
+
 </resources>

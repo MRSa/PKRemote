@@ -5,6 +5,7 @@ import android.util.Log;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
+import net.osdn.gokigen.pkremote.camera.utils.SimpleLogDumper;
 import net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.NikonInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
@@ -24,19 +25,29 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback
 {
     private final String TAG = toString();
     private final NikonInterfaceProvider provider;
-    private boolean isDumpLog = false;
+    private boolean isDumpLog = true;
     private List<ICameraContent> imageObjectList;
     private List<PtpIpImageContentInfo> ptpIpImageObjectList;
     private ICameraContentListCallback callback = null;
     private int subDirectoriesCount = -1;
     private int receivedSubDirectoriesCount = -1;
+    private List<Integer> storageIdList;
 
     NikonImageObjectReceiver(NikonInterfaceProvider provider)
     {
         this.provider = provider;
         this.imageObjectList = new ArrayList<>();
         this.ptpIpImageObjectList = new ArrayList<>();
+
+        this.storageIdList = new ArrayList<>();
     }
+
+    private void parseStorageId(byte[] rx_body)
+    {
+        storageIdList.clear();
+        SimpleLogDumper.dump_bytes(" [GetStorageIds] ", rx_body);
+    }
+
 
     @Override
     public void receivedMessage(int id, byte[] rx_body)
@@ -49,6 +60,7 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback
             {
                 case GET_STORAGE_ID:
                     // TODO: ストレージのIDを 0x00100010 で固定にしている。複数スロットある場合もあるので、このタイミングでちゃんと応答を parse してループさせる必要がある
+                    parseStorageId(rx_body);
                     publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_INFO, isDumpLog,  0, 0x9102, 4, 0x00010001));
                     subDirectoriesCount = -1;  // ここから画像取得シーケンスに入るので、、、
                     break;
@@ -203,7 +215,8 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback
                 // オブジェクト一覧をクリアする
                 this.imageObjectList.clear();
                 this.ptpIpImageObjectList.clear();
-                publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_ID, isDumpLog, 0, 0x9101));
+
+                publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_ID, isDumpLog, 0, 0x1004));  // GetStorageIDs
                 this.callback = callback;
             }
         }
