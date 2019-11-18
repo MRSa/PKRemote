@@ -19,6 +19,11 @@ public interface IPtpIpMessages
     int GET_OBJECT_INFO_EX_2 = 104;
     int GET_OBJECT_INFO_EX_3 = 105;
 
+    int GET_STORAGE_HANDLE1 = 110;
+    int GET_STORAGE_HANDLE2 = 111;
+    int GET_STORAGE_HANDLE3 = 112;
+
+
 /*
     int SEQ_REGISTRATION = 1;
     int SEQ_START = 2;
