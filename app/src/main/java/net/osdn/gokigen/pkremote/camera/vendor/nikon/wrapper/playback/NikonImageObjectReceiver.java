@@ -11,35 +11,23 @@ import net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.NikonInterfaceProvi
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback.PtpIpImageContentInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages.GET_OBJECT_INFO_EX_2;
-import static net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages.GET_OBJECT_INFO_EX_3;
 import static net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages.GET_STORAGE_ID;
-import static net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages.GET_STORAGE_INFO;
-import static net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages.GET_OBJECT_INFO_EX;
 
 public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonStorageContentHolder.ImageObjectReceivedCallback
 {
     private final String TAG = toString();
     private final NikonInterfaceProvider provider;
     private boolean isDumpLog = true;
-    private List<ICameraContent> imageObjectList;
-    private List<PtpIpImageContentInfo> ptpIpImageObjectList;
     private ICameraContentListCallback callback = null;
-    private int subDirectoriesCount = -1;
-    private int receivedSubDirectoriesCount = -1;
     private SparseArray<NikonStorageContentHolder> storageIdList;
 
     NikonImageObjectReceiver(NikonInterfaceProvider provider)
     {
         this.provider = provider;
-        this.imageObjectList = new ArrayList<>();
-        this.ptpIpImageObjectList = new ArrayList<>();
-
         this.storageIdList = new SparseArray<>();
     }
 
@@ -78,85 +66,16 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
     {
         try
         {
-            IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
-            //SimpleLogDumper.dump_bytes(" [RX] ", rx_body);
-            switch (id)
+            if (id == GET_STORAGE_ID)
             {
-                case GET_STORAGE_ID:
-                    // ストレージID一覧を解析する
-                    parseStorageId(rx_body);
-                    for(int index = 0; index < storageIdList.size(); index++)
-                    {
-                        int key = storageIdList.keyAt(index);
-                        NikonStorageContentHolder contentHolder = storageIdList.get(key);
-                        contentHolder.getContents();
-                    }
-                    subDirectoriesCount = -1;  // ここから画像取得シーケンスに入るので、、、
-                    break;
-
-                case GET_STORAGE_INFO:
-                    // TODO: (要検討) ストレージの情報を取得しているが、本当に使わなくてもよい？
-                    publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_OBJECT_INFO_EX, isDumpLog, 0, 0x9109, 12, 0x00010001, 0xffffffff, 0x00200000));
-                    break;
-
-                case GET_OBJECT_INFO_EX:
-                    List<PtpIpImageContentInfo> directries =  parseContentSubdirectories(rx_body, 32);
-                    {
-                        // サブディレクトリの情報を拾う
-                        for (PtpIpImageContentInfo contentInfo : directries)
-                        {
-                            publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_OBJECT_INFO_EX_2, isDumpLog, 0, 0x9109, 12, 0x00010001, contentInfo.getId(), 0x00200000));
-                        }
-                    }
-                    break;
-
-                case GET_OBJECT_INFO_EX_2:
-                    List<PtpIpImageContentInfo> subDirectries =  parseContentSubdirectories(rx_body, 32);
-                    {
-                        // 画像の情報を拾う
-                        for (PtpIpImageContentInfo contentInfo : subDirectries)
-                        {
-                            publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_OBJECT_INFO_EX_3, isDumpLog, 0, 0x9109, 12, 0x00010001, contentInfo.getId(), 0x00200000));
-                        }
-                        subDirectoriesCount = subDirectries.size();
-                        receivedSubDirectoriesCount = 0;
-                        if (subDirectoriesCount <= 0)
-                        {
-                            // カメラの画像コンテンツが見つからなかった（サブディレクトリがなかった）...ここで画像解析終了の報告をする
-                            callback.onCompleted(imageObjectList);
-                        }
-                    }
-                    break;
-
-                case GET_OBJECT_INFO_EX_3:
-                    if (isDumpLog)
-                    {
-                        Log.v(TAG, " --- CONTENT ---");
-                    }
-                    List<PtpIpImageContentInfo> objects =  parseContentSubdirectories(rx_body, 32);
-                    if (objects.size() > 0)
-                    {
-                        imageObjectList.addAll(objects);
-                        ptpIpImageObjectList.addAll(objects);
-                    }
-                    receivedSubDirectoriesCount++;
-                    if (receivedSubDirectoriesCount >= subDirectoriesCount)
-                    {
-                        // 全コンテンツの受信成功
-                        if(this.callback != null)
-                        {
-                            callback.onCompleted(imageObjectList);
-                        }
-                    }
-                    break;
-
-                default:
-/*
-                    if ((id & 0xff) == GET_STORAGE_HANDLE1)
-                    {
-                    }
-*/
-                    break;
+                // ストレージID一覧を解析する
+                parseStorageId(rx_body);
+                for(int index = 0; index < storageIdList.size(); index++)
+                {
+                    int key = storageIdList.keyAt(index);
+                    NikonStorageContentHolder contentHolder = storageIdList.get(key);
+                    contentHolder.getContents();
+                }
             }
         }
         catch (Exception e)
@@ -165,6 +84,7 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
         }
     }
 
+/*
     private List<PtpIpImageContentInfo> parseContentSubdirectories(byte[] rx_body, int offset)
     {
         List<PtpIpImageContentInfo> result = new ArrayList<>();
@@ -205,6 +125,7 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
         }
         return (result);
     }
+*/
 
     @Override
     public void onReceiveProgress(int currentBytes, int totalBytes, byte[] rx_body)
@@ -218,20 +139,24 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
         return (false);
     }
 
-    PtpIpImageContentInfo getContentObject(String fileName)
+    NikonImageContentInfo getContentObject(String fileName)
     {
-        for (PtpIpImageContentInfo contentInfo : ptpIpImageObjectList)
+        for(int index = 0; index < storageIdList.size(); index++)
         {
-
-            if (fileName.matches(contentInfo.getContentName()))
+            int key = storageIdList.keyAt(index);
+            NikonStorageContentHolder contentHolder = storageIdList.get(key);
+            SparseArray<NikonImageContentInfo> objectArray = contentHolder.getObjectIdList();
+            int objectId = Integer.parseInt(fileName.substring(fileName.indexOf("/") + 3, fileName.indexOf(".")), 16);
+            NikonImageContentInfo content = objectArray.get(objectId);
+            if (content != null)
             {
-                return (contentInfo);
+                return (content);
             }
         }
         return (null);
     }
 
-    public void getCameraContents(ICameraContentListCallback callback)
+    void getCameraContents(ICameraContentListCallback callback)
     {
         this.callback = null;
         try
@@ -247,9 +172,6 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
             if (publisher != null)
             {
                 // オブジェクト一覧をクリアする
-                this.imageObjectList.clear();
-                this.ptpIpImageObjectList.clear();
-
                 publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_ID, isDumpLog, 0, 0x1004));  // GetStorageIDs
                 this.callback = callback;
             }
@@ -264,8 +186,7 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
     public void onReceived(int storageId)
     {
         Log.v(TAG, " ----- STORAGE ID : " + storageId + " -----");
-
-        List<Integer> objectList = new ArrayList<>();
+        List<ICameraContent> objectList = new ArrayList<>();
         for(int index = 0; index < storageIdList.size(); index++)
         {
             int key = storageIdList.keyAt(index);
@@ -275,21 +196,21 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
             {
                 return;
             }
-            objectList.addAll(contentHolder.getObjectIdList());
+            SparseArray<NikonImageContentInfo> objectArray = contentHolder.getObjectIdList();
+            for (int objectIndex = 0; objectIndex < objectArray.size(); objectIndex++)
+            {
+                objectList.add(objectArray.valueAt(objectIndex));
+            }
         }
+
         //  すべてのStorageで Object Id の取得が終わった！
-        Log.v(TAG," ----- RECEIVED ALL IMAGE OBJECT ID  count : " + objectList.size() + "-----");
-        for (int id : objectList)
-        {
-            Log.v(TAG, "  OBJECT ID : " + id);
-        }
-        Log.v(TAG, " --------------------");
+        Log.v(TAG," ----- RECEIVED ALL IMAGE OBJECT ID  count : " + objectList.size() + " -----");
+        callback.onCompleted(objectList);
     }
 
     @Override
     public void onError(Exception e)
     {
         Log.v(TAG, "onError : " + e.getLocalizedMessage());
-
     }
 }

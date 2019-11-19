@@ -30,12 +30,12 @@
             android:title="@string/pref_nikon_host_ip"
             android:defaultValue="192.168.1.1"
             android:summary="@string/pref_summary_nikon_host_ip" />
-
+<!--
         <CheckBoxPreference
             android:key="ble_wifi_on"
             android:title="@string/pref_ble_wifi_on"
             android:summary="@string/pref_summary_ble_wifi_on"/>
-
+-->
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -107,12 +107,12 @@ public class NikonPlaybackControl implements IPlaybackControl
                 start = 1;
             }
             final String indexStr = path.substring(start);
-            PtpIpImageContentInfo content = nikonImageObjectReceiver.getContentObject(indexStr);
+            NikonImageContentInfo content = nikonImageObjectReceiver.getContentObject(indexStr);
             if (content != null)
             {
                 IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
                 //int storageId = content.getStorageId();
-                int objectId = content.getId();
+                int objectId = content.getObjectId();
 
                 // 画像表示中...のメッセージを表示する
                 IInformationReceiver display = provider.getInformationReceiver();
@@ -124,7 +124,7 @@ public class NikonPlaybackControl implements IPlaybackControl
 
                 // 画像を取得する
                 PtpIpScreennailImageReceiver receiver = new PtpIpScreennailImageReceiver(activity, objectId, publisher, callback);
-                publisher.enqueueCommand(new CanonRequestInnerDevelopStart(receiver, objectId, true, objectId, objectId));   // 0x9141 : RequestInnerDevelopStart
+                publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), objectId, false, 0, 0x90c4, 4, objectId));
             }
         }
         catch (Exception e)
@@ -145,16 +145,15 @@ public class NikonPlaybackControl implements IPlaybackControl
             }
             //String indexStr = path.substring(start, path.indexOf("."));
             final String indexStr = path.substring(start);
-            //Log.v(TAG, "downloadContentThumbnail() : [" + path + "] " + indexStr);
+            Log.v(TAG, "downloadContentThumbnail() : [" + path + "] " + indexStr);
 
-            PtpIpImageContentInfo content = nikonImageObjectReceiver.getContentObject(indexStr);
+            NikonImageContentInfo content = nikonImageObjectReceiver.getContentObject(indexStr);
             if (content != null)
             {
                 IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
-                //int storageId = content.getStorageId();
-                int objectId = content.getId();
+                int objectId = content.getObjectId();
                 // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
-                publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), objectId, false, 0, 0x910a, 8, objectId, 0x00032000));
+                publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), objectId, false, 0, 0x100a, 4, objectId));
             }
         }
         catch (Exception e)
@@ -174,18 +173,18 @@ public class NikonPlaybackControl implements IPlaybackControl
                 start = 1;
             }
             final String indexStr = path.substring(start);
-            PtpIpImageContentInfo content = nikonImageObjectReceiver.getContentObject(indexStr);
+            NikonImageContentInfo content = nikonImageObjectReceiver.getContentObject(indexStr);
             if (content != null)
             {
                 if (isSmallSize)
                 {
                     // スモールサイズの画像取得コマンド（シーケンス）を発行する
-                    smallImageReciever.issueCommand(content.getId(), callback);
+                    smallImageReciever.issueCommand(content.getObjectId(), callback);
                 }
                 else
                 {
                     // オリジナル画像の取得コマンド（シーケンス）を発行する
-                    fullImageReceiver.issueCommand(content.getId(), content.getOriginalSize(), callback);
+                    fullImageReceiver.issueCommand(content.getObjectId(), content.getOriginalSize(), callback);
                 }
             }
         }
@@ -253,5 +252,4 @@ public class NikonPlaybackControl implements IPlaybackControl
             e.printStackTrace();
         }
     }
-
 }
