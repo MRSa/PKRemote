@@ -308,8 +308,12 @@
     <string name="pref_olympus_get_screennail_as_small_picture">Use small image as screen nail</string>
     <string name="pref_summary_olympus_get_screennail_as_small_picture">Use small size image as </string>
 
+    <string name="pref_nikon_get_screennail_as_small_picture">Use small image as screen nail</string>
+    <string name="pref_summary_nikon_get_screennail_as_small_picture">Use small size image as </string>
+
     <string name="pref_canon_get_screennail_as_small_picture">Use small image as screen nail</string>
     <string name="pref_summary_canon_get_screennail_as_small_picture">Use small size image as </string>
+
     <string name="canon_get_image_screennail">Get Image&#8230;</string>
     <string name="canon_get_image_screennail_done">Done.</string>
 

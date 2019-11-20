@@ -23,7 +23,7 @@ public class NikonStorageContentHolder  implements IPtpIpCommandCallback
     private final int storageId;
     private final NikonInterfaceProvider provider;
     private final ImageObjectReceivedCallback callback;
-    private boolean isDumpLog = true;
+    private boolean isDumpLog = false;
     private int subDirectoryCount = 0;
     private int receivedDirectoryCount = 0;
     private boolean isObjectReceived = false;

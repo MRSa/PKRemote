@@ -25,6 +25,11 @@
     <PreferenceCategory
         android:title="@string/pref_cat_camera">
 
+        <CheckBoxPreference
+            android:key="nikon_get_screennail_as_small_picture"
+            android:title="@string/pref_nikon_get_screennail_as_small_picture"
+            android:summary="@string/pref_summary_nikon_get_screennail_as_small_picture" />
+
         <EditTextPreference
             android:key="nikon_host_ip"
             android:title="@string/pref_nikon_host_ip"

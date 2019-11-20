@@ -1,4 +1,4 @@
-package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback;
+package net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.playback;
 
 import android.app.Activity;
 import android.util.Log;
@@ -9,14 +9,15 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentCall
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IProgressEvent;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandCanonGetPartialObject;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
 
 import java.io.ByteArrayOutputStream;
 
-public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
+import static net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages.GET_PARTIAL_OBJECT;
+
+public class NikonSmallImageReceiver implements IPtpIpCommandCallback
 {
-    private static final String TAG = PtpIpFullImageReceiver.class.getSimpleName();
+    private static final String TAG = NikonFullImageReceiver.class.getSimpleName();
 
     private final Activity activity;
     private final IPtpIpCommandPublisher publisher;
@@ -31,13 +32,13 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
     private int target_image_size = 0;
     private boolean receivedFirstData = false;
 
-    PtpIpFullImageReceiver(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher publisher)
+    NikonSmallImageReceiver(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher publisher)
     {
         this.activity = activity;
         this.publisher = publisher;
     }
 
-    void issueCommand(int objectId, int imageSize, IDownloadContentCallback callback)
+    void issueCommand(int objectId, IDownloadContentCallback callback)
     {
         if (this.objectId != 0)
         {
@@ -47,12 +48,11 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
         }
         this.callback = callback;
         this.objectId = objectId;
-        this.target_image_size = imageSize;
         this.isReceiveMulti = true;
         this.receivedFirstData = false;
-
-        Log.v(TAG, " getPartialObject (id : " + objectId + ", size:" + imageSize + ")");
-        publisher.enqueueCommand(new PtpIpCommandCanonGetPartialObject(this, (objectId + 1), false, objectId, objectId, 0x00, imageSize, imageSize)); // 0x9107 : GetPartialObject
+        //Log.v(TAG, " getPartialObject (id : " + objectId + ", size:" + imageSize + ")");
+        //publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_PARTIAL_OBJECT, true, 0, 0x101b, 12, objectId, 0, imageSize));  // GetPartialObject 0x101b
+        publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_PARTIAL_OBJECT, true, 0, 0x90c4, 4, objectId));  // GetLargeThumb
     }
 
     @Override
@@ -60,16 +60,13 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
     {
         try
         {
-            if (id == objectId + 1)
-            {
-                getPartialObjectFinished();
-            }
-            else if (id == objectId + 2)
+            if (id == GET_PARTIAL_OBJECT)
             {
                 Log.v(TAG, " TransferComplete() RECEIVED  : " + id + " (" + objectId + ") size : " + target_image_size);
 
                 // end of receive sequence.
                 callback.onCompleted();
+                isReceiveMulti = false;
                 receivedFirstData = false;
                 received_remain_bytes = 0;
                 received_total_bytes = 0;
@@ -197,21 +194,5 @@ public class PtpIpFullImageReceiver implements IPtpIpCommandCallback
     public boolean isReceiveMulti()
     {
         return (isReceiveMulti);
-    }
-
-    private void getPartialObjectFinished()
-    {
-        try
-        {
-            //   すべてのデータを受信した後に...終わりを送信する
-            Log.v(TAG, " getPartialObjectFinished(), id : " + objectId + " (size : " + target_image_size + ")");
-            isReceiveMulti = false;
-            publisher.enqueueCommand(new PtpIpCommandGeneric(this,  (objectId + 2), false, objectId, 0x9117, 4,0x01));  // 0x9117 : TransferComplete
-        }
-        catch (Throwable t)
-        {
-            t.printStackTrace();
-            System.gc();
-        }
     }
 }

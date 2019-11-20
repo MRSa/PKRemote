@@ -29,7 +29,6 @@ import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher;
 import net.osdn.gokigen.pkremote.camera.vendor.nikon.INikonInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.playback.NikonPlaybackControl;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.IPtpIpInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.operation.PtpIpZoomControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.PtpIpButtonControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.PtpIpHardwareStatus;

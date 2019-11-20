@@ -104,6 +104,8 @@ public interface IPreferencePropertyAccessor
 
     String OLYMPUS_USE_SCREENNAIL_AS_SMALL = "olympus_get_screennail_as_small_picture";
 
+    String NIKON_USE_SCREENNAIL_AS_SMALL = "nikon_get_screennail_as_small_picture";
+
     String NIKON_CAMERA_IP_ADDRESS = "nikon_host_ip";
     String NIKON_CAMERA_IP_ADDRESS_DEFAULT_VALUE = "192.168.1.1";
 

@@ -129,6 +129,9 @@ public class NikonPreferenceFragment  extends PreferenceFragmentCompat implement
             if (!items.containsKey(IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS)) {
                 editor.putString(IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS, IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS_DEFAULT_VALUE);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.NIKON_USE_SCREENNAIL_AS_SMALL)) {
+                editor.putBoolean(IPreferencePropertyAccessor.NIKON_USE_SCREENNAIL_AS_SMALL, false);
+            }
             if (!items.containsKey(IPreferencePropertyAccessor.BLE_WIFI_ON)) {
                 editor.putBoolean(IPreferencePropertyAccessor.BLE_WIFI_ON, false);
             }
@@ -160,6 +163,11 @@ public class NikonPreferenceFragment  extends PreferenceFragmentCompat implement
 
                 case IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW:
                     value = preferences.getBoolean(key, true);
+                    Log.v(TAG, " " + key + " , " + value);
+                    break;
+
+                case IPreferencePropertyAccessor.NIKON_USE_SCREENNAIL_AS_SMALL:
+                    value = preferences.getBoolean(key, false);
                     Log.v(TAG, " " + key + " , " + value);
                     break;
 
@@ -321,6 +329,7 @@ public class NikonPreferenceFragment  extends PreferenceFragmentCompat implement
                         // Preferenceの画面に反映させる
                         setBooleanPreference(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, true);
                         setBooleanPreference(IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW, IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW, true);
+                        setBooleanPreference(IPreferencePropertyAccessor.NIKON_USE_SCREENNAIL_AS_SMALL, IPreferencePropertyAccessor.NIKON_USE_SCREENNAIL_AS_SMALL, false);
                         setBooleanPreference(IPreferencePropertyAccessor.BLE_WIFI_ON, IPreferencePropertyAccessor.BLE_WIFI_ON, false);
                     }
                     catch (Exception e)

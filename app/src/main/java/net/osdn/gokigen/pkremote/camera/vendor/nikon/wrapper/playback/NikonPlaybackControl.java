@@ -17,13 +17,9 @@ import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentList
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.NikonInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopStart;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback.PtpIpFullImageReceiver;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback.PtpIpImageContentInfo;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback.PtpIpScreennailImageReceiver;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback.PtpIpSmallImageReceiver;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback.PtpIpThumbnailImageReceiver;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
@@ -36,8 +32,8 @@ public class NikonPlaybackControl implements IPlaybackControl
     private final String TAG = toString();
     private final Activity activity;
     private final NikonInterfaceProvider provider;
-    private final PtpIpFullImageReceiver fullImageReceiver;
-    private final PtpIpSmallImageReceiver smallImageReciever;
+    private final NikonFullImageReceiver fullImageReceiver;
+    private final NikonSmallImageReceiver smallImageReciever;
     private String raw_suffix = "NEF";
     private boolean use_screennail_image = false;
     private NikonImageObjectReceiver nikonImageObjectReceiver;
@@ -46,15 +42,15 @@ public class NikonPlaybackControl implements IPlaybackControl
     {
         this.activity = activity;
         this.provider = provider;
-        this.fullImageReceiver = new PtpIpFullImageReceiver(activity, provider.getCommandPublisher());
-        this.smallImageReciever = new PtpIpSmallImageReceiver(activity, provider.getCommandPublisher());
         nikonImageObjectReceiver = new NikonImageObjectReceiver(provider);
+        this.fullImageReceiver = new NikonFullImageReceiver(activity, provider.getCommandPublisher());
+        this.smallImageReciever = new NikonSmallImageReceiver(activity, provider.getCommandPublisher());
 
         try
         {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
             raw_suffix = preferences.getString(IPreferencePropertyAccessor.CANON_RAW_SUFFIX, IPreferencePropertyAccessor.CANON_RAW_SUFFIX_DEFAULT_VALUE);
-            use_screennail_image = preferences.getBoolean(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL, false);
+            use_screennail_image = preferences.getBoolean(IPreferencePropertyAccessor.NIKON_USE_SCREENNAIL_AS_SMALL, false);
         }
         catch (Exception e)
         {
@@ -78,7 +74,6 @@ public class NikonPlaybackControl implements IPlaybackControl
     public void getContentInfo(String path, String name, IContentInfoCallback callback)
     {
         // showFileInformation
-
     }
 
     @Override
@@ -91,7 +86,6 @@ public class NikonPlaybackControl implements IPlaybackControl
     public void downloadContentScreennail(String path, IDownloadThumbnailImageCallback callback)
     {
         Log.v(TAG, " downloadContentScreennail() " + path);
-
         if (!use_screennail_image)
         {
             // Thumbnail と同じ画像を表示する
@@ -111,7 +105,6 @@ public class NikonPlaybackControl implements IPlaybackControl
             if (content != null)
             {
                 IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
-                //int storageId = content.getStorageId();
                 int objectId = content.getObjectId();
 
                 // 画像表示中...のメッセージを表示する
@@ -123,8 +116,7 @@ public class NikonPlaybackControl implements IPlaybackControl
                 }
 
                 // 画像を取得する
-                PtpIpScreennailImageReceiver receiver = new PtpIpScreennailImageReceiver(activity, objectId, publisher, callback);
-                publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), objectId, false, 0, 0x90c4, 4, objectId));
+                publisher.enqueueCommand(new PtpIpCommandGeneric(new NikonScreennailImageReceiver(activity, callback), objectId, false, 0, 0x90c4, 4, objectId));
             }
         }
         catch (Exception e)
@@ -143,17 +135,36 @@ public class NikonPlaybackControl implements IPlaybackControl
             {
                 start = 1;
             }
-            //String indexStr = path.substring(start, path.indexOf("."));
-            final String indexStr = path.substring(start);
-            Log.v(TAG, "downloadContentThumbnail() : [" + path + "] " + indexStr);
 
+            final String indexStr = path.substring(start);
             NikonImageContentInfo content = nikonImageObjectReceiver.getContentObject(indexStr);
             if (content != null)
             {
                 IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
-                int objectId = content.getObjectId();
+                final int objectId = content.getObjectId();
+                if (!content.isDateValid())
+                {
+                    publisher.enqueueCommand(new PtpIpCommandGeneric(new IPtpIpCommandCallback() {
+                        @Override
+                        public void receivedMessage(int id, byte[] rx_body)
+                        {
+                            updateImageContent(objectId, rx_body);
+                        }
+
+                        @Override
+                        public void onReceiveProgress(int currentBytes, int totalBytes, byte[] rx_body) {
+
+                        }
+
+                        @Override
+                        public boolean isReceiveMulti() {
+                            return (false);
+                        }
+                    }, objectId, false, 0, 0x1008, 4, objectId));  // getObjectInfo
+                }
+
                 // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
-                publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), objectId, false, 0, 0x100a, 4, objectId));
+                publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), objectId, false, 0, 0x100a, 4, objectId));  // getThumb
             }
         }
         catch (Exception e)
@@ -161,6 +172,27 @@ public class NikonPlaybackControl implements IPlaybackControl
             e.printStackTrace();
         }
     }
+
+    private void updateImageContent(int objectId, byte[] rx_body)
+    {
+        try
+        {
+            NikonImageContentInfo content = nikonImageObjectReceiver.getImageContent(objectId);
+            // 受信データを解析してオブジェクトに値をまとめて設定する
+            int readPosition = 40;
+            int imageSize =  ((int) rx_body[readPosition] & 0x000000ff) +
+                    (((int) rx_body[readPosition + 1] & 0x000000ff) << 8) +
+                    (((int) rx_body[readPosition + 2] & 0x000000ff) << 16) +
+                    (((int) rx_body[readPosition + 3] & 0x000000ff) << 24);
+            content.setOriginalSize(imageSize);
+            Log.v(TAG, " CONTENT SIZE : " + imageSize);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public void downloadContent(String path, boolean isSmallSize, IDownloadContentCallback callback)

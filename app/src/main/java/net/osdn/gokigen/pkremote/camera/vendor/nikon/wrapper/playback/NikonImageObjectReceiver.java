@@ -156,6 +156,23 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
         return (null);
     }
 
+    NikonImageContentInfo getImageContent(int objectId)
+    {
+        for(int index = 0; index < storageIdList.size(); index++)
+        {
+            int key = storageIdList.keyAt(index);
+            NikonStorageContentHolder contentHolder = storageIdList.get(key);
+            SparseArray<NikonImageContentInfo> objectArray = contentHolder.getObjectIdList();
+            NikonImageContentInfo content = objectArray.get(objectId);
+            if (content != null)
+            {
+                return (content);
+            }
+        }
+        return (null);
+    }
+
+
     void getCameraContents(ICameraContentListCallback callback)
     {
         this.callback = null;
