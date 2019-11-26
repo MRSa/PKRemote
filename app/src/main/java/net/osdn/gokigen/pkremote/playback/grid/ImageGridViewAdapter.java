@@ -136,17 +136,17 @@ public class ImageGridViewAdapter extends BaseAdapter implements AbsListView.OnS
                 {
                     executor = Executors.newFixedThreadPool(1);
                 }
-                executor.execute(new ImageThumbnailLoader(activity, playbackControl, imageCache, viewHolder, path, infoEx.hasRaw(), infoEx.isMovie()));
+                executor.execute(new ImageThumbnailLoader(activity, playbackControl, imageCache, viewHolder, path, infoEx));
             }
         }
         else
         {
             viewHolder.getImageView().setImageBitmap(thumbnail);
-            if (infoEx.isMovie())
+            if (infoEx.getFileInfo().isMovie())
             {
                 viewHolder.getIconView().setImageResource(R.drawable.ic_videocam_grey_24dp);
             }
-            else if (infoEx.hasRaw())
+            else if (infoEx.getFileInfo().isRaw())
             {
                 viewHolder.getIconView().setImageResource(R.drawable.ic_raw_black_1x);
             }

@@ -44,8 +44,50 @@ public class PanasonicImageContentInfo implements ICameraContent
     }
 
     @Override
+    public String getOriginalName()
+    {
+        return (getContentName());
+    }
+
+    @Override
+    public boolean isRaw()
+    {
+        try
+        {
+            String target = getContentName().toLowerCase();
+            return ((target.endsWith("rw2")));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+    @Override
+    public boolean isMovie()
+    {
+        try
+        {
+            String target = getContentName().toLowerCase();
+            return ((target.endsWith("mov")) || (target.endsWith("mp4")));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+    @Override
     public boolean isDateValid() {
         return (isDateValid);
+    }
+
+    @Override
+    public boolean isContentNameValid()
+    {
+        return (true);
     }
 
     @Override

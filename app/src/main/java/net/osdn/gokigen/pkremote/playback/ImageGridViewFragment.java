@@ -67,6 +67,8 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
     private static final String CANON_RAW_SUFFIX = ".crw";
     private static final String CANON_RAW_SUFFIX2 = ".cr2";
     private static final String CANON_RAW_SUFFIX3 = ".cr3";
+    private static final String FUJI_RAW_SUFFIX = ".raf";
+
 
     private MyContentDownloader contentDownloader;
     private GridView gridView;
@@ -75,6 +77,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	private ICameraRunMode runMode;
 
     private LruCache<String, Bitmap> imageCache;
+    //private List<ICameraContent> imageContentList;
     private List<CameraContentEx> imageContentList;
 	private ExecutorService executor;
 	private ImageGridViewAdapter adapter = null;
@@ -439,6 +442,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 
         List<CameraContentEx> contentItems = new ArrayList<>();
         HashMap<String, CameraContentEx> rawItems = new HashMap<>();
+
         for (ICameraContent item : contents)
         {
             //Log.v(TAG, "......contents : [" + item.getContentName() + "]");
@@ -482,6 +486,10 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
             else if (path.endsWith(NIKON_RAW_SUFFIX))
             {
                 contentItems.add(new CameraContentEx(item, true, NIKON_RAW_SUFFIX));
+            }
+            else if (path.endsWith(FUJI_RAW_SUFFIX))
+            {
+                contentItems.add(new CameraContentEx(item, true, FUJI_RAW_SUFFIX));
             }
         }
 

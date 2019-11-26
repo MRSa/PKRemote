@@ -51,13 +51,7 @@ public class NikonFullImageReceiver implements IPtpIpCommandCallback
         this.target_image_size = imageSize;
         this.isReceiveMulti = true;
         this.receivedFirstData = false;
-/*
-        NikonImageContentInfo content = imageObjectReceiver.getImageContent(objectId);
-        if (content != null)
-        {
-            imageSize = content.getOriginalSize();
-        }
-*/
+
         Log.v(TAG, " getPartialObject (id : " + objectId + ", size:" + imageSize + ")");
         publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_PARTIAL_OBJECT, true, 0, 0x101b, 12, objectId, 0, imageSize));  // GetPartialObject (0x101b)
     }
@@ -102,7 +96,7 @@ public class NikonFullImageReceiver implements IPtpIpCommandCallback
         // 受信したデータから、通信のヘッダ部分を削除する
         byte[] body = cutHeader(rx_body);
         int length = (body == null) ? 0 : body.length;
-        Log.v(TAG, " onReceiveProgress() " + currentBytes + "/" + totalBytes + " (" + length + " bytes.)");
+        Log.v(TAG, " onReceiveProgress() " + currentBytes + "/" + totalBytes + " (" + length + " bytes.) ");
         callback.onProgress(body, length, new IProgressEvent() {
             @Override
             public float getProgress() {

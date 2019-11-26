@@ -69,9 +69,59 @@ public class FujiXImageContentInfo implements ICameraContent, IFujiXCommandCallb
     }
 
     @Override
+    public String getOriginalName()
+    {
+        if (realFileName != null)
+        {
+            return (realFileName);
+        }
+        return (getContentName());
+    }
+
+    @Override
+    public boolean isRaw()
+    {
+        try
+        {
+            if ((realFileName != null)&&(realFileName.contains(".RAF")))
+            {
+                return (true);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+    @Override
+    public boolean isMovie()
+    {
+        try
+        {
+            if ((realFileName != null)&&(realFileName.contains(".MOV")))
+            {
+                return (true);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+    @Override
     public boolean isDateValid()
     {
         return (isDateValid);
+    }
+
+    @Override
+    public boolean isContentNameValid()
+    {
+        return (false);
     }
 
     @Override

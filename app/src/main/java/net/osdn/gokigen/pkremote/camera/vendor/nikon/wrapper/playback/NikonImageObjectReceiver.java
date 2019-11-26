@@ -85,9 +85,9 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
     }
 
 /*
-    private List<PtpIpImageContentInfo> parseContentSubdirectories(byte[] rx_body, int offset)
+    private List<CanonImageContentInfo> parseContentSubdirectories(byte[] rx_body, int offset)
     {
-        List<PtpIpImageContentInfo> result = new ArrayList<>();
+        List<CanonImageContentInfo> result = new ArrayList<>();
         try
         {
             int nofObjects = (rx_body[offset] & 0xff);
@@ -109,7 +109,7 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
                 id = id + ((rx_body[dataIndex + 2] & 0xff) << 16);
                 id = id + ((rx_body[dataIndex + 3] & 0xff) << 24);
 
-                PtpIpImageContentInfo content = new PtpIpImageContentInfo(id, "", rx_body, dataIndex, objectSize);
+                CanonImageContentInfo content = new CanonImageContentInfo(id, "", rx_body, dataIndex, objectSize);
                 result.add(content);
                 dataIndex = dataIndex + objectSize;
                 if (result.size() >= nofObjects)

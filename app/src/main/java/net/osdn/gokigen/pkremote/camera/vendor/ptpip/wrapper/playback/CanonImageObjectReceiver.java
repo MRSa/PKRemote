@@ -25,7 +25,7 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
     private final PtpIpInterfaceProvider provider;
     private boolean isDumpLog = false;
     private List<ICameraContent> imageObjectList;
-    private List<PtpIpImageContentInfo> ptpIpImageObjectList;
+    private List<CanonImageContentInfo> ptpIpImageObjectList;
     private ICameraContentListCallback callback = null;
     private int subDirectoriesCount = -1;
     private int receivedSubDirectoriesCount = -1;
@@ -58,10 +58,10 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
                     break;
 
                 case GET_OBJECT_INFO_EX:
-                    List<PtpIpImageContentInfo> directries =  parseContentSubdirectories(rx_body, 32);
+                    List<CanonImageContentInfo> directries =  parseContentSubdirectories(rx_body, 32);
                     {
                         // サブディレクトリの情報を拾う
-                        for (PtpIpImageContentInfo contentInfo : directries)
+                        for (CanonImageContentInfo contentInfo : directries)
                         {
                             publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_OBJECT_INFO_EX_2, isDumpLog, 0, 0x9109, 12, 0x00010001, contentInfo.getId(), 0x00200000));
                         }
@@ -69,10 +69,10 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
                     break;
 
                 case GET_OBJECT_INFO_EX_2:
-                    List<PtpIpImageContentInfo> subDirectries =  parseContentSubdirectories(rx_body, 32);
+                    List<CanonImageContentInfo> subDirectries =  parseContentSubdirectories(rx_body, 32);
                     {
                         // 画像の情報を拾う
-                        for (PtpIpImageContentInfo contentInfo : subDirectries)
+                        for (CanonImageContentInfo contentInfo : subDirectries)
                         {
                             publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_OBJECT_INFO_EX_3, isDumpLog, 0, 0x9109, 12, 0x00010001, contentInfo.getId(), 0x00200000));
                         }
@@ -91,7 +91,7 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
                     {
                         Log.v(TAG, " --- CONTENT ---");
                     }
-                    List<PtpIpImageContentInfo> objects =  parseContentSubdirectories(rx_body, 32);
+                    List<CanonImageContentInfo> objects =  parseContentSubdirectories(rx_body, 32);
                     if (objects.size() > 0)
                     {
                         imageObjectList.addAll(objects);
@@ -118,9 +118,9 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
         }
     }
 
-    private List<PtpIpImageContentInfo> parseContentSubdirectories(byte[] rx_body, int offset)
+    private List<CanonImageContentInfo> parseContentSubdirectories(byte[] rx_body, int offset)
     {
-        List<PtpIpImageContentInfo> result = new ArrayList<>();
+        List<CanonImageContentInfo> result = new ArrayList<>();
         try
         {
             int nofObjects = (rx_body[offset] & 0xff);
@@ -142,7 +142,7 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
                 id = id + ((rx_body[dataIndex + 2] & 0xff) << 16);
                 id = id + ((rx_body[dataIndex + 3] & 0xff) << 24);
 
-                PtpIpImageContentInfo content = new PtpIpImageContentInfo(id, "", rx_body, dataIndex, objectSize);
+                CanonImageContentInfo content = new CanonImageContentInfo(id, "", rx_body, dataIndex, objectSize);
                 result.add(content);
                 dataIndex = dataIndex + objectSize;
                 if (result.size() >= nofObjects)
@@ -171,9 +171,9 @@ public class CanonImageObjectReceiver implements IPtpIpCommandCallback
         return (false);
     }
 
-    PtpIpImageContentInfo getContentObject(String fileName)
+    CanonImageContentInfo getContentObject(String fileName)
     {
-        for (PtpIpImageContentInfo contentInfo : ptpIpImageObjectList)
+        for (CanonImageContentInfo contentInfo : ptpIpImageObjectList)
         {
 
             if (fileName.matches(contentInfo.getContentName()))

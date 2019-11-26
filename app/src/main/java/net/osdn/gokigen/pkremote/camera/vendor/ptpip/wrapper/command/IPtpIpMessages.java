@@ -22,8 +22,7 @@ public interface IPtpIpMessages
     int GET_STORAGE_HANDLE1 = 110;
     int GET_STORAGE_HANDLE2 = 111;
     int GET_STORAGE_HANDLE3 = 112;
-    int GET_PARTIAL_OBJECT = 113;
-
+    int GET_PARTIAL_OBJECT= 113;
 
 /*
     int SEQ_REGISTRATION = 1;

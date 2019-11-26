@@ -5,10 +5,12 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.R;
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IContentInfoCallback;
@@ -23,6 +25,11 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.Pt
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback.PtpIpThumbnailImageReceiver;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+
 /**
  *
  *
@@ -33,8 +40,8 @@ public class NikonPlaybackControl implements IPlaybackControl
     private final Activity activity;
     private final NikonInterfaceProvider provider;
     private final NikonFullImageReceiver fullImageReceiver;
-    private final NikonSmallImageReceiver smallImageReciever;
-    private String raw_suffix = "NEF";
+    //private final NikonSmallImageReceiver smallImageReciever;
+   // private String raw_suffix = "NEF";
     private boolean use_screennail_image = false;
     private NikonImageObjectReceiver nikonImageObjectReceiver;
 
@@ -44,12 +51,12 @@ public class NikonPlaybackControl implements IPlaybackControl
         this.provider = provider;
         nikonImageObjectReceiver = new NikonImageObjectReceiver(provider);
         this.fullImageReceiver = new NikonFullImageReceiver(activity, provider.getCommandPublisher());
-        this.smallImageReciever = new NikonSmallImageReceiver(activity, provider.getCommandPublisher());
+        //this.smallImageReciever = new NikonSmallImageReceiver(activity, provider.getCommandPublisher());
 
         try
         {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-            raw_suffix = preferences.getString(IPreferencePropertyAccessor.CANON_RAW_SUFFIX, IPreferencePropertyAccessor.CANON_RAW_SUFFIX_DEFAULT_VALUE);
+            //raw_suffix = preferences.getString(IPreferencePropertyAccessor.CANON_RAW_SUFFIX, IPreferencePropertyAccessor.CANON_RAW_SUFFIX_DEFAULT_VALUE);
             use_screennail_image = preferences.getBoolean(IPreferencePropertyAccessor.NIKON_USE_SCREENNAIL_AS_SMALL, false);
         }
         catch (Exception e)
@@ -61,7 +68,8 @@ public class NikonPlaybackControl implements IPlaybackControl
     @Override
     public String getRawFileSuffix()
     {
-        return (raw_suffix);
+        //return (raw_suffix);
+        return ("NEF");
     }
 
     @Override
@@ -186,11 +194,48 @@ public class NikonPlaybackControl implements IPlaybackControl
                     (((int) rx_body[readPosition + 3] & 0x000000ff) << 24);
             content.setOriginalSize(imageSize);
             Log.v(TAG, " CONTENT SIZE : " + imageSize);
+
+            readPosition = 5 * 16 + 4;
+            int length = ((int) rx_body[readPosition] & 0x000000ff) -1;
+            byte[] fileNameArray = new byte[length];
+            for (int index = 0; index < length; index++)
+            {
+                readPosition++;
+                fileNameArray[index] = rx_body[readPosition];
+                readPosition++;
+            }
+            content.setContentName(new String(fileNameArray));
+
+            readPosition = 7 * 16 - 1;
+            int dateTimeLength = ((int) rx_body[readPosition] & 0x000000ff) -1;
+            byte[] dateTimeArray = new byte[dateTimeLength];
+            for (int index = 0; index < dateTimeLength; index++)
+            {
+                readPosition++;
+                dateTimeArray[index] = rx_body[readPosition];
+                readPosition++;
+            }
+            content.setCapturedDate(getCameraContentDate(new String(dateTimeArray)));
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+    }
+
+    private Date getCameraContentDate(String dateTime)
+    {
+        try
+        {
+            SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.US); // "yyyyMMdd'T'HHmmss"
+            dateFormatter.setCalendar(new GregorianCalendar());
+            return (dateFormatter.parse(dateTime));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (new Date());
     }
 
 
@@ -211,7 +256,8 @@ public class NikonPlaybackControl implements IPlaybackControl
                 if (isSmallSize)
                 {
                     // スモールサイズの画像取得コマンド（シーケンス）を発行する
-                    smallImageReciever.issueCommand(content.getObjectId(), callback);
+                    //smallImageReciever.issueCommand(content.getObjectId(), callback);
+                    fullImageReceiver.issueCommand(content.getObjectId(), content.getOriginalSize(), callback);
                 }
                 else
                 {

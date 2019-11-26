@@ -11,8 +11,8 @@ class NikonImageContentInfo implements ICameraContent
     private final String TAG = toString();
     private Date date;
     private String contentName = "";
+    private String originalFileName = null;
     private boolean isDateValid = false;
-    private boolean isContentNameValid = false;
     private int contentSize = 0;
 
 
@@ -72,17 +72,79 @@ class NikonImageContentInfo implements ICameraContent
     @Override
     public String getContentName()
     {
-        if (isContentNameValid)
+/*
+        try
         {
-            return (contentName);
+            if ((originalFileName != null)&&(originalFileName.contains(".MOV")))
+            {
+                return (String.format("0x%08x.MOV", objectId));
+            }
         }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+*/
         return (String.format("0x%08x.JPG", objectId));
+    }
+
+    @Override
+    public String getOriginalName()
+    {
+        if (originalFileName != null)
+        {
+            return (originalFileName);
+        }
+        return (getContentName());
+    }
+
+    @Override
+    public boolean isRaw()
+    {
+        try
+        {
+            if ((originalFileName != null)&&(originalFileName.contains(".NEF")))
+            {
+                return (true);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+    @Override
+    public boolean isMovie()
+    {
+        try
+        {
+            if (originalFileName != null)
+            {
+                if ((originalFileName.contains(".MOV"))||(originalFileName.contains(".MP4")))
+                {
+                    return (true);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
     }
 
     @Override
     public boolean isDateValid()
     {
         return (isDateValid);
+    }
+
+    @Override
+    public boolean isContentNameValid()
+    {
+        return (false);
     }
 
     @Override
@@ -99,14 +161,13 @@ class NikonImageContentInfo implements ICameraContent
         isDateValid = true;
     }
 
-    public void setContentName(String contentName)
+    void setContentName(String contentName)
     {
-        Log.v(TAG, "setContentName() : " + contentName);
-        this.contentName = contentName;
-        isContentNameValid = true;
+        Log.v(TAG, " ----- setContentName() : " + contentName);
+        this.originalFileName = contentName;
     }
 
-    public void setOriginalSize(int size)
+    void setOriginalSize(int size)
     {
         this.contentSize = size;
     }

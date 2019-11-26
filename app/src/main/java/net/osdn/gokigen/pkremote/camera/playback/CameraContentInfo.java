@@ -56,9 +56,51 @@ public class CameraContentInfo implements ICameraContent
     }
 
     @Override
+    public String getOriginalName()
+    {
+        return (contentName);
+    }
+
+    @Override
+    public boolean isRaw()
+    {
+        try
+        {
+            String target = contentName.toLowerCase();
+            return ((target.endsWith("orf")) || (target.endsWith("dng")) || (target.endsWith("pef")));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+    @Override
+    public boolean isMovie()
+    {
+        try
+        {
+            String target = contentName.toLowerCase();
+            return ((target.endsWith("mov")) || (target.endsWith("mp4")));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+    @Override
     public boolean isDateValid()
     {
         return (isDateValid);
+    }
+
+    @Override
+    public boolean isContentNameValid()
+    {
+        return (true);
     }
 
     @Override

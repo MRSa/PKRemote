@@ -56,7 +56,49 @@ public class OlympusPenCameraContent implements ICameraContent
     }
 
     @Override
+    public String getOriginalName()
+    {
+        return (name);
+    }
+
+    @Override
+    public boolean isRaw()
+    {
+        try
+        {
+            String target = name.toLowerCase();
+            return ((target.endsWith("orf")));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+    @Override
+    public boolean isMovie()
+    {
+        try
+        {
+            String target = name.toLowerCase();
+            return ((target.endsWith("mov")) || (target.endsWith("mp4")));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+    @Override
     public boolean isDateValid()
+    {
+        return (true);
+    }
+
+    @Override
+    public boolean isContentNameValid()
     {
         return (true);
     }

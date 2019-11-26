@@ -102,7 +102,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl
                 start = 1;
             }
             final String indexStr = path.substring(start);
-            PtpIpImageContentInfo content = canonImageObjectReceiver.getContentObject(indexStr);
+            CanonImageContentInfo content = canonImageObjectReceiver.getContentObject(indexStr);
             if (content != null)
             {
                 IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
@@ -142,7 +142,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl
             final String indexStr = path.substring(start);
             //Log.v(TAG, "downloadContentThumbnail() : [" + path + "] " + indexStr);
 
-            PtpIpImageContentInfo content = canonImageObjectReceiver.getContentObject(indexStr);
+            CanonImageContentInfo content = canonImageObjectReceiver.getContentObject(indexStr);
             if (content != null)
             {
                 IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
@@ -169,7 +169,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl
                 start = 1;
             }
             final String indexStr = path.substring(start);
-            PtpIpImageContentInfo content = canonImageObjectReceiver.getContentObject(indexStr);
+            CanonImageContentInfo content = canonImageObjectReceiver.getContentObject(indexStr);
             if (content != null)
             {
                 if (isSmallSize)

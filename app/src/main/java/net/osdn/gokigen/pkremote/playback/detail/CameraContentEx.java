@@ -35,6 +35,12 @@ public class CameraContentEx
 
     public boolean hasRaw()
     {
+        if (!(fileInfo.isContentNameValid()))
+        {
+            //
+
+
+        }
         return (hasRaw);
     }
 

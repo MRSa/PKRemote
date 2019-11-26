@@ -127,6 +127,42 @@ public class SonyImageContentInfo implements ICameraContent
         return (getContentNameString());
     }
 
+    @Override
+    public String getOriginalName()
+    {
+        return (getContentName());
+    }
+
+    @Override
+    public boolean isRaw()
+    {
+        try
+        {
+            String target = getContentName().toLowerCase();
+            return ((target.endsWith("arw")));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+    @Override
+    public boolean isMovie()
+    {
+        try
+        {
+            String target = getContentName().toLowerCase();
+            return ((target.endsWith("mov")) || (target.endsWith("mp4")));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
     private String getContentNameObject()
     {
         String fileName = "";
@@ -149,7 +185,7 @@ public class SonyImageContentInfo implements ICameraContent
         {
             int startIndex = contentString.indexOf("<dc:title>");
             int endIndex = contentString.indexOf("</dc:title>");
-            Log.v(TAG, "getContentNameString : " + contentString.substring(startIndex + 10, endIndex));
+            //Log.v(TAG, "  getContentNameString : " + contentString.substring(startIndex + 10, endIndex));
             return (contentString.substring(startIndex + 10, endIndex));
         }
         catch (Exception e)
@@ -161,6 +197,12 @@ public class SonyImageContentInfo implements ICameraContent
 
     @Override
     public boolean isDateValid()
+    {
+        return (true);
+    }
+
+    @Override
+    public boolean isContentNameValid()
     {
         return (true);
     }

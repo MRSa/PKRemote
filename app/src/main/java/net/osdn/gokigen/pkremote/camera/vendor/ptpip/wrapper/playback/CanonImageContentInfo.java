@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class PtpIpImageContentInfo implements ICameraContent
+public class CanonImageContentInfo implements ICameraContent
 {
     private final String TAG = toString();
     private final int indexNumber;
@@ -17,7 +17,7 @@ public class PtpIpImageContentInfo implements ICameraContent
     private Date date;
     private final byte[] rx_body;
 
-    public PtpIpImageContentInfo(int indexNumber, String contentPath, byte[] binaryData, int offset, int length)
+    public CanonImageContentInfo(int indexNumber, String contentPath, byte[] binaryData, int offset, int length)
     {
         this.indexNumber = indexNumber;
         this.contentPath = contentPath;
@@ -81,9 +81,51 @@ public class PtpIpImageContentInfo implements ICameraContent
     }
 
     @Override
+    public String getOriginalName()
+    {
+        return (getContentName());
+    }
+
+    @Override
+    public boolean isRaw()
+    {
+        try
+        {
+            String target = getContentName().toLowerCase();
+            return ((target.endsWith("crw")) || (target.endsWith("cr2")) || (target.endsWith("cr3")));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+    @Override
+    public boolean isMovie()
+    {
+        try
+        {
+            String target = getContentName().toLowerCase();
+            return ((target.endsWith("mov")) || (target.endsWith("mp4")));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (false);
+    }
+
+    @Override
     public boolean isDateValid()
     {
         return (isDateValid);
+    }
+
+    @Override
+    public boolean isContentNameValid()
+    {
+        return (true);
     }
 
     @Override

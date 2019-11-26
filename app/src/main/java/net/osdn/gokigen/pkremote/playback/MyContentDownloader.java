@@ -41,11 +41,16 @@ public class MyContentDownloader implements IDownloadContentCallback
     private final Activity activity;
     private final IPlaybackControl playbackControl;
     private final IContentDownloadNotify receiver;
-    private static final String RAW_SUFFIX_1 = ".DNG";
-    private static final String RAW_SUFFIX_2 = ".ORF";
-    private static final String RAW_SUFFIX_3 = ".PEF";
-    private static final String RAW_SUFFIX_4 = ".RW2";
-    private static final String RAW_SUFFIX_5 = ".ARW";
+    private static final String RAW_SUFFIX_1 = ".DNG";  // RAW: Ricoh / Pentax
+    private static final String RAW_SUFFIX_2 = ".ORF";  // RAW: Olympus
+    private static final String RAW_SUFFIX_3 = ".PEF";  // RAW: Pentax
+    private static final String RAW_SUFFIX_4 = ".RW2";  // RAW: Panasonic
+    private static final String RAW_SUFFIX_5 = ".ARW";  // RAW: Sony
+    private static final String RAW_SUFFIX_6 = ".CRW";  // RAW: Canon
+    private static final String RAW_SUFFIX_7 = ".CR2";  // RAW: Canon
+    private static final String RAW_SUFFIX_8 = ".CR3";  // RAW: Canon
+    private static final String RAW_SUFFIX_9 = ".NEF";  // RAW: Nikon
+    private static final String RAW_SUFFIX_0 = ".RAF";  // RAW: Fuji
     private static final String MOVIE_SUFFIX = ".MOV";
     private static final String MOVIE_SUFFIX_MP4 = ".MP4";
     private static final String JPEG_SUFFIX = ".JPG";
@@ -78,50 +83,73 @@ public class MyContentDownloader implements IDownloadContentCallback
             Log.v(TAG, "startDownload() ICameraFileInfo is NULL...");
             return;
         }
-        Log.v(TAG, "startDownload() " + fileInfo.getContentName());
+        Log.v(TAG, "startDownload() " + fileInfo.getOriginalName());
 
         // Download the image.
         try
         {
             isDownloading = true;
-            Calendar calendar = Calendar.getInstance();
-            String extendName = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(calendar.getTime());
-            targetFileName = fileInfo.getContentName().toUpperCase();
+            String contentFileName  = fileInfo.getContentName().toUpperCase();
             if (replaceJpegSuffix != null)
             {
-                targetFileName = targetFileName.replace(JPEG_SUFFIX, replaceJpegSuffix);
+                contentFileName = contentFileName.replace(JPEG_SUFFIX, replaceJpegSuffix);
             }
-            if (targetFileName.toUpperCase().contains(RAW_SUFFIX_1))
+            if (contentFileName.toUpperCase().contains(RAW_SUFFIX_1))
             {
                 mimeType = "image/x-adobe-dng";
                 isSmallSize = false;
             }
-            else if (targetFileName.toUpperCase().contains(RAW_SUFFIX_2))
+            else if (contentFileName.toUpperCase().contains(RAW_SUFFIX_2))
             {
                 mimeType = "image/x-olympus-orf";
                 isSmallSize = false;
             }
-            else if (targetFileName.toUpperCase().contains(RAW_SUFFIX_3))
+            else if (contentFileName.toUpperCase().contains(RAW_SUFFIX_3))
             {
                 mimeType = "image/x-pentax-pef";
                 isSmallSize = false;
             }
-            else if (targetFileName.toUpperCase().contains(RAW_SUFFIX_4))
+            else if (contentFileName.toUpperCase().contains(RAW_SUFFIX_4))
             {
-                mimeType = "image/x-panasonic-raw2";
+                mimeType = "image/x-panasonic-rw2";
                 isSmallSize = false;
             }
-            else if (targetFileName.toUpperCase().contains(RAW_SUFFIX_5))
+            else if (contentFileName.toUpperCase().contains(RAW_SUFFIX_5))
             {
                 mimeType = "image/x-sony-arw";
                 isSmallSize = false;
             }
-            else if (targetFileName.toUpperCase().contains(MOVIE_SUFFIX))
+            else if (contentFileName.toUpperCase().contains(RAW_SUFFIX_6))
+            {
+                mimeType = "image/x-canon-crw";
+                isSmallSize = false;
+            }
+            else if (contentFileName.toUpperCase().contains(RAW_SUFFIX_7))
+            {
+                mimeType = "image/x-canon-cr2";
+                isSmallSize = false;
+            }
+            else if (contentFileName.toUpperCase().contains(RAW_SUFFIX_8))
+            {
+                mimeType = "image/x-canon-cr3";
+                isSmallSize = false;
+            }
+            else if (contentFileName.toUpperCase().contains(RAW_SUFFIX_9))
+            {
+                mimeType = "image/x-nikon-nef";
+                isSmallSize = false;
+            }
+            else if (contentFileName.toUpperCase().contains(RAW_SUFFIX_0))
+            {
+                mimeType = "image/x-fuji-raf";
+                isSmallSize = false;
+            }
+            else if (contentFileName.toUpperCase().contains(MOVIE_SUFFIX))
             {
                 mimeType =  "video/mp4";
                 isSmallSize = false;
             }
-            else if (targetFileName.toUpperCase().contains(MOVIE_SUFFIX_MP4))
+            else if (contentFileName.toUpperCase().contains(MOVIE_SUFFIX_MP4))
             {
                 mimeType =  "video/mp4";
                 isSmallSize = false;
@@ -130,6 +158,8 @@ public class MyContentDownloader implements IDownloadContentCallback
             {
                 mimeType = "image/jpeg";
             }
+
+            targetFileName = fileInfo.getOriginalName().toUpperCase();
 
             ////// ダイアログの表示
             activity.runOnUiThread(new Runnable() {
@@ -147,10 +177,15 @@ public class MyContentDownloader implements IDownloadContentCallback
                     downloadDialog.show();
                 }
             });
-            String path = fileInfo.getContentPath() + "/" + targetFileName;
 
             final String directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath() + "/" + activity.getString(R.string.app_name2) + "/";
-            String outputFileName =  extendName + "_" + targetFileName;
+
+            Calendar calendar = Calendar.getInstance();
+            String  extendName = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(calendar.getTime());
+            int periodPosition = targetFileName.indexOf(".");
+            String extension = targetFileName.substring(periodPosition);
+            String baseFileName = targetFileName.substring(0, periodPosition);
+            String outputFileName =  baseFileName + "_" + extendName + extension;
             filepath = new File(directoryPath.toLowerCase(), outputFileName.toLowerCase()).getPath();
             try
             {
@@ -164,6 +199,7 @@ public class MyContentDownloader implements IDownloadContentCallback
                 }
                 outputStream = new FileOutputStream(filepath);
 
+                String path = fileInfo.getContentPath() + "/" + contentFileName;
                 Log.v(TAG, "downloadContent : " + path + " (small: " + isSmallSize + ")");
                 playbackControl.downloadContent(path, isSmallSize, this);
             }
@@ -240,7 +276,13 @@ public class MyContentDownloader implements IDownloadContentCallback
                 outputStream.close();
                 outputStream = null;
             }
-            if ((!targetFileName.toUpperCase().endsWith(RAW_SUFFIX_1))&&(!targetFileName.toUpperCase().endsWith(RAW_SUFFIX_2))&&(!targetFileName.toUpperCase().endsWith(RAW_SUFFIX_3)))
+/*
+            // RAW ファイルを、ContentResolverに登録しない場合。。。
+            if ((!targetFileName.toUpperCase().endsWith(RAW_SUFFIX_1))&&(!targetFileName.toUpperCase().endsWith(RAW_SUFFIX_2))&&(!targetFileName.toUpperCase().endsWith(RAW_SUFFIX_3))&&
+                (!targetFileName.toUpperCase().endsWith(RAW_SUFFIX_4))&&(!targetFileName.toUpperCase().endsWith(RAW_SUFFIX_5))&&(!targetFileName.toUpperCase().endsWith(RAW_SUFFIX_6))&&
+                (!targetFileName.toUpperCase().endsWith(RAW_SUFFIX_7))&&(!targetFileName.toUpperCase().endsWith(RAW_SUFFIX_8))&&(!targetFileName.toUpperCase().endsWith(RAW_SUFFIX_9))&&
+                (!targetFileName.toUpperCase().endsWith(RAW_SUFFIX_0)))
+*/
             {
                 // ギャラリーに受信したファイルを登録する
                 long now = System.currentTimeMillis();

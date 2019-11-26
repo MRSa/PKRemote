@@ -6,6 +6,7 @@ import android.util.Log;
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
+import net.osdn.gokigen.pkremote.playback.detail.CameraContentEx;
 
 import java.util.Map;
 
@@ -21,18 +22,16 @@ public class ImageThumbnailLoader implements Runnable
     private final AppCompatActivity activity;
     private LruCache<String, Bitmap> imageCache;
     private String path;
-    private final boolean hasRaw;
-    private final boolean isMovie;
+    private final CameraContentEx infoEx;
 
-    ImageThumbnailLoader(@NonNull AppCompatActivity activity,  @NonNull IPlaybackControl playbackControl, LruCache<String, Bitmap> imageCache, ImageGridCellViewHolder viewHolder, String path, boolean hasRaw, boolean isMovie)
+    ImageThumbnailLoader(@NonNull AppCompatActivity activity, @NonNull IPlaybackControl playbackControl, LruCache<String, Bitmap> imageCache, ImageGridCellViewHolder viewHolder, String path, CameraContentEx infoEx)
     {
         this.activity = activity;
         this.playbackControl = playbackControl;
         this.imageCache = imageCache;
         this.viewHolder = viewHolder;
         this.path = path;
-        this.hasRaw = hasRaw;
-        this.isMovie = isMovie;
+        this.infoEx = infoEx;
     }
 
     @Override
@@ -57,9 +56,9 @@ public class ImageThumbnailLoader implements Runnable
                             @Override
                             public void run() {
                                 viewHolder.getImageView().setImageBitmap(thumbnail);
-                                if (isMovie) {
+                                if (infoEx.getFileInfo().isMovie()) {
                                     viewHolder.getIconView().setImageResource(R.drawable.ic_videocam_grey_24dp);
-                                } else if (hasRaw) {
+                                } else if (infoEx.getFileInfo().isRaw()) {
                                     viewHolder.getIconView().setImageResource(R.drawable.ic_raw_black_1x);
                                 } else {
                                     viewHolder.getIconView().setImageDrawable(null);
