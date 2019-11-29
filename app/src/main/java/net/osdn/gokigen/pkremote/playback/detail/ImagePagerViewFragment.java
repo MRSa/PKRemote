@@ -108,7 +108,7 @@ public class ImagePagerViewFragment extends Fragment
 		{
             CameraContentEx info  = contentList.get(contentIndex);
             ICameraContent file = info.getFileInfo();
-			String path = file.getContentPath() + "/" + file.getContentName();
+			String path = (file.isContentNameValid()) ? (file.getContentPath() + "/" + file.getContentName()) : (file.getOriginalName());
 
 			AppCompatActivity activity = (AppCompatActivity) getActivity();
 			if (activity != null)
