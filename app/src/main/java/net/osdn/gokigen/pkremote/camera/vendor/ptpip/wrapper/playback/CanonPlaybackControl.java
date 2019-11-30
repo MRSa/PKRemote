@@ -26,23 +26,23 @@ import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
  *
  *
  */
-public class PtpIpPlaybackControl implements IPlaybackControl
+public class CanonPlaybackControl implements IPlaybackControl
 {
     private final String TAG = toString();
     private final Activity activity;
     private final PtpIpInterfaceProvider provider;
-    private final PtpIpFullImageReceiver fullImageReceiver;
-    private final PtpIpSmallImageReceiver smallImageReciever;
+    private final CanonFullImageReceiver fullImageReceiver;
+    private final CanonSmallImageReceiver smallImageReciever;
     private String raw_suffix = "CR2";
     private boolean use_screennail_image = false;
     private CanonImageObjectReceiver canonImageObjectReceiver;
 
-    public PtpIpPlaybackControl(Activity activity, PtpIpInterfaceProvider provider)
+    public CanonPlaybackControl(Activity activity, PtpIpInterfaceProvider provider)
     {
         this.activity = activity;
         this.provider = provider;
-        this.fullImageReceiver = new PtpIpFullImageReceiver(activity, provider.getCommandPublisher());
-        this.smallImageReciever = new PtpIpSmallImageReceiver(activity, provider.getCommandPublisher());
+        this.fullImageReceiver = new CanonFullImageReceiver(activity, provider.getCommandPublisher());
+        this.smallImageReciever = new CanonSmallImageReceiver(activity, provider.getCommandPublisher());
         canonImageObjectReceiver = new CanonImageObjectReceiver(provider);
 
         try
@@ -118,7 +118,7 @@ public class PtpIpPlaybackControl implements IPlaybackControl
                 }
 
                 // 画像を取得する
-                PtpIpScreennailImageReceiver receiver = new PtpIpScreennailImageReceiver(activity, objectId, publisher, callback);
+                CanonScreennailImageReceiver receiver = new CanonScreennailImageReceiver(activity, objectId, publisher, callback);
                 publisher.enqueueCommand(new CanonRequestInnerDevelopStart(receiver, objectId, true, objectId, objectId));   // 0x9141 : RequestInnerDevelopStart
             }
         }

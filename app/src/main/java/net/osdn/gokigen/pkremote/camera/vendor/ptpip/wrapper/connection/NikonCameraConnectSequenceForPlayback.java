@@ -10,6 +10,7 @@ import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.vendor.nikon.INikonInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.status.NikonStatusChecker;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages;
@@ -26,10 +27,10 @@ public class NikonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
     private final ICameraStatusReceiver cameraStatusReceiver;
     private final INikonInterfaceProvider interfaceProvider;
     private final IPtpIpCommandPublisher commandIssuer;
-    private final PtpIpStatusChecker statusChecker;
+    private final NikonStatusChecker statusChecker;
     private boolean isDumpLog = false;
 
-    NikonCameraConnectSequenceForPlayback(@NonNull Activity context, @NonNull ICameraStatusReceiver statusReceiver, @NonNull final ICameraConnection cameraConnection, @NonNull INikonInterfaceProvider interfaceProvider, @NonNull PtpIpStatusChecker statusChecker)
+    NikonCameraConnectSequenceForPlayback(@NonNull Activity context, @NonNull ICameraStatusReceiver statusReceiver, @NonNull final ICameraConnection cameraConnection, @NonNull INikonInterfaceProvider interfaceProvider, @NonNull NikonStatusChecker statusChecker)
     {
         Log.v(TAG, " NikonCameraConnectSequenceForPlayback");
         this.context = context;

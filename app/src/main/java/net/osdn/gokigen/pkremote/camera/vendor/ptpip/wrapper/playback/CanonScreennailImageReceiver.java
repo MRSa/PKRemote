@@ -14,9 +14,9 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.Pt
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonGetPartialObject;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopEnd;
 
-public class PtpIpScreennailImageReceiver implements IPtpIpCommandCallback
+public class CanonScreennailImageReceiver implements IPtpIpCommandCallback
 {
-    private static final String TAG = PtpIpScreennailImageReceiver.class.getSimpleName();
+    private static final String TAG = CanonScreennailImageReceiver.class.getSimpleName();
 
     private static final int BITMAP_MAX_PIXEL = 1024;  // 小さい方のサイズ
 
@@ -25,13 +25,13 @@ public class PtpIpScreennailImageReceiver implements IPtpIpCommandCallback
     private final IPtpIpCommandPublisher publisher;
     private final int objectId;
 
-    public PtpIpScreennailImageReceiver(Activity activity, int objectId, IPtpIpCommandPublisher publisher, IDownloadThumbnailImageCallback callback)
+    public CanonScreennailImageReceiver(Activity activity, int objectId, IPtpIpCommandPublisher publisher, IDownloadThumbnailImageCallback callback)
     {
         this.activity = activity;
         this.callback = callback;
         this.publisher = publisher;
         this.objectId = objectId;
-        Log.v(TAG, "PtpIpScreennailImageReceiver CREATED : " + objectId);
+        Log.v(TAG, "CanonScreennailImageReceiver CREATED : " + objectId);
     }
 
     @Override

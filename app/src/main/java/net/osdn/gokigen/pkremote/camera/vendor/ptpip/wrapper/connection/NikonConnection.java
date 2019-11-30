@@ -19,7 +19,7 @@ import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.vendor.nikon.INikonInterfaceProvider;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.PtpIpStatusChecker;
+import net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.status.NikonStatusChecker;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -32,10 +32,10 @@ public class NikonConnection implements ICameraConnection
     private final INikonInterfaceProvider interfaceProvider;
     private final BroadcastReceiver connectionReceiver;
     private final Executor cameraExecutor = Executors.newFixedThreadPool(1);
-    private final PtpIpStatusChecker statusChecker;
+    private final NikonStatusChecker statusChecker;
     private CameraConnectionStatus connectionStatus = CameraConnectionStatus.UNKNOWN;
 
-    public NikonConnection(@NonNull final Activity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull INikonInterfaceProvider interfaceProvider, @NonNull PtpIpStatusChecker statusChecker)
+    public NikonConnection(@NonNull final Activity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull INikonInterfaceProvider interfaceProvider, @NonNull NikonStatusChecker statusChecker)
     {
         Log.v(TAG, "NikonConnection()");
         this.context = context;

@@ -29,6 +29,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher;
 import net.osdn.gokigen.pkremote.camera.vendor.nikon.INikonInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.playback.NikonPlaybackControl;
+import net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.status.NikonStatusChecker;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.operation.PtpIpZoomControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.PtpIpButtonControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.PtpIpHardwareStatus;
@@ -67,7 +68,7 @@ public class NikonInterfaceProvider implements INikonInterfaceProvider, IDisplay
     private PtpIpZoomControl zoomControl;
     //private PtpIpCaptureControl captureControl;
     //private PtpIpFocusingControl focusingControl;
-    private PtpIpStatusChecker statusChecker;
+    private NikonStatusChecker statusChecker;
     private ICameraStatusUpdateNotify statusListener;
     private NikonPlaybackControl playbackControl;
     private IInformationReceiver informationReceiver;
@@ -88,7 +89,7 @@ public class NikonInterfaceProvider implements INikonInterfaceProvider, IDisplay
         commandPublisher = new PtpIpCommandPublisher(ipAddress, CONTROL_PORT);
         liveViewControl = new PtpIpLiveViewControl(context, ipAddress, STREAM_PORT);
         asyncReceiver = new PtpIpAsyncResponseReceiver(ipAddress, ASYNC_RESPONSE_PORT);
-        statusChecker = new PtpIpStatusChecker(activity, commandPublisher, ipAddress, EVENT_PORT);
+        statusChecker = new NikonStatusChecker(activity, commandPublisher, ipAddress, EVENT_PORT);
         nikonConnection = new NikonConnection(context, provider, this, statusChecker);
         zoomControl = new PtpIpZoomControl();
         this.statusListener = statusListener;

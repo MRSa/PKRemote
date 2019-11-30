@@ -34,7 +34,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpAsyncR
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection.CanonConnection;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.liveview.PtpIpLiveViewControl;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback.PtpIpPlaybackControl;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback.CanonPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.IPtpIpRunModeHolder;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.PtpIpStatusChecker;
 
@@ -61,7 +61,7 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
     //private PtpIpFocusingControl focusingControl;
     private PtpIpStatusChecker statusChecker;
     private ICameraStatusUpdateNotify statusListener;
-    private PtpIpPlaybackControl playbackControl;
+    private CanonPlaybackControl playbackControl;
     private IInformationReceiver informationReceiver;
 
     public PtpIpInterfaceProvider(@NonNull Activity context, @NonNull ICameraStatusReceiver provider, @NonNull ICameraStatusUpdateNotify statusListener, @NonNull IInformationReceiver informationReceiver)
@@ -77,7 +77,7 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
         this.runmode = new PtpIpRunMode();
         this.hardwareStatus = new PtpIpHardwareStatus();
         this.ptpIpButtonControl = new PtpIpButtonControl();
-        this.playbackControl = new PtpIpPlaybackControl(activity, this);
+        this.playbackControl = new CanonPlaybackControl(activity, this);
         this.informationReceiver = informationReceiver;
     }
 
