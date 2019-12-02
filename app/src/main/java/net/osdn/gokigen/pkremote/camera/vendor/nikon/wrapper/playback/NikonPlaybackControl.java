@@ -124,7 +124,7 @@ public class NikonPlaybackControl implements IPlaybackControl
                 }
 
                 // 画像を取得する
-                publisher.enqueueCommand(new PtpIpCommandGeneric(new NikonScreennailImageReceiver(activity, callback), objectId, false, 0, 0x90c4, 4, objectId));
+                publisher.enqueueCommand(new PtpIpCommandGeneric(new NikonScreennailImageReceiver(activity, callback), objectId, 75, false, 0, 0x90c4, 4, objectId, 0, 0, 0));
             }
         }
         catch (Exception e)
@@ -168,11 +168,11 @@ public class NikonPlaybackControl implements IPlaybackControl
                         public boolean isReceiveMulti() {
                             return (false);
                         }
-                    }, objectId, false, 0, 0x1008, 4, objectId));  // getObjectInfo
+                    }, objectId, 75, false, 0, 0x1008, 4, objectId, 0, 0, 0));  // getObjectInfo
                 }
 
                 // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
-                publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), objectId, false, 0, 0x100a, 4, objectId));  // getThumb
+                publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), objectId, 75, false, 0, 0x100a, 4, objectId, 0, 0, 0));  // getThumb
             }
         }
         catch (Exception e)

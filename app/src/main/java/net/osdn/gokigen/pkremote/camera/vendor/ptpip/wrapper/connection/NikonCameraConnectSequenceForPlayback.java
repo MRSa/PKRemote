@@ -15,8 +15,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpComma
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRegistrationMessage;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.PtpIpStatusChecker;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.NikonRegistrationMessage;
 
 public class NikonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCommandCallback, IPtpIpMessages
 {
@@ -114,7 +113,7 @@ public class NikonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
                 if (checkEventInitialize(rx_body))
                 {
                     interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting1), false, false, 0);
-                    commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, isDumpLog, 0, 0x1002, 4, 0x41));  // OpenSession
+                    commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, 50, isDumpLog, 0, 0x1002, 4, 0x41, 0, 0, 0));  // OpenSession
                 }
                 else
                 {
@@ -124,7 +123,7 @@ public class NikonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
 
             case SEQ_OPEN_SESSION:
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting2), false, false, 0);
-                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_INIT_SESSION, isDumpLog, 0, 0x1001));  // GetDeviceInfo
+                commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_INIT_SESSION, 50, isDumpLog, 0, 0x1001, 0, 0, 0, 0, 0));  // GetDeviceInfo
                 break;
 
             case SEQ_INIT_SESSION:
@@ -149,7 +148,7 @@ public class NikonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
     {
         interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_start), false, false, 0);
         cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_start));
-        commandIssuer.enqueueCommand(new CanonRegistrationMessage(this));
+        commandIssuer.enqueueCommand(new NikonRegistrationMessage(this));
     }
 
     private void sendInitEventRequest(byte[] receiveData)
@@ -165,7 +164,7 @@ public class NikonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
             statusChecker.setEventConnectionNumber(eventConnectionNumber);
             interfaceProvider.getCameraStatusWatcher().startStatusWatch(null);
 
-            commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, isDumpLog, 0, 0x1002, 4, 0x41));
+            commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, 50, isDumpLog, 0, 0x1002, 4, 0x41, 0, 0, 0));
         }
         catch (Exception e)
         {

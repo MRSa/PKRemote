@@ -14,6 +14,8 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
     private final int holdId;
     private final int estimatedObjectSize;
 
+    private final int delayMs;
+
     private final byte opCode0;
     private final byte opCode1;
 
@@ -43,6 +45,7 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         this.bodySize = 0;
         this.isDumpLog = isDumpLog;
         this.estimatedObjectSize = -1;
+        this.delayMs = 15;
 
         this.id = id;
         this.holdId = holdId;
@@ -76,6 +79,7 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         this.bodySize = bodySize;
         this.isDumpLog = isDumpLog;
         this.estimatedObjectSize = -1;
+        this.delayMs = 15;
 
         this.id = id;
         this.holdId = holdId;
@@ -109,6 +113,7 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         this.bodySize = bodySize;
         this.isDumpLog = isDumpLog;
         this.estimatedObjectSize = -1;
+        this.delayMs = 15;
 
         this.id = id;
         this.holdId = holdId;
@@ -142,6 +147,7 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         this.bodySize = bodySize;
         this.isDumpLog = isDumpLog;
         this.estimatedObjectSize = -1;
+        this.delayMs = 15;
 
         this.id = id;
         this.holdId = holdId;
@@ -176,6 +182,41 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
         this.bodySize = bodySize;
         this.isDumpLog = isDumpLog;
         this.estimatedObjectSize = -1;
+        this.delayMs = 15;
+
+        this.id = id;
+        this.holdId = holdId;
+        opCode0 = ((byte) (0x000000ff & opcode));
+        opCode1 = ((byte)((0x0000ff00 & opcode) >> 8));
+
+        data0 = ((byte) (0x000000ff & value));
+        data1 = ((byte)((0x0000ff00 & value) >> 8));
+        data2 = ((byte)((0x00ff0000 & value) >> 16));
+        data3 = ((byte)((0xff000000 & value) >> 24));
+
+        data4 = ((byte) (0x000000ff & value2));
+        data5 = ((byte)((0x0000ff00 & value2) >> 8));
+        data6 = ((byte)((0x00ff0000 & value2) >> 16));
+        data7 = ((byte)((0xff000000 & value2) >> 24));
+
+        data8 = ((byte) (0x000000ff & value3));
+        data9 = ((byte)((0x0000ff00 & value3) >> 8));
+        dataA = ((byte)((0x00ff0000 & value3) >> 16));
+        dataB = ((byte)((0xff000000 & value3) >> 24));
+
+        dataC = ((byte) (0x000000ff & value4));
+        dataD = ((byte)((0x0000ff00 & value4) >> 8));
+        dataE = ((byte)((0x00ff0000 & value4) >> 16));
+        dataF = ((byte)((0xff000000 & value4) >> 24));
+    }
+
+    public PtpIpCommandGeneric(@NonNull IPtpIpCommandCallback callback, int id, int delayMs, boolean isDumpLog, int holdId, int opcode, int bodySize, int value, int value2, int value3, int value4)
+    {
+        this.callback = callback;
+        this.bodySize = bodySize;
+        this.isDumpLog = isDumpLog;
+        this.estimatedObjectSize = -1;
+        this.delayMs = delayMs;
 
         this.id = id;
         this.holdId = holdId;
@@ -347,6 +388,12 @@ public class PtpIpCommandGeneric extends PtpIpCommandBase
                     (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
             });
         }
+    }
+
+    @Override
+    public int receiveDelayMs()
+    {
+        return (delayMs);
     }
 
     @Override

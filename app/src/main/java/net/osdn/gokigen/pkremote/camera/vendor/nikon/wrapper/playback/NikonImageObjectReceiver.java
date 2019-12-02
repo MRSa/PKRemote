@@ -189,7 +189,7 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
             if (publisher != null)
             {
                 // オブジェクト一覧をクリアする
-                publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_ID, isDumpLog, 0, 0x1004));  // GetStorageIDs
+                publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_ID, 50, isDumpLog, 0, 0x1004, 0, 0, 0, 0, 0));  // GetStorageIDs
                 this.callback = callback;
             }
         }

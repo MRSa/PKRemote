@@ -42,7 +42,6 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpComman
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection.NikonConnection;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.liveview.PtpIpLiveViewControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.IPtpIpRunModeHolder;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.PtpIpStatusChecker;
 
 import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS;
 import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS_DEFAULT_VALUE;

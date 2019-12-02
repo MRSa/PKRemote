@@ -53,7 +53,7 @@ public class NikonFullImageReceiver implements IPtpIpCommandCallback
         this.receivedFirstData = false;
 
         Log.v(TAG, " getPartialObject (id : " + objectId + ", size:" + imageSize + ")");
-        publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_PARTIAL_OBJECT, true, 0, 0x101b, 12, objectId, 0, imageSize));  // GetPartialObject (0x101b)
+        publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_PARTIAL_OBJECT, 75, true, 0, 0x101b, 12, objectId, 0, imageSize, 0));  // GetPartialObject (0x101b)
     }
 
     @Override
