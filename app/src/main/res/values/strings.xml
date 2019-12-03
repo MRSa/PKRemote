@@ -326,4 +326,7 @@
     <string name="pref_wifi_settings">WIFI Settings</string>
     <string name="pref_summary_wifi_settings"> </string>
 
+    <string name="pref_nikon_receive_wait">Receive reply wait(ms)</string>
+    <string name="pref_summary_nikon_receive_wait"> </string>
+
 </resources>

@@ -26,14 +26,16 @@ public class NikonStorageContentHolder  implements IPtpIpCommandCallback
     private boolean isDumpLog = false;
     private int subDirectoryCount = 0;
     private int receivedDirectoryCount = 0;
+    private int delayMs;
     private boolean isObjectReceived = false;
     private SparseArray<NikonImageContentInfo> imageObjectList;
 
-    NikonStorageContentHolder(@NonNull NikonInterfaceProvider provider, int storageId, @NonNull ImageObjectReceivedCallback callback)
+    NikonStorageContentHolder(@NonNull NikonInterfaceProvider provider, int storageId, @NonNull ImageObjectReceivedCallback callback, int delayMs)
     {
         this.provider = provider;
         this.storageId = storageId;
         this.callback = callback;
+        this.delayMs = delayMs;
         this.imageObjectList = new SparseArray<>();
     }
 
@@ -43,7 +45,7 @@ public class NikonStorageContentHolder  implements IPtpIpCommandCallback
         {
             isObjectReceived = false;
             IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
-            publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_HANDLE1, 35, isDumpLog, 0, 0x1007, 12, storageId, 0x00003001, 0xffffffff, 0));
+            publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_HANDLE1, delayMs, isDumpLog, 0, 0x1007, 12, storageId, 0x00003001, 0xffffffff, 0));
             imageObjectList.clear();
         }
         catch (Exception e)
@@ -96,7 +98,7 @@ public class NikonStorageContentHolder  implements IPtpIpCommandCallback
                 for (int subDirectory : directoriesList)
                 {
                     Log.v(TAG, "  STORAGE ID : " + storageId + "  DIRECTORY ID : " + subDirectory);
-                    publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_HANDLE2, 35, isDumpLog, 0, 0x1007, 12, storageId, 0x00000000, subDirectory, 0)); //
+                    publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_HANDLE2, delayMs, isDumpLog, 0, 0x1007, 12, storageId, 0x00000000, subDirectory, 0)); //
                 }
                 return;
             }
@@ -139,7 +141,7 @@ public class NikonStorageContentHolder  implements IPtpIpCommandCallback
                         public boolean isReceiveMulti() {
                             return false;
                         }
-                    }, GET_STORAGE_HANDLE3, 35, isDumpLog, 0, 0x1007, 12, storageId, 0x00000000, subDirectory, 0));
+                    }, GET_STORAGE_HANDLE3, delayMs, isDumpLog, 0, 0x1007, 12, storageId, 0x00000000, subDirectory, 0));
 
 /*
                     //  ストレージ名称。。。ここでは利用できない

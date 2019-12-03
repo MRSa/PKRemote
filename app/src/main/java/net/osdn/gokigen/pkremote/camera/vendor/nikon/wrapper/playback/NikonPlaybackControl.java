@@ -5,12 +5,10 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.R;
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IContentInfoCallback;
@@ -40,35 +38,44 @@ public class NikonPlaybackControl implements IPlaybackControl
     private final Activity activity;
     private final NikonInterfaceProvider provider;
     private final NikonFullImageReceiver fullImageReceiver;
-    //private final NikonSmallImageReceiver smallImageReciever;
-   // private String raw_suffix = "NEF";
+    private int delayMs = 50;
+    private final NikonSmallImageReceiver smallImageReciever;
     private boolean use_screennail_image = false;
     private NikonImageObjectReceiver nikonImageObjectReceiver;
 
     public NikonPlaybackControl(Activity activity, NikonInterfaceProvider provider)
     {
-        this.activity = activity;
-        this.provider = provider;
-        nikonImageObjectReceiver = new NikonImageObjectReceiver(provider);
-        this.fullImageReceiver = new NikonFullImageReceiver(activity, provider.getCommandPublisher());
-        //this.smallImageReciever = new NikonSmallImageReceiver(activity, provider.getCommandPublisher());
-
         try
         {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-            //raw_suffix = preferences.getString(IPreferencePropertyAccessor.CANON_RAW_SUFFIX, IPreferencePropertyAccessor.CANON_RAW_SUFFIX_DEFAULT_VALUE);
             use_screennail_image = preferences.getBoolean(IPreferencePropertyAccessor.NIKON_USE_SCREENNAIL_AS_SMALL, false);
+
+            try
+            {
+                delayMs = Integer.parseInt(preferences.getString(IPreferencePropertyAccessor.NIKON_RECEIVE_WAIT, IPreferencePropertyAccessor.NIKON_RECEIVE_WAIT_DEFAULT_VALUE));
+            }
+            catch (Exception ee)
+            {
+                delayMs = 50;
+                ee.printStackTrace();
+            }
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+
+        this.activity = activity;
+        this.provider = provider;
+        nikonImageObjectReceiver = new NikonImageObjectReceiver(provider, delayMs);
+        this.fullImageReceiver = new NikonFullImageReceiver(provider.getCommandPublisher(), delayMs);
+        this.smallImageReciever = new NikonSmallImageReceiver(provider.getCommandPublisher(), delayMs);
+
     }
 
     @Override
     public String getRawFileSuffix()
     {
-        //return (raw_suffix);
         return ("NEF");
     }
 
@@ -124,7 +131,7 @@ public class NikonPlaybackControl implements IPlaybackControl
                 }
 
                 // 画像を取得する
-                publisher.enqueueCommand(new PtpIpCommandGeneric(new NikonScreennailImageReceiver(activity, callback), objectId, 75, false, 0, 0x90c4, 4, objectId, 0, 0, 0));
+                publisher.enqueueCommand(new PtpIpCommandGeneric(new NikonScreennailImageReceiver(activity, callback), objectId, delayMs, false, 0, 0x90c4, 4, objectId, 0, 0, 0));
             }
         }
         catch (Exception e)
@@ -172,7 +179,7 @@ public class NikonPlaybackControl implements IPlaybackControl
                 }
 
                 // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
-                publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), objectId, 75, false, 0, 0x100a, 4, objectId, 0, 0, 0));  // getThumb
+                publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), objectId, delayMs, false, 0, 0x100a, 4, objectId, 0, 0, 0));  // getThumb
             }
         }
         catch (Exception e)
@@ -256,8 +263,8 @@ public class NikonPlaybackControl implements IPlaybackControl
                 if (isSmallSize)
                 {
                     // スモールサイズの画像取得コマンド（シーケンス）を発行する
-                    //smallImageReciever.issueCommand(content.getObjectId(), callback);
-                    fullImageReceiver.issueCommand(content.getObjectId(), content.getOriginalSize(), callback);
+                    smallImageReciever.issueCommand(content.getObjectId(), callback);
+                    //fullImageReceiver.issueCommand(content.getObjectId(), content.getOriginalSize(), callback);
                 }
                 else
                 {

@@ -1,6 +1,5 @@
 package net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.playback;
 
-import android.app.Activity;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -19,23 +18,22 @@ public class NikonFullImageReceiver implements IPtpIpCommandCallback
 {
     private static final String TAG = NikonFullImageReceiver.class.getSimpleName();
 
-    private final Activity activity;
     private final IPtpIpCommandPublisher publisher;
     private IDownloadContentCallback callback = null;
 
     private boolean isReceiveMulti = true;
     private int objectId = 0;
-
+    private int delayMs;
     private int received_total_bytes = 0;
     private int received_remain_bytes = 0;
 
     private int target_image_size = 0;
     private boolean receivedFirstData = false;
 
-    NikonFullImageReceiver(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher publisher)
+    NikonFullImageReceiver(@NonNull IPtpIpCommandPublisher publisher, int delayMs)
     {
-        this.activity = activity;
         this.publisher = publisher;
+        this.delayMs = delayMs;
     }
 
     void issueCommand(int objectId, int imageSize, IDownloadContentCallback callback)
@@ -53,7 +51,7 @@ public class NikonFullImageReceiver implements IPtpIpCommandCallback
         this.receivedFirstData = false;
 
         Log.v(TAG, " getPartialObject (id : " + objectId + ", size:" + imageSize + ")");
-        publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_PARTIAL_OBJECT, 75, true, 0, 0x101b, 12, objectId, 0, imageSize, 0));  // GetPartialObject (0x101b)
+        publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_PARTIAL_OBJECT, delayMs, true, 0, 0x101b, 12, objectId, 0, imageSize, 0));  // GetPartialObject (0x101b)
     }
 
     @Override

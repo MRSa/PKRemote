@@ -129,6 +129,9 @@ public class NikonPreferenceFragment  extends PreferenceFragmentCompat implement
             if (!items.containsKey(IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS)) {
                 editor.putString(IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS, IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS_DEFAULT_VALUE);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.NIKON_RECEIVE_WAIT)) {
+                editor.putString(IPreferencePropertyAccessor.NIKON_RECEIVE_WAIT, IPreferencePropertyAccessor.NIKON_RECEIVE_WAIT_DEFAULT_VALUE);
+            }
             if (!items.containsKey(IPreferencePropertyAccessor.NIKON_USE_SCREENNAIL_AS_SMALL)) {
                 editor.putBoolean(IPreferencePropertyAccessor.NIKON_USE_SCREENNAIL_AS_SMALL, false);
             }

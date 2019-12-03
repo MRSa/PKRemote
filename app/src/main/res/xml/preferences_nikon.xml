@@ -35,6 +35,13 @@
             android:title="@string/pref_nikon_host_ip"
             android:defaultValue="192.168.1.1"
             android:summary="@string/pref_summary_nikon_host_ip" />
+
+        <EditTextPreference
+            android:key="nikon_receive_wait"
+            android:title="@string/pref_nikon_receive_wait"
+            android:defaultValue="50"
+            android:summary="@string/pref_summary_nikon_receive_wait" />
+
 <!--
         <CheckBoxPreference
             android:key="ble_wifi_on"

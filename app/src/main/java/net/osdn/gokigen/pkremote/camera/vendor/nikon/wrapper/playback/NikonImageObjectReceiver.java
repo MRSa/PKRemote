@@ -21,13 +21,15 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
 {
     private final String TAG = toString();
     private final NikonInterfaceProvider provider;
+    private final int delayMs;
     private boolean isDumpLog = true;
     private ICameraContentListCallback callback = null;
     private SparseArray<NikonStorageContentHolder> storageIdList;
 
-    NikonImageObjectReceiver(NikonInterfaceProvider provider)
+    NikonImageObjectReceiver(NikonInterfaceProvider provider, int delayMs)
     {
         this.provider = provider;
+        this.delayMs = delayMs;
         this.storageIdList = new SparseArray<>();
     }
 
@@ -50,7 +52,7 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
                                  ((int) rx_body[readPosition + 1] << 8) +
                                  ((int) rx_body[readPosition + 2] << 16) +
                                  ((int) rx_body[readPosition + 3] << 24);
-                storageIdList.append(storageId, new NikonStorageContentHolder(provider, storageId, this));
+                storageIdList.append(storageId, new NikonStorageContentHolder(provider, storageId, this, delayMs));
                 readPosition = readPosition + 4;
             }
             Log.v(TAG, " NOF STORAGE IDs : " + storageIdList.size() + " ");
@@ -189,7 +191,7 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
             if (publisher != null)
             {
                 // オブジェクト一覧をクリアする
-                publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_ID, 50, isDumpLog, 0, 0x1004, 0, 0, 0, 0, 0));  // GetStorageIDs
+                publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_ID, delayMs, isDumpLog, 0, 0x1004, 0, 0, 0, 0, 0));  // GetStorageIDs
                 this.callback = callback;
             }
         }
