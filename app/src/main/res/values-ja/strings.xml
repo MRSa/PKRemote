@@ -325,7 +325,7 @@
     <string name="pref_wifi_settings">WiFi設定</string>
     <string name="pref_summary_wifi_settings"> </string>
 
-    <string name="pref_nikon_receive_wait">応答受信待ち時間</string>
-    <string name="pref_summary_nikon_receive_wait">カメラからの応答待ち時間(単位:ms)</string>
+    <string name="pref_nikon_receive_wait">応答受信待ち時間(単位:ms)</string>
+    <string name="pref_summary_nikon_receive_wait">おかしい場合に値を大きくします</string>
 
 </resources>
