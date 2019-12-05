@@ -805,6 +805,18 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         }
     }
 
+    public void clearImageCache()
+    {
+        try
+        {
+            imageCache.evictAll();
+            Log.v(TAG, " clearImageCache()");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
 
     public void setFilterLabel(String filterLabel)
     {

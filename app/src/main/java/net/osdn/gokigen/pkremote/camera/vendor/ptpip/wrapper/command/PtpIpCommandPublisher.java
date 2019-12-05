@@ -113,6 +113,8 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
         }
         socket = null;
         sequenceNumber = SEQUENCE_START_NUMBER;
+        isStart = false;
+        commandQueue.clear();
         System.gc();
     }
 
@@ -284,6 +286,12 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
     {
         try
         {
+            if (dos == null)
+            {
+                Log.v(TAG, " DataOutputStream is null.");
+                return;
+            }
+
             //dos = new DataOutputStream(socket.getOutputStream());  // ここにいたらいけない？
 
             // メッセージボディを加工： 最初に４バイトのレングス長をつける

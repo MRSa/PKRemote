@@ -32,8 +32,11 @@ public class NikonConnection implements ICameraConnection
     private final INikonInterfaceProvider interfaceProvider;
     private final BroadcastReceiver connectionReceiver;
     private final Executor cameraExecutor = Executors.newFixedThreadPool(1);
-    private final NikonStatusChecker statusChecker;
+
     private CameraConnectionStatus connectionStatus = CameraConnectionStatus.UNKNOWN;
+
+    private final NikonCameraConnectSequenceForPlayback connectSequence;
+    private final NikonCameraDisconnectSequence disconnectSequence;
 
     public NikonConnection(@NonNull final Activity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull INikonInterfaceProvider interfaceProvider, @NonNull NikonStatusChecker statusChecker)
     {
@@ -41,7 +44,6 @@ public class NikonConnection implements ICameraConnection
         this.context = context;
         this.statusReceiver = statusReceiver;
         this.interfaceProvider = interfaceProvider;
-        this.statusChecker = statusChecker;
         connectionReceiver = new BroadcastReceiver()
         {
             @Override
@@ -50,6 +52,8 @@ public class NikonConnection implements ICameraConnection
                 onReceiveBroadcastOfConnection(context, intent);
             }
         };
+        connectSequence = new NikonCameraConnectSequenceForPlayback(context, statusReceiver, this, interfaceProvider, statusChecker);
+        disconnectSequence = new NikonCameraDisconnectSequence(context, interfaceProvider, statusChecker);
     }
 
     /**
@@ -207,7 +211,7 @@ public class NikonConnection implements ICameraConnection
         Log.v(TAG, " disconnectFromCamera()");
         try
         {
-            cameraExecutor.execute(new NikonCameraDisconnectSequence(context, interfaceProvider));
+            cameraExecutor.execute(disconnectSequence);
         }
         catch (Exception e)
         {
@@ -224,7 +228,7 @@ public class NikonConnection implements ICameraConnection
         connectionStatus = CameraConnectionStatus.CONNECTING;
         try
         {
-            cameraExecutor.execute(new NikonCameraConnectSequenceForPlayback(context, statusReceiver, this, interfaceProvider, statusChecker));
+            cameraExecutor.execute(connectSequence);
         }
         catch (Exception e)
         {

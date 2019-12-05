@@ -137,7 +137,7 @@
     <string name="time_picker_end_separator"> </string>
     <string name="information_month_picker">年・月を指定</string>
 
-    <string name="get_camera_contents_wait">画像確認中&#8230;お待ちください</string>
+    <string name="get_camera_contents_wait">画像確認&#8230;お待ちください</string>
     <string name="get_camera_contents_error">画像確認&#8230; エラー</string>
     <string name="get_camera_contents_finished">画像数 </string>
     <string name="get_camera_contents_error_retry">再実行しますか?</string>

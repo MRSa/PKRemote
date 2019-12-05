@@ -50,7 +50,7 @@ public class NikonRegistrationMessage extends PtpIpCommandBase
     @Override
     public int receiveDelayMs()
     {
-        return (50);
+        return (80);
     }
 
     @Override

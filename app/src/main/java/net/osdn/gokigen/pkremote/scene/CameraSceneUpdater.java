@@ -397,11 +397,19 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
         try
         {
             ICameraContentsRecognizer recognizer = interfaceProvider.getCameraContentsRecognizer();
-            if (recognizer != null) {
+            if (recognizer != null)
+            {
                 // カメラ内のコンテンツ一覧を作成するように指示する
                 recognizer.getRemoteCameraContentsList(true, this);
             }
-        } catch (Exception e) {
+            if (gridViewFragment != null)
+            {
+                // サムネイル画像のキャッシュをクリアする
+                gridViewFragment.clearImageCache();
+            }
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
