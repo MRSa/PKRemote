@@ -83,7 +83,6 @@ public class MyContentDownloader implements IDownloadContentCallback
             Log.v(TAG, "startDownload() ICameraFileInfo is NULL...");
             return;
         }
-        Log.v(TAG, "startDownload() " + fileInfo.getOriginalName());
 
         // Download the image.
         try
@@ -93,7 +92,14 @@ public class MyContentDownloader implements IDownloadContentCallback
             if (replaceJpegSuffix != null)
             {
                 contentFileName = contentFileName.replace(JPEG_SUFFIX, replaceJpegSuffix);
+                targetFileName = contentFileName;
             }
+            else
+            {
+                targetFileName = fileInfo.getOriginalName().toUpperCase();
+            }
+            Log.v(TAG, "startDownload() " + targetFileName);
+
             if (contentFileName.toUpperCase().contains(RAW_SUFFIX_1))
             {
                 mimeType = "image/x-adobe-dng";
@@ -158,8 +164,6 @@ public class MyContentDownloader implements IDownloadContentCallback
             {
                 mimeType = "image/jpeg";
             }
-
-            targetFileName = fileInfo.getOriginalName().toUpperCase();
 
             ////// ダイアログの表示
             activity.runOnUiThread(new Runnable() {
