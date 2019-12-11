@@ -215,18 +215,18 @@ public class SonyPlaybackControl implements IPlaybackControl
     @Override
     public void getCameraContentList(ICameraContentListCallback callback)
     {
-        Log.v(TAG, "getCameraContentList()");
+        Log.v(TAG, " getCameraContentList()");
         try
         {
             if (cameraApi == null)
             {
-                Log.v(TAG, "CAMERA API is NULL.");
+                Log.v(TAG, " CAMERA API is NULL.");
                 return;
             }
             if (contentListIsCreating)
             {
                 // すでにコンテントリストを作り始めているので、処理は継続しない。
-                Log.v(TAG, "ALREADY CREATING CONTENT LIST.");
+                Log.v(TAG, " ALREADY CREATING CONTENT LIST.");
                 return;
             }
             contentListIsCreating = true;
@@ -236,7 +236,7 @@ public class SonyPlaybackControl implements IPlaybackControl
             boolean useSmartphoneTransfer = preferences.getBoolean(IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE, false);
             if (useSmartphoneTransfer)
             {
-                // DLNAを使用したコンテンツ特定モードを使う
+                // DLNAを使用したコンテンツ特定モード(「スマートフォン転送機能」)を使う
                 try
                 {
                     getContentDirectorySoapAction();
@@ -257,6 +257,15 @@ public class SonyPlaybackControl implements IPlaybackControl
                 return;
             }
 
+            Log.v(TAG, "  >>>>>>>>>> START RECEIVE SEQUENCE...");
+
+            /////  繰り返しイベント発行する...
+            checkCameraFunctionResult(2, 250);
+
+            // メディア(SDカード等)が入っているかどうか、先に呼べ、ということらしい。
+            JSONObject storageInformationObj = cameraApi.getStorageInformation();
+
+            // 画像転送モードに切り替える
             informationReceiver.updateMessage(activity.getString(R.string.get_image_list), false, false, 0);
             boolean ret = changeContentsTransferMode();  // コンテンツトランスファモードに切り替える
             if (!ret)
@@ -266,7 +275,13 @@ public class SonyPlaybackControl implements IPlaybackControl
                 return;
             }
 
-            JSONObject storageInformationObj = cameraApi.getStorageInformation();
+            /////  繰り返しイベント発行する...
+            checkCameraFunctionResult(2, 250);
+
+            // ここでも呼んでみる
+            JSONObject storageInformation2Obj = cameraApi.getStorageInformation();
+
+            /////  ここの処理が弱い...
             JSONObject schemeListObj = cameraApi.getSchemeList();
             //JSONArray schemeArray = schemeListObj.getJSONArray("result");
             JSONObject sourceObj = cameraApi.getSourceList("storage");
@@ -340,13 +355,51 @@ public class SonyPlaybackControl implements IPlaybackControl
         contentListIsCreating = false;
     }
 
+    private void sleep(int delayMs)
+    {
+        try
+        {
+            Thread.sleep(delayMs);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void checkCameraFunctionResult(int retryCount, int waitMs)
+    {
+        try
+        {
+            for (int count = 0; count < retryCount; count++)
+            {
+                try
+                {
+                    JSONObject eventListObj = cameraApi.getEvent("1.0", false);
+                    sleep(waitMs);
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
     @Override
-    public void showPictureStarted() {
+    public void showPictureStarted()
+    {
 
     }
 
     @Override
-    public void showPictureFinished() {
+    public void showPictureFinished()
+    {
 
     }
 
