@@ -6,7 +6,6 @@ import android.util.SparseArray;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
-import net.osdn.gokigen.pkremote.camera.utils.SimpleLogDumper;
 import net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.NikonInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
@@ -22,7 +21,7 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
     private final String TAG = toString();
     private final NikonInterfaceProvider provider;
     private final int delayMs;
-    private boolean isDumpLog = true;
+    private boolean isDumpLog = false;
     private ICameraContentListCallback callback = null;
     private SparseArray<NikonStorageContentHolder> storageIdList;
 
@@ -38,7 +37,7 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
         try
         {
             storageIdList.clear();
-            SimpleLogDumper.dump_bytes(" [GetStorageIds] ", rx_body);
+            //SimpleLogDumper.dump_bytes(" [GetStorageIds] ", rx_body);
 
             int checkBytes = rx_body[0];
             //int dataLength = rx_body[checkBytes];
@@ -85,49 +84,6 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
             e.printStackTrace();
         }
     }
-
-/*
-    private List<CanonImageContentInfo> parseContentSubdirectories(byte[] rx_body, int offset)
-    {
-        List<CanonImageContentInfo> result = new ArrayList<>();
-        try
-        {
-            int nofObjects = (rx_body[offset] & 0xff);
-            nofObjects = nofObjects + ((rx_body[offset + 1]  & 0xff) << 8);
-            nofObjects = nofObjects + ((rx_body[offset + 2] & 0xff) << 16);
-            nofObjects = nofObjects + ((rx_body[offset + 3] & 0xff) << 24);
-
-            int dataIndex = offset + 4;
-            while (rx_body.length > dataIndex)
-            {
-                int objectSize = (rx_body[dataIndex++] & 0xff);
-                objectSize = objectSize + ((rx_body[dataIndex++]  & 0xff) << 8);
-                objectSize = objectSize + ((rx_body[dataIndex++] & 0xff) << 16);
-                objectSize = objectSize + ((rx_body[dataIndex++] & 0xff) << 24);
-                objectSize = objectSize - 4;  // 抽出したレングス長分減らず
-
-                int id = (rx_body[dataIndex] & 0xff);
-                id = id + ((rx_body[dataIndex + 1]  & 0xff) << 8);
-                id = id + ((rx_body[dataIndex + 2] & 0xff) << 16);
-                id = id + ((rx_body[dataIndex + 3] & 0xff) << 24);
-
-                CanonImageContentInfo content = new CanonImageContentInfo(id, "", rx_body, dataIndex, objectSize);
-                result.add(content);
-                dataIndex = dataIndex + objectSize;
-                if (result.size() >= nofObjects)
-                {
-                    // オブジェクトを全部切り出した
-                    break;
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return (result);
-    }
-*/
 
     @Override
     public void onReceiveProgress(int currentBytes, int totalBytes, byte[] rx_body)
@@ -204,7 +160,10 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
     @Override
     public void onReceived(int storageId)
     {
-        Log.v(TAG, " ----- STORAGE ID : " + storageId + " -----");
+        if (isDumpLog)
+        {
+            Log.v(TAG, " ----- STORAGE ID : " + storageId + " -----");
+        }
         List<ICameraContent> objectList = new ArrayList<>();
         for(int index = 0; index < storageIdList.size(); index++)
         {
@@ -213,6 +172,10 @@ public class NikonImageObjectReceiver implements IPtpIpCommandCallback, NikonSto
             boolean receivedAll = contentHolder.isObjectIdReceived();
             if (!receivedAll)
             {
+                if (isDumpLog)
+                {
+                    Log.v(TAG, " checking : " + key);  // まだストレージ情報がすべて取得できていない
+                }
                 return;
             }
             SparseArray<NikonImageContentInfo> objectArray = contentHolder.getObjectIdList();

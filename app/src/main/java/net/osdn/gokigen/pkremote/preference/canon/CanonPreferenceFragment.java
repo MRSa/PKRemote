@@ -85,7 +85,7 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
      *
      */
     @Override
-    public void onAttach(Context activity)
+    public void onAttach(@NonNull Context activity)
     {
         super.onAttach(activity);
         Log.v(TAG, "onAttach()");
@@ -129,6 +129,9 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
             if (!items.containsKey(IPreferencePropertyAccessor.CANON_RAW_SUFFIX)) {
                 editor.putString(IPreferencePropertyAccessor.CANON_RAW_SUFFIX, IPreferencePropertyAccessor.CANON_RAW_SUFFIX_DEFAULT_VALUE);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.CANON_RECEIVE_WAIT)) {
+                editor.putString(IPreferencePropertyAccessor.CANON_RECEIVE_WAIT, IPreferencePropertyAccessor.CANON_RECEIVE_WAIT_DEFAULT_VALUE);
+            }
             if (!items.containsKey(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL)) {
                 editor.putBoolean(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL, false);
             }
@@ -154,10 +157,6 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
             switch (key)
             {
                 case IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA:
-                    value = preferences.getBoolean(key, true);
-                    Log.v(TAG, " " + key + " , " + value);
-                    break;
-
                 case IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW:
                     value = preferences.getBoolean(key, true);
                     Log.v(TAG, " " + key + " , " + value);
@@ -189,16 +188,18 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
             //super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences_canon);
 
-            ListPreference connectionMethod = (ListPreference) findPreference(IPreferencePropertyAccessor.CONNECTION_METHOD);
-            connectionMethod.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    preference.setSummary(newValue + " ");
-                    return (true);
-                }
-            });
-            connectionMethod.setSummary(connectionMethod.getValue() + " ");
-
+            ListPreference connectionMethod = findPreference(IPreferencePropertyAccessor.CONNECTION_METHOD);
+            if (connectionMethod != null)
+            {
+                connectionMethod.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        preference.setSummary(newValue + " ");
+                        return (true);
+                    }
+                });
+                connectionMethod.setSummary(connectionMethod.getValue() + " ");
+            }
             findPreference(EXIT_APPLICATION).setOnPreferenceClickListener(powerOffController);
             findPreference(DEBUG_INFO).setOnPreferenceClickListener(logCatViewer);
             findPreference(WIFI_SETTINGS).setOnPreferenceClickListener(this);
@@ -263,8 +264,7 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
     {
         try
         {
-            ListPreference pref;
-            pref = (ListPreference) findPreference(pref_key);
+            ListPreference pref = findPreference(pref_key);
             String value = preferences.getString(key, defaultValue);
             if (pref != null)
             {
@@ -289,7 +289,7 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
     {
         try
         {
-            CheckBoxPreference pref = (CheckBoxPreference) findPreference(pref_key);
+            CheckBoxPreference pref = findPreference(pref_key);
             if (pref != null) {
                 boolean value = preferences.getBoolean(key, defaultValue);
                 pref.setChecked(value);

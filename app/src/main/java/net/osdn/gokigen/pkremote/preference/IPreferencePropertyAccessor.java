@@ -112,6 +112,8 @@ public interface IPreferencePropertyAccessor
     String NIKON_RECEIVE_WAIT = "nikon_receive_wait";
     String NIKON_RECEIVE_WAIT_DEFAULT_VALUE = "50";
 
+    String CANON_RECEIVE_WAIT = "nikon_receive_wait";
+    String CANON_RECEIVE_WAIT_DEFAULT_VALUE = "20";
 
     /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";

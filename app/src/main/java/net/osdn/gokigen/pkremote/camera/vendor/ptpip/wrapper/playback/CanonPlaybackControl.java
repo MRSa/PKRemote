@@ -33,28 +33,42 @@ public class CanonPlaybackControl implements IPlaybackControl
     private final PtpIpInterfaceProvider provider;
     private final CanonFullImageReceiver fullImageReceiver;
     private final CanonSmallImageReceiver smallImageReciever;
+    //private int delayMs = 20;
     private String raw_suffix = "CR2";
     private boolean use_screennail_image = false;
     private CanonImageObjectReceiver canonImageObjectReceiver;
 
     public CanonPlaybackControl(Activity activity, PtpIpInterfaceProvider provider)
     {
-        this.activity = activity;
-        this.provider = provider;
-        this.fullImageReceiver = new CanonFullImageReceiver(activity, provider.getCommandPublisher());
-        this.smallImageReciever = new CanonSmallImageReceiver(activity, provider.getCommandPublisher());
-        canonImageObjectReceiver = new CanonImageObjectReceiver(provider);
-
+        int delayMs = 20;
         try
         {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
             raw_suffix = preferences.getString(IPreferencePropertyAccessor.CANON_RAW_SUFFIX, IPreferencePropertyAccessor.CANON_RAW_SUFFIX_DEFAULT_VALUE);
             use_screennail_image = preferences.getBoolean(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL, false);
+            try
+            {
+                delayMs = Integer.parseInt(preferences.getString(IPreferencePropertyAccessor.CANON_RECEIVE_WAIT, IPreferencePropertyAccessor.CANON_RECEIVE_WAIT_DEFAULT_VALUE));
+            }
+            catch (Exception ee)
+            {
+                ee.printStackTrace();
+            }
+            if (delayMs < 10)
+            {
+                delayMs = 10;  // 最短は 10msにする
+            }
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+        this.activity = activity;
+        this.provider = provider;
+        this.fullImageReceiver = new CanonFullImageReceiver(activity, provider.getCommandPublisher());
+        this.smallImageReciever = new CanonSmallImageReceiver(activity, provider.getCommandPublisher());
+        canonImageObjectReceiver = new CanonImageObjectReceiver(provider, delayMs);
+
     }
 
     @Override

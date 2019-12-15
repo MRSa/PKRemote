@@ -37,6 +37,12 @@
             android:inputType="number"
             android:summary="@string/pref_summary_canon_raw_suffix" />
 
+        <EditTextPreference
+            android:key="canon_receive_wait"
+            android:title="@string/pref_canon_receive_wait"
+            android:defaultValue="20"
+            android:summary="@string/pref_summary_canon_receive_wait" />
+
         <!--
 
         <PreferenceScreen

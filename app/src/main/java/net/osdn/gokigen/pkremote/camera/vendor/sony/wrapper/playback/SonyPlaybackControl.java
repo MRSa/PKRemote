@@ -260,7 +260,7 @@ public class SonyPlaybackControl implements IPlaybackControl
             Log.v(TAG, "  >>>>>>>>>> START RECEIVE SEQUENCE...");
 
             /////  繰り返しイベント発行する...
-            checkCameraFunctionResult(3, 150);
+            checkCameraFunctionResult(5, 150);
 
             // メディア(SDカード等)が入っているかどうか、先に呼べ、ということらしい。
             JSONObject storageInformationObj = cameraApi.getStorageInformation();
@@ -276,7 +276,7 @@ public class SonyPlaybackControl implements IPlaybackControl
             }
 
             /////  繰り返しイベント発行する...
-            checkCameraFunctionResult(10, 100);
+            checkCameraFunctionResult(20, 100);
 
             // ここでも呼んでみる
             JSONObject storageInformation2Obj = cameraApi.getStorageInformation();
