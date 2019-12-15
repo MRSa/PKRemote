@@ -38,7 +38,7 @@ public class SonyPlaybackControl implements IPlaybackControl
     private final Activity activity;
     private final IInformationReceiver informationReceiver;
     private ISonyCameraApi cameraApi = null;
-    private HashMap<String, SonyImageContentInfo> contentList;
+    private HashMap<String, ISonyImageContentInfo> contentList;
     private int timeoutMs = 55000;
     private boolean contentListIsCreating = false;
 
@@ -83,7 +83,7 @@ public class SonyPlaybackControl implements IPlaybackControl
         //Log.v(TAG, "downloadContentScreennail()" + path);
         try
         {
-            SonyImageContentInfo content = contentList.get(path.substring(path.indexOf('/') + 1));
+            ISonyImageContentInfo content = contentList.get(path.substring(path.indexOf('/') + 1));
             if (content == null)
             {
                 Log.v(TAG, " CONTENT IS NULL... : " + path);
@@ -122,7 +122,7 @@ public class SonyPlaybackControl implements IPlaybackControl
         //Log.v(TAG, "downloadContentThumbnail() : " + path);
         try
         {
-            SonyImageContentInfo content = contentList.get(path.substring(path.indexOf('/') + 1));
+            ISonyImageContentInfo content = contentList.get(path.substring(path.indexOf('/') + 1));
             if (content == null)
             {
                 Log.v(TAG, " CONTENT IS NULL... : " + path);
@@ -157,7 +157,7 @@ public class SonyPlaybackControl implements IPlaybackControl
         //Log.v(TAG, "downloadContent() : " + path);
         try
         {
-            SonyImageContentInfo content = contentList.get(path.substring(path.indexOf('/') + 1));
+            ISonyImageContentInfo content = contentList.get(path.substring(path.indexOf('/') + 1));
             if (content == null)
             {
                 Log.v(TAG, " CONTENT IS NULL... : " + path);
@@ -260,7 +260,7 @@ public class SonyPlaybackControl implements IPlaybackControl
             Log.v(TAG, "  >>>>>>>>>> START RECEIVE SEQUENCE...");
 
             /////  繰り返しイベント発行する...
-            checkCameraFunctionResult(2, 250);
+            checkCameraFunctionResult(3, 150);
 
             // メディア(SDカード等)が入っているかどうか、先に呼べ、ということらしい。
             JSONObject storageInformationObj = cameraApi.getStorageInformation();
@@ -276,12 +276,12 @@ public class SonyPlaybackControl implements IPlaybackControl
             }
 
             /////  繰り返しイベント発行する...
-            checkCameraFunctionResult(2, 250);
+            checkCameraFunctionResult(10, 100);
 
             // ここでも呼んでみる
             JSONObject storageInformation2Obj = cameraApi.getStorageInformation();
 
-            /////  ここの処理が弱い...
+            /////  ここの処理が弱い... ちゃんと解析が必要。
             JSONObject schemeListObj = cameraApi.getSchemeList();
             //JSONArray schemeArray = schemeListObj.getJSONArray("result");
             JSONObject sourceObj = cameraApi.getSourceList("storage");
@@ -321,13 +321,28 @@ public class SonyPlaybackControl implements IPlaybackControl
                     for (int pos = 0; pos < nofContents; pos++)
                     {
                         //  ひろったデータを全部入れていく
-                        SonyImageContentInfo contentInfo = new SonyImageContentInfo(resultsArray.getJSONObject(pos), null);
-                        String contentName = contentInfo.getContentName();
-                        //Date createdTime = contentInfo.getCapturedDate();
-                        //String folderNo = contentInfo.getContentPath();
-                        if (contentName.length() > 0)
+                        JSONObject contentObject = resultsArray.getJSONObject(pos);
+                        int listCount = 1;
+                        try
                         {
-                            contentList.put(contentName, contentInfo);
+                            JSONObject contents = contentObject.getJSONObject("content");
+                            JSONArray originalArray = contents.getJSONArray("original");
+                            listCount = originalArray.length();
+                        }
+                        catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                        for (int content = 0; content < listCount; content++)
+                        {
+                            SonyImageContentInfoJson contentInfo = new SonyImageContentInfoJson(contentObject, content);
+                            String contentName = contentInfo.getContentName();
+                            //Date createdTime = contentInfo.getCapturedDate();
+                            //String folderNo = contentInfo.getContentPath();
+                            if (contentName.length() > 0)
+                            {
+                                contentList.put(contentName, contentInfo);
+                            }
                         }
                         //Log.v(TAG, " [" + pos + "] " + "  " + contentName + " " + " " + createdTime + " " + folderNo);
                     }
@@ -376,6 +391,20 @@ public class SonyPlaybackControl implements IPlaybackControl
                 try
                 {
                     JSONObject eventListObj = cameraApi.getEvent("1.0", false);
+                    JSONArray resultArray = eventListObj.getJSONArray("result");
+                    {
+                        JSONObject cameraFunctionResult = resultArray.getJSONObject(15);
+                        if (cameraFunctionResult != null)
+                        {
+                            String result = cameraFunctionResult.getString("cameraFunctionResult");
+                            if (result.contains("Success"))
+                            {
+                                //  モードが変わったことを認識した！
+                                Log.v(TAG, " ----- cameraFunctionResult is Success.");
+                                return;
+                            }
+                        }
+                    }
                     sleep(waitMs);
                 }
                 catch (Exception e)
@@ -708,8 +737,9 @@ public class SonyPlaybackControl implements IPlaybackControl
                 {
                     endIndex = endLength;
                 }
+
                 String itemString = receivedData.substring(index, endIndex + 7);
-                SonyImageContentInfo contentInfo = new SonyImageContentInfo(null, itemString);
+                SonyImageContentInfoXml contentInfo = new SonyImageContentInfoXml(itemString);
                 String contentName = contentInfo.getContentName();
                 if (contentName.length() > 0)
                 {
