@@ -144,6 +144,7 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
             case SEQ_START_2ND_READ:
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting2), false, false, 0);
                 cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_connecting));
+                Log.v(TAG, " RECV: (SEQ_START_2ND_READ) : " + rx_body.length);
                 if (rx_body.length == (int)rx_body[0])
                 {
                     // なぜかもうちょっとデータが飛んでくるので待つ
@@ -153,6 +154,11 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
                 }
                 else
                 {
+                    IFujiXCommandCallback callback = interfaceProvider.getStatusHolder();
+                    if (callback != null)
+                    {
+                        callback.receivedMessage(id, rx_body);
+                    }
                     commandIssuer.enqueueCommand(new StartMessage3rd(this));
                 }
                 break;
@@ -204,7 +210,8 @@ public class FujiXCameraConnectSequenceForPlayback implements Runnable, IFujiXCo
 
             case SEQ_CHANGE_TO_PLAYBACK_1ST:
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connecting9), false, false, 0);
-                commandIssuer.enqueueCommand(new ChangeToPlayback2nd(this));
+                //commandIssuer.enqueueCommand(new ChangeToPlayback2nd(this));
+                commandIssuer.enqueueCommand(new StatusRequestMessage(this));
                 break;
 
             case SEQ_CHANGE_TO_PLAYBACK_2ND:
