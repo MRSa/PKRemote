@@ -1,9 +1,11 @@
 package net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
@@ -39,6 +41,11 @@ import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.liveview.FujiXLiveV
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.status.FujiXStatusChecker;
 import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.status.IFujiXRunModeHolder;
 
+import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.FUJIX_COMMAND_POLLING_WAIT;
+import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.FUJIX_COMMAND_POLLING_WAIT_DEFAULT_VALUE;
+import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS;
+import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS_DEFAULT_VALUE;
+
 public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplayInjector
 {
     private final String TAG = toString();
@@ -47,6 +54,10 @@ public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplay
     private static final int ASYNC_RESPONSE_PORT = 55741;
     private static final int CONTROL_PORT = 55740;
     private static final String CAMERA_IP = "192.168.0.1";
+
+    private static final int COMMAND_POLL_QUEUE_DEFAULT_MS = 50;
+    private static final int COMMAND_POLL_QUEUE_MAX_MS = 499;
+    private static final int COMMAND_POLL_QUEUE_MIN_MS = 10;
 
     private final Activity activity;
     private final FujiXRunMode runmode;
@@ -67,7 +78,23 @@ public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplay
     public FujiXInterfaceProvider(@NonNull Activity context, @NonNull ICameraStatusReceiver provider, @NonNull ICameraStatusUpdateNotify statusListener, @NonNull IInformationReceiver informationReceiver)
     {
         this.activity = context;
-        commandPublisher = new FujiXCommandPublisher(CAMERA_IP, CONTROL_PORT);
+        int duration = COMMAND_POLL_QUEUE_DEFAULT_MS;
+        try
+        {
+            // コマンド送信間隔を取得する
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+            duration = Integer.parseInt(preferences.getString(FUJIX_COMMAND_POLLING_WAIT, FUJIX_COMMAND_POLLING_WAIT_DEFAULT_VALUE));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        if ((duration < COMMAND_POLL_QUEUE_MIN_MS)|| (duration > COMMAND_POLL_QUEUE_MAX_MS))
+        {
+            // 設定の上下限値を超えたらデフォルト値（の半分程度の値）に変更する。
+            duration = COMMAND_POLL_QUEUE_DEFAULT_MS;
+        }
+        commandPublisher = new FujiXCommandPublisher(CAMERA_IP, CONTROL_PORT, duration);
         liveViewControl = new FujiXLiveViewControl(context, CAMERA_IP, STREAM_PORT);
         asyncReceiver = new FujiXAsyncResponseReceiver(CAMERA_IP, ASYNC_RESPONSE_PORT);
         fujiXConnection = new FujiXConnection(context, provider, this);

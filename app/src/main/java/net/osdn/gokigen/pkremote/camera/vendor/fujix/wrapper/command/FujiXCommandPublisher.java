@@ -21,10 +21,10 @@ public class FujiXCommandPublisher implements IFujiXCommandPublisher, IFujiXComm
     private static final int BUFFER_SIZE = 1024 * 1024 + 8;
     private static final int COMMAND_SEND_RECEIVE_DURATION_MS = 50;
     private static final int COMMAND_SEND_RECEIVE_DURATION_MAX = 1000;
-    private static final int COMMAND_POLL_QUEUE_MS = 150;
 
     private final String ipAddress;
     private final int portNumber;
+    private final int pollingDuration ;
 
     private boolean isStart = false;
     private Socket socket = null;
@@ -34,10 +34,11 @@ public class FujiXCommandPublisher implements IFujiXCommandPublisher, IFujiXComm
     private Queue<IFujiXCommand> commandQueue;
 
 
-    public FujiXCommandPublisher(@NonNull String ip, int portNumber)
+    public FujiXCommandPublisher(@NonNull String ip, int portNumber, int pollingDuration)
     {
         this.ipAddress = ip;
         this.portNumber = portNumber;
+        this.pollingDuration = pollingDuration;
         this.commandQueue = new ArrayDeque<>();
         commandQueue.clear();
     }
@@ -135,7 +136,7 @@ public class FujiXCommandPublisher implements IFujiXCommandPublisher, IFujiXComm
                             {
                                 issueCommand(command);
                             }
-                            Thread.sleep(COMMAND_POLL_QUEUE_MS);
+                            Thread.sleep(pollingDuration);
                         }
                         catch (Exception e)
                         {
