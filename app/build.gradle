@@ -6,8 +6,8 @@ android {
         applicationId "net.osdn.gokigen.pkremote"
         minSdkVersion 14
         targetSdkVersion 29
-        versionCode 10601
-        versionName "1.6.1"
+        versionCode 10603
+        versionName "1.6.3"
     }
     buildTypes {
         release {
