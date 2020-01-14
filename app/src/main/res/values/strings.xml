@@ -273,6 +273,7 @@
     <string name="action_share">Share</string>
     <string name="free_method_name">()</string>
 
+    <string name="pref_exit_power_off_theta">Exit Application</string>
     <string name="pref_exit_power_off_panasonic">Exit Application</string>
     <string name="pref_exit_power_off_sony">Exit Application</string>
     <string name="pref_summary_sony_api_list">Show available camera apis.</string>
@@ -331,5 +332,12 @@
 
     <string name="pref_canon_receive_wait">Receive reply wait(ms)</string>
     <string name="pref_summary_canon_receive_wait"> </string>
+
+    <string name="dialog_http_command_title_command">HTTP Send Message</string>
+    <string name="http_dialog_method_hint">GET/POST/PUT</string>
+    <string name="http_dialog_service_hint">(service)</string>
+    <string name="http_dialog_command_hint">(command)</string>
+    <string name="http_dialog_parameter_hint">(parameter)</string>
+    <string name="http_method_string">GET</string>
 
 </resources>

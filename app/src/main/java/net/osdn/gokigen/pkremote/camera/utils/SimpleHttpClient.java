@@ -376,6 +376,16 @@ public class SimpleHttpClient
      *
      *
      */
+    public static String httpPutWithHeader(String url, String putData, Map<String, String> headerMap, String contentType, int timeoutMs)
+    {
+        return (httpCommand(url, "PUT", putData, headerMap, contentType, timeoutMs));
+    }
+
+    /**
+     *
+     *
+     *
+     */
     public static String httpPut(String url, String postData, int timeoutMs)
     {
         return (httpCommand(url, "PUT", postData, null, null, timeoutMs));
