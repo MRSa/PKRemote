@@ -2,6 +2,7 @@
 <resources>
     <string-array name="connection_method">
         <item>Ricoh GR / PENTAX</item>
+        <item>Ricoh Theta(OSC)</item>
         <item>OPC(Olympus Air)</item>
         <item>Olympus(OM-D/PEN)</item>
         <item>Fuji X Series</item>
@@ -13,6 +14,7 @@
 
     <string-array name="connection_method_value">
         <item>RICOH</item>
+        <item>THETA</item>
         <item>OPC</item>
         <item>OLYMPUS</item>
         <item>FUJI_X</item>

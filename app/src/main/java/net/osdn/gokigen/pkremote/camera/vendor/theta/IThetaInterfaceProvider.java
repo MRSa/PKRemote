@@ -20,7 +20,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamer
 public interface IThetaInterfaceProvider
 {
     ICameraConnection getThetaCameraConnection();
-    ILiveViewControl getThetaLiveViewControl();
+    ILiveViewControl getLiveViewControl();
 
     ILiveViewListener getLiveViewListener();
     IFocusingControl getFocusingControl();
@@ -29,7 +29,7 @@ public interface IThetaInterfaceProvider
     ICaptureControl getCaptureControl();
     IDisplayInjector getDisplayInjector();
 
-    ICameraStatusUpdateNotify getStatusListener();
+    //ICameraStatusUpdateNotify getStatusListener();
 
     ICameraStatusWatcher getCameraStatusWatcher();
     ICameraStatus getCameraStatusListHolder();

@@ -2,7 +2,6 @@ package net.osdn.gokigen.pkremote.camera.vendor.olympuspen.wrapper;
 
 import android.util.Log;
 
-import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode;
 import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
 

@@ -77,7 +77,7 @@
     <string name="dialog_title_connect_failed_canon">接続失敗(Canon)</string>
     <string name="dialog_title_connect_failed_nikon">接続失敗(Nikon)</string>
     <string name="dialog_title_connect_failed_olympus">接続失敗(Olympus)</string>
-
+    <string name="dialog_title_connect_failed_theta">接続失敗(Theta)</string>
 
     <string name="dialog_title_button_retry">再接続</string>
     <string name="dialog_title_button_network_settings">WiFi設定</string>
@@ -333,6 +333,7 @@
     <string name="pref_summary_canon_receive_wait">おかしい場合に値を大きくします</string>
 
     <string name="dialog_http_command_title_command">HTTP送信</string>
+    <string name="http_dialog_http_url_hint">http://192.168.0.10/</string>
     <string name="http_dialog_method_hint">GET/POST/PUT</string>
     <string name="http_dialog_service_hint">(service)</string>
     <string name="http_dialog_command_hint">(command)</string>

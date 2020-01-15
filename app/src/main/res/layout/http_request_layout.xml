@@ -50,6 +50,15 @@
                 android:layout_gravity="start">
             </TextView>
 
+            <EditText android:id="@+id/edit_http_header"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:autoLink="all"
+                android:linksClickable="true"
+                android:inputType="text"
+                android:hint="@string/http_dialog_http_url_hint"
+                />
+
             <EditText android:id="@+id/edit_method"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -82,7 +91,7 @@
                 android:layout_height="wrap_content"
                 android:autoLink="all"
                 android:linksClickable="true"
-                android:inputType="text"
+                android:inputType="textMultiLine"
                 android:hint="@string/http_dialog_parameter_hint"
                 />
 

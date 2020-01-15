@@ -26,6 +26,7 @@ public class SimpleHttpSendCommandDialog extends DialogFragment implements View.
     private final String TAG = toString();
     private ILiveViewControl liveViewControl = null;
     private Dialog myDialog = null;
+    private EditText http_header = null;
     private EditText method = null;
     private EditText service = null;
     private EditText parameter = null;
@@ -116,6 +117,7 @@ public class SimpleHttpSendCommandDialog extends DialogFragment implements View.
 
         alertDialog.setIcon(R.drawable.ic_linked_camera_black_24dp);
         alertDialog.setTitle(activity.getString(R.string.dialog_http_command_title_command));
+        http_header = alertView.findViewById(R.id.edit_http_header);
         method = alertView.findViewById(R.id.edit_method);
         service = alertView.findViewById(R.id.edit_service);
         parameter = alertView.findViewById(R.id.edit_parameter);
@@ -134,6 +136,10 @@ public class SimpleHttpSendCommandDialog extends DialogFragment implements View.
             if (method != null)
             {
                 method.setText(activity.getText(R.string.http_method_string));
+            }
+            if (http_header != null)
+            {
+                http_header.setText(urlToSend);
             }
         }
         catch (Exception e)
@@ -213,6 +219,20 @@ public class SimpleHttpSendCommandDialog extends DialogFragment implements View.
             final Activity activity = getActivity();
             if (activity != null)
             {
+                if (http_header != null)
+                {
+                    String httpStr = http_header.getText().toString().toLowerCase();
+                    if (!httpStr.contains("http://"))
+                    {
+                        this.urlToSend = COMMUNICATE_URL_DEFAULT;
+                        http_header.setText(COMMUNICATE_URL_DEFAULT);
+                    }
+                    else
+                    {
+                        this.urlToSend = httpStr;
+                    }
+                }
+                
                 if (method != null)
                 {
                     methodStr = method.getText().toString().toLowerCase();
