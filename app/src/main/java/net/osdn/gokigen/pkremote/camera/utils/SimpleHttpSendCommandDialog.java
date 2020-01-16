@@ -42,7 +42,7 @@ public class SimpleHttpSendCommandDialog extends DialogFragment implements View.
      *
      *
      */
-    public static SimpleHttpSendCommandDialog newInstance(@Nullable String urlToSend, @NonNull ILiveViewControl liveViewControl,  @Nullable Map<String, String> headerMap)
+    public static SimpleHttpSendCommandDialog newInstance(@Nullable String urlToSend, @Nullable ILiveViewControl liveViewControl,  @Nullable Map<String, String> headerMap)
     {
         SimpleHttpSendCommandDialog instance = new SimpleHttpSendCommandDialog();
         instance.prepare(urlToSend, liveViewControl, headerMap);
@@ -60,7 +60,7 @@ public class SimpleHttpSendCommandDialog extends DialogFragment implements View.
      *
      *
      */
-    private void prepare(@Nullable String urlToSend, @NonNull ILiveViewControl liveViewControl, @Nullable Map<String, String> headerMap)
+    private void prepare(@Nullable String urlToSend, @Nullable ILiveViewControl liveViewControl, @Nullable Map<String, String> headerMap)
     {
         if ((urlToSend == null)||(!urlToSend.contains("http://")))
         {
@@ -127,8 +127,17 @@ public class SimpleHttpSendCommandDialog extends DialogFragment implements View.
         final Button toRunningButton = alertView.findViewById(R.id.change_to_liveview);
         final Button toPlaybackButton = alertView.findViewById(R.id.change_to_playback);
 
-        toRunningButton.setOnClickListener(this);
-        toPlaybackButton.setOnClickListener(this);
+        if (liveViewControl != null)
+        {
+            toRunningButton.setOnClickListener(this);
+            toPlaybackButton.setOnClickListener(this);
+        }
+        else
+        {
+            // ライブビューのオン・オフ切り替えボタンを非表示にする
+            toRunningButton.setVisibility(View.GONE);
+            toPlaybackButton.setVisibility(View.GONE);
+        }
         sendButton.setOnClickListener(this);
         alertDialog.setCancelable(true);
         try
@@ -292,7 +301,7 @@ public class SimpleHttpSendCommandDialog extends DialogFragment implements View.
                             {
                                 reply = SimpleHttpClient.httpGetWithHeader(url, headerMap, null, TIMEOUT_MS);
                             }
-                            Log.v(TAG, "URL : " + url + " RESPONSE : " + reply);
+                            Log.v(TAG, "URL : " + url + " "+ param + " RESP : " + reply);
                             final String response = reply;
                             activity.runOnUiThread(new Runnable() {
                                 @Override

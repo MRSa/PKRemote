@@ -17,6 +17,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.R;
+import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpSendCommandDialog;
 import net.osdn.gokigen.pkremote.camera.vendor.theta.operation.ThetaCameraPowerOff;
 import net.osdn.gokigen.pkremote.logcat.LogCatViewer;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
@@ -26,6 +27,7 @@ import java.util.Map;
 
 import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.DEBUG_INFO;
 import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.EXIT_APPLICATION;
+import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.HTTP_COMMAND_SEND_DIALOG;
 import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.WIFI_SETTINGS;
 
 /**
@@ -179,7 +181,7 @@ public class ThetaPreferenceFragment  extends PreferenceFragmentCompat implement
         try
         {
             //super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.preferences_panasonic);
+            addPreferencesFromResource(R.xml.preferences_theta);
 
             ListPreference connectionMethod = findPreference(IPreferencePropertyAccessor.CONNECTION_METHOD);
             connectionMethod.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -194,6 +196,7 @@ public class ThetaPreferenceFragment  extends PreferenceFragmentCompat implement
             findPreference(EXIT_APPLICATION).setOnPreferenceClickListener(powerOffController);
             findPreference(DEBUG_INFO).setOnPreferenceClickListener(logCatViewer);
             findPreference(WIFI_SETTINGS).setOnPreferenceClickListener(this);
+            findPreference(HTTP_COMMAND_SEND_DIALOG).setOnPreferenceClickListener(this);
             //findPreference("panasonic_api_list").setOnPreferenceClickListener(cameraApiListViewer);
         }
         catch (Exception e)
@@ -331,14 +334,19 @@ public class ThetaPreferenceFragment  extends PreferenceFragmentCompat implement
         try
         {
             String preferenceKey = preference.getKey();
+            Log.v(TAG, " onPreferenceClick : " + preferenceKey);
             if (preferenceKey.contains(WIFI_SETTINGS))
             {
                 // Wifi 設定画面を表示する
-                Log.v(TAG, " onPreferenceClick : " + preferenceKey);
                 if (context != null)
                 {
                     context.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
                 }
+            }
+            else if (preferenceKey.contains(HTTP_COMMAND_SEND_DIALOG))
+            {
+                // HTTP送信ダイアログを表示する
+                SimpleHttpSendCommandDialog.newInstance("http://192.168.1.1/", null, null).show(context.getSupportFragmentManager(), "sendCommandDialog");
             }
             return (true);
         }

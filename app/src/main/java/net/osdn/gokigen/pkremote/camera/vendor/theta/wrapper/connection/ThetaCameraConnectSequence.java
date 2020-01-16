@@ -10,9 +10,10 @@ import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
 
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ *   Thetaとの接続シーケンス
+ *
+ */
 public class ThetaCameraConnectSequence implements Runnable
 {
     private final String TAG = this.toString();
@@ -31,26 +32,24 @@ public class ThetaCameraConnectSequence implements Runnable
     @Override
     public void run()
     {
-        final String camInfoUrl = "http://192.168.0.10/get_caminfo.cgi";
-        final String getCommandListUrl = "http://192.168.0.10/get_commandlist.cgi";
-        final String getConnectModeUrl = "http://192.168.0.10/get_connectmode.cgi";
+        final String oscInfoUrl = "http://192.168.1.1/osc/info";
+        final String commandsExecuteUrl = "http://192.168.1.1/osc/commands/execute";
+        final String startSessionData = "{\"name\":\"camera.startSession\",\"parameters\":{\"timeout\":0}}";
+        final String getStateUrl = "http://192.168.1.1/osc/state";
 
         final int TIMEOUT_MS = 5000;
         try
         {
-            Map<String, String> headerMap = new HashMap<>();
-            headerMap.put("User-Agent", "OlympusCameraKit"); // "OI.Share"
-            headerMap.put("X-Protocol", "OlympusCameraKit"); // "OI.Share"
-
-            String response = SimpleHttpClient.httpGetWithHeader(getConnectModeUrl, headerMap, null, TIMEOUT_MS);
-            Log.v(TAG, " " + getConnectModeUrl + " " + response);
+            String response = SimpleHttpClient.httpGet(oscInfoUrl, TIMEOUT_MS);
+            Log.v(TAG, " " + oscInfoUrl + " " + response);
             if (response.length() > 0)
             {
-                String response2 = SimpleHttpClient.httpGetWithHeader(getCommandListUrl, headerMap, null, TIMEOUT_MS);
-                Log.v(TAG, " " + getCommandListUrl + " " + response2);
 
-                String response3 = SimpleHttpClient.httpGetWithHeader(camInfoUrl, headerMap, null, TIMEOUT_MS);
-                Log.v(TAG, " " + camInfoUrl + " " + response3);
+                String response2 = SimpleHttpClient.httpPost(commandsExecuteUrl, startSessionData, TIMEOUT_MS);
+                Log.v(TAG, " " + commandsExecuteUrl + " " + startSessionData + " " + response2);
+
+                String response3 = SimpleHttpClient.httpPost(getStateUrl, "", TIMEOUT_MS);
+                Log.v(TAG, " " + getStateUrl + " " + response3);
 
                 onConnectNotify();
             }

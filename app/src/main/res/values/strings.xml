@@ -334,8 +334,10 @@
     <string name="pref_canon_receive_wait">Receive reply wait(ms)</string>
     <string name="pref_summary_canon_receive_wait"> </string>
 
+    <string name="pref_show_send_dialog">HTTP Send Message</string>
+    <string name="pref_summary_show_send_dialog"> </string>
     <string name="dialog_http_command_title_command">HTTP Send Message</string>
-    <string name="http_dialog_http_url_hint">http://192.168.0.10/</string>
+    <string name="http_dialog_http_url_hint">http://192.168.1.1/</string>
     <string name="http_dialog_method_hint">GET/POST/PUT</string>
     <string name="http_dialog_service_hint">(service)</string>
     <string name="http_dialog_command_hint">(command)</string>

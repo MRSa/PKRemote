@@ -22,16 +22,20 @@
 
     </PreferenceCategory>
 
-<!--
     <PreferenceCategory
         android:title="@string/pref_cat_camera">
 
+        <PreferenceScreen
+            android:key="send_command_dialog"
+            android:title="@string/pref_show_send_dialog"
+            android:summary="@string/pref_summary_show_send_dialog" />
+
+<!--
         <CheckBoxPreference
             android:key="capture_both_camera_and_live_view"
             android:title="@string/pref_capture_both_camera_and_live_view" />
-
-    </PreferenceCategory>
 -->
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/pref_cat_initialize">

@@ -115,6 +115,8 @@ public interface IPreferencePropertyAccessor
     String CANON_RECEIVE_WAIT = "nikon_receive_wait";
     String CANON_RECEIVE_WAIT_DEFAULT_VALUE = "20";
 
+    String HTTP_COMMAND_SEND_DIALOG = "send_command_dialog";
+
     /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
     //String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";
