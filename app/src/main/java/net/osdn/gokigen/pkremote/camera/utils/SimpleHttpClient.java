@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  *
@@ -132,7 +133,24 @@ public class SimpleHttpClient
      */
     public static void httpGetBytes(String url, Map<String, String> setProperty, int timeoutMs, @NonNull IReceivedMessageCallback callback)
     {
+        httpCommandBytes(url, "GET", null, setProperty, null, timeoutMs, callback);
+    }
+
+    /**
+     *
+     *
+     *
+     */
+    public static void httpPostBytes(String url, String postData, Map<String, String> setProperty, int timeoutMs, @NonNull IReceivedMessageCallback callback)
+    {
+        httpCommandBytes(url, "POST", postData, setProperty, null, timeoutMs, callback);
+    }
+
+    private static void httpCommandBytes(@NonNull String url, @NonNull String requestMethod, @Nullable String postData, @Nullable Map<String, String> setProperty, @Nullable String contentType, int timeoutMs, @NonNull IReceivedMessageCallback callback)
+    {
         HttpURLConnection httpConn = null;
+        OutputStream outputStream = null;
+        OutputStreamWriter writer = null;
         InputStream inputStream = null;
         int timeout = timeoutMs;
         if (timeoutMs < 0)
@@ -140,12 +158,12 @@ public class SimpleHttpClient
             timeout = DEFAULT_TIMEOUT;
         }
 
-        //  HTTP GETメソッドで要求を投げる
+        //  HTTP メソッドで要求を送出
         try
         {
             final URL urlObj = new URL(url);
             httpConn = (HttpURLConnection) urlObj.openConnection();
-            httpConn.setRequestMethod("GET");
+            httpConn.setRequestMethod(requestMethod);
             if (setProperty != null)
             {
                 for (String key : setProperty.keySet())
@@ -154,9 +172,29 @@ public class SimpleHttpClient
                     httpConn.setRequestProperty(key, value);
                 }
             }
+            if (contentType != null)
+            {
+                httpConn.setRequestProperty("Content-Type", contentType);
+            }
             httpConn.setConnectTimeout(timeout);
             httpConn.setReadTimeout(timeout);
-            httpConn.connect();
+            if (postData == null)
+            {
+                httpConn.connect();
+            }
+            else
+            {
+                httpConn.setDoInput(true);
+                httpConn.setDoOutput(true);
+                outputStream = httpConn.getOutputStream();
+                writer = new OutputStreamWriter(outputStream, "UTF-8");
+                writer.write(postData);
+                writer.flush();
+                writer.close();
+                writer = null;
+                outputStream.close();
+                outputStream = null;
+            }
 
             int responseCode = httpConn.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK)
@@ -165,7 +203,7 @@ public class SimpleHttpClient
             }
             if (inputStream == null)
             {
-                Log.w(TAG, "httpGet: Response Code Error: " + responseCode + ": " + url);
+                Log.w(TAG, " http " + requestMethod + " Response Code Error: " + responseCode + ": " + url);
                 callback.onErrorOccurred(new NullPointerException());
                 callback.onCompleted();
                 return;
@@ -173,7 +211,7 @@ public class SimpleHttpClient
         }
         catch (Exception e)
         {
-            Log.w(TAG, "httpGet: " + url + "  " + e.getMessage());
+            Log.w(TAG, "http " + requestMethod + " " + url + "  " + e.getMessage());
             e.printStackTrace();
             if (httpConn != null)
             {
@@ -182,6 +220,31 @@ public class SimpleHttpClient
             callback.onErrorOccurred(e);
             callback.onCompleted();
             return;
+        }
+        finally
+        {
+            try
+            {
+                if (writer != null)
+                {
+                    writer.close();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            try
+            {
+                if (outputStream != null)
+                {
+                    outputStream.close();
+                }
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
 
         // 応答を確認する
@@ -256,6 +319,7 @@ public class SimpleHttpClient
         callback.onCompleted();
     }
 
+
     public static String getValue(List<String> valueList)
     {
         // 応答ヘッダの値切り出し用...
@@ -276,15 +340,32 @@ public class SimpleHttpClient
         return (values.toString());
     }
 
+    public static Bitmap httpGetBitmap(String url, Map<String, String> setProperty, int timeoutMs)
+    {
+        return (httpCommandBitmap(url, "GET", null, setProperty, null, timeoutMs));
+    }
+
     /**
      *
      *
      *
      */
-    public static Bitmap httpGetBitmap(String url, Map<String, String> setProperty, int timeoutMs)
+    public static Bitmap httpPostBitmap(String url, String postData, int timeoutMs)
+    {
+        return (httpCommandBitmap(url, "POST", postData, null, null, timeoutMs));
+    }
+
+    /**
+     *
+     *
+     *
+     */
+    private static Bitmap httpCommandBitmap(@NonNull String url, @NonNull String requestMethod, @Nullable String postData, @Nullable Map<String, String> setProperty, @Nullable String contentType, int timeoutMs)
     {
         HttpURLConnection httpConn = null;
         InputStream inputStream = null;
+        OutputStream outputStream = null;
+        OutputStreamWriter writer = null;
         Bitmap bmp = null;
 
         int timeout = timeoutMs;
@@ -293,12 +374,12 @@ public class SimpleHttpClient
             timeout = DEFAULT_TIMEOUT;
         }
 
-        //  HTTP GETメソッドで要求を投げる
+        //  HTTP メソッドで要求を送出
         try
         {
             final URL urlObj = new URL(url);
             httpConn = (HttpURLConnection) urlObj.openConnection();
-            httpConn.setRequestMethod("GET");
+            httpConn.setRequestMethod(requestMethod);
             if (setProperty != null)
             {
                 for (String key : setProperty.keySet())
@@ -307,9 +388,30 @@ public class SimpleHttpClient
                     httpConn.setRequestProperty(key, value);
                 }
             }
+            if (contentType != null)
+            {
+                httpConn.setRequestProperty("Content-Type", contentType);
+            }
             httpConn.setConnectTimeout(timeout);
             httpConn.setReadTimeout(timeout);
-            httpConn.connect();
+
+            if (postData == null)
+            {
+                httpConn.connect();
+            }
+            else
+            {
+                httpConn.setDoInput(true);
+                httpConn.setDoOutput(true);
+                outputStream = httpConn.getOutputStream();
+                writer = new OutputStreamWriter(outputStream, "UTF-8");
+                writer.write(postData);
+                writer.flush();
+                writer.close();
+                writer = null;
+                outputStream.close();
+                outputStream = null;
+            }
 
             int responseCode = httpConn.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK)
@@ -322,20 +424,45 @@ public class SimpleHttpClient
             }
             if (inputStream == null)
             {
-                Log.w(TAG, "httpGet: Response Code Error: " + responseCode + ": " + url);
+                Log.w(TAG, "http: (" + requestMethod + ") Response Code Error: " + responseCode + ": " + url);
                 return (null);
             }
             inputStream.close();
         }
         catch (Exception e)
         {
-            Log.w(TAG, "httpGet: " + url + "  " + e.getMessage());
+            Log.w(TAG, "http: (" + requestMethod + ") " + url + "  " + e.getMessage());
             e.printStackTrace();
             if (httpConn != null)
             {
                 httpConn.disconnect();
             }
             return (null);
+        }
+        finally
+        {
+            try
+            {
+                if (writer != null)
+                {
+                    writer.close();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            try
+            {
+                if (outputStream != null)
+                {
+                    outputStream.close();
+                }
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
         return (bmp);
     }
@@ -349,7 +476,6 @@ public class SimpleHttpClient
     {
         return (httpCommand(url, "POST", postData, null, null, timeoutMs));
     }
-
 
     /**
      *

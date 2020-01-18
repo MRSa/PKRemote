@@ -131,6 +131,12 @@ public class ThetaPreferenceFragment  extends PreferenceFragmentCompat implement
             if (!items.containsKey(IPreferencePropertyAccessor.CONNECTION_METHOD)) {
                 editor.putString(IPreferencePropertyAccessor.CONNECTION_METHOD, IPreferencePropertyAccessor.CONNECTION_METHOD_DEFAULT_VALUE);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT)) {
+                editor.putString(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT, IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.USE_OSC_THETA_V21)) {
+                editor.putBoolean(IPreferencePropertyAccessor.USE_OSC_THETA_V21, false);
+            }
             editor.apply();
         }
         catch (Exception e)
@@ -162,6 +168,11 @@ public class ThetaPreferenceFragment  extends PreferenceFragmentCompat implement
                     Log.v(TAG, " " + key + " , " + value);
                     break;
 
+                case IPreferencePropertyAccessor.USE_OSC_THETA_V21:
+                    value = preferences.getBoolean(key, false);
+                    Log.v(TAG, " " + key + " , " + value);
+                    break;
+
                 default:
                     String strValue = preferences.getString(key, "");
                     setListPreference(key, key, strValue);
@@ -184,24 +195,35 @@ public class ThetaPreferenceFragment  extends PreferenceFragmentCompat implement
             addPreferencesFromResource(R.xml.preferences_theta);
 
             ListPreference connectionMethod = findPreference(IPreferencePropertyAccessor.CONNECTION_METHOD);
-            connectionMethod.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    preference.setSummary(newValue + " ");
-                    return (true);
-                }
-            });
-            connectionMethod.setSummary(connectionMethod.getValue() + " ");
+            if (connectionMethod != null)
+            {
+                connectionMethod.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        preference.setSummary(newValue + " ");
+                        return (true);
+                    }
+                });
+                connectionMethod.setSummary(connectionMethod.getValue() + " ");
+            }
 
-            findPreference(EXIT_APPLICATION).setOnPreferenceClickListener(powerOffController);
-            findPreference(DEBUG_INFO).setOnPreferenceClickListener(logCatViewer);
-            findPreference(WIFI_SETTINGS).setOnPreferenceClickListener(this);
-            findPreference(HTTP_COMMAND_SEND_DIALOG).setOnPreferenceClickListener(this);
-            //findPreference("panasonic_api_list").setOnPreferenceClickListener(cameraApiListViewer);
+            setOnPreferenceClickListener(EXIT_APPLICATION, powerOffController);
+            setOnPreferenceClickListener(DEBUG_INFO, logCatViewer);
+            setOnPreferenceClickListener(WIFI_SETTINGS, this);
+            setOnPreferenceClickListener(HTTP_COMMAND_SEND_DIALOG, this);
         }
         catch (Exception e)
         {
             e.printStackTrace();
+        }
+    }
+
+    private void setOnPreferenceClickListener(String key, Preference.OnPreferenceClickListener listener)
+    {
+        Preference preference = findPreference(key);
+        if (preference != null)
+        {
+            preference.setOnPreferenceClickListener(listener);
         }
     }
 
@@ -223,9 +245,7 @@ public class ThetaPreferenceFragment  extends PreferenceFragmentCompat implement
         {
             e.printStackTrace();
         }
-
         Log.v(TAG, "onResume() End");
-
     }
 
     /**
@@ -318,6 +338,7 @@ public class ThetaPreferenceFragment  extends PreferenceFragmentCompat implement
                         // Preferenceの画面に反映させる
                         setBooleanPreference(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, defaultValue);
                         setBooleanPreference(IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW, IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW, defaultValue);
+                        setBooleanPreference(IPreferencePropertyAccessor.USE_OSC_THETA_V21, IPreferencePropertyAccessor.USE_OSC_THETA_V21, false);
                     }
                     catch (Exception e)
                     {

@@ -70,7 +70,7 @@ public class ThetaInterfaceProvider implements IThetaInterfaceProvider, IDisplay
         //this.provider = provider;
         thetaConnection = new ThetaConnection(context, provider);
         buttonControl = new ThetaButtonControl();
-        playbackControl = new ThetaPlaybackControl(context, communicationTimeoutMs);
+        playbackControl = new ThetaPlaybackControl(context, communicationTimeoutMs, 65000);
         hardwareStatus = new ThetaHardwareStatus();
         runMode = new ThetaRunMode();
     }

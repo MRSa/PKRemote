@@ -25,12 +25,24 @@
     <PreferenceCategory
         android:title="@string/pref_cat_camera">
 
+        <CheckBoxPreference
+            android:key="use_osc_theta_v21"
+            android:title="@string/pref_use_osc_theta_v21"
+            android:summary="@string/pref_summary_use_osc_theta_v21"/>
+
         <PreferenceScreen
             android:key="send_command_dialog"
             android:title="@string/pref_show_send_dialog"
             android:summary="@string/pref_summary_show_send_dialog" />
 
-<!--
+        <EditTextPreference
+            android:key="ricoh_get_pics_list_timeout"
+            android:title="@string/pref_ricoh_get_pics_list_timeout"
+            android:defaultValue="10"
+            android:inputType="number"
+            android:summary="@string/pref_summary_ricoh_get_pics_list_timeout" />
+
+        <!--
         <CheckBoxPreference
             android:key="capture_both_camera_and_live_view"
             android:title="@string/pref_capture_both_camera_and_live_view" />

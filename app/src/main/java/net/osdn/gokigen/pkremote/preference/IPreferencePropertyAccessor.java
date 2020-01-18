@@ -117,6 +117,8 @@ public interface IPreferencePropertyAccessor
 
     String HTTP_COMMAND_SEND_DIALOG = "send_command_dialog";
 
+    String USE_OSC_THETA_V21 = "use_osc_theta_v21";
+
     /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
     //String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";

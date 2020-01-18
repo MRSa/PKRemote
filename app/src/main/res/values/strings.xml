@@ -344,4 +344,7 @@
     <string name="http_dialog_parameter_hint">(parameter)</string>
     <string name="http_method_string">GET</string>
 
+    <string name="pref_use_osc_theta_v21">Use THETA Web API v2.1</string>
+    <string name="pref_summary_use_osc_theta_v21"> </string>
+
 </resources>
