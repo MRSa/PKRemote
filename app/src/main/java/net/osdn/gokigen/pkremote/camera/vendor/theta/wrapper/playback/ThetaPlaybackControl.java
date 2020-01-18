@@ -50,7 +50,6 @@ public class ThetaPlaybackControl implements IPlaybackControl
 
     }
 
-
     @Override
     public String getRawFileSuffix() {
         return ".DNG";
@@ -100,7 +99,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
         {
             String url = "http://192.168.1.1/osc/commands/execute";
             String postData = "{\"name\":\"camera.getImage\",\"parameters\":{\"_type\":\"thumb\",\"fileUri\":\"" + path + "\"}}";
-            Log.v(TAG, " postData : " + postData);
+            //Log.v(TAG, " postData : " + postData);
 
             Bitmap bmp = SimpleHttpClient.httpPostBitmap(url, postData, timeoutValue);
             HashMap<String, Object> map = new HashMap<>();
@@ -117,11 +116,11 @@ public class ThetaPlaybackControl implements IPlaybackControl
     private void downloadContentThumbnailV21(String path, IDownloadThumbnailImageCallback callback)
     {
         //  fileContent の URLをそのまま使用する
-        Log.v(TAG, "downloadContentThumbnailV21() : " + path);
+        Log.v(TAG, "  downloadContentThumbnailV21() : " + path);
         String paramData = null;
         try
         {
-            String url = "http://" + path;
+            //String url = "http://" + path;
             int index = 0;
             for (ICameraContent content : cameraContentList)
             {
@@ -140,7 +139,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
             {
                 try
                 {
-                    Log.v(TAG, " exec getFileList");
+                    //Log.v(TAG, " exec getFileList");
                     String imageListurl = "http://192.168.1.1/osc/commands/execute";
                     String contentList = SimpleHttpClient.httpPost(imageListurl, paramData, timeoutValue);
                     if (contentList != null)
@@ -151,15 +150,11 @@ public class ThetaPlaybackControl implements IPlaybackControl
                         if (size > 0)
                         {
                             JSONObject object = entriesArray.getJSONObject(0);
-                            String fileName = object.getString("name");
-                            //String fileUri = object.getString("fileUrl");
-                            //String fileSize = object.getString("size");
-                            //String fileDateTime = object.getString("dateTime");    // detail : false
-                            //String thumbnail = object.getString("thumbnail");       // detail : true (Base64)
-                            String fileDateTime = object.getString("dateTimeZone"); // detail : true
+                            //String fileName = object.getString("name");
+                            //String fileDateTime = object.getString("dateTimeZone"); // detail : true
                             byte[] thumb = Base64.decode( object.getString("thumbnail"), Base64.DEFAULT);     // detail : true (Base64)
                             bmp = BitmapFactory.decodeByteArray(thumb, 0, thumb.length);
-                            Log.v(TAG, " ----- camera.listFiles : " + fileName + " " + fileDateTime + " [" + thumb.length + "] (" + size + ")");
+                            //Log.v(TAG, " ----- camera.listFiles : " + fileName + " " + fileDateTime + " [" + thumb.length + "] (" + size + ")");
                         }
                     }
                 }
@@ -198,7 +193,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
 
     private void downloadContentImplV21(String path, boolean isSmallSize, final IDownloadContentCallback callback)
     {
-        Log.v(TAG, "downloadContentV21() : " + path + " (small :" + isSmallSize + ")");
+        //Log.v(TAG, "downloadContentV21() : " + path + " (small :" + isSmallSize + ")");
         final String urlToGet = "http://" + path;
         try
         {
@@ -290,15 +285,13 @@ public class ThetaPlaybackControl implements IPlaybackControl
 
     }
 
-
     private void getCameraContentListImpl(ICameraContentListCallback callback)
     {
         String imageListurl = "http://192.168.1.1/osc/commands/execute";
+        String paramStr = "{\"name\":\"camera._listAll\",\"parameters\":{\"detail\":false,\"entryCount\":" + maxCount + ",\"sort\":\"newest\"}}";
         String contentList;
         try
         {
-            String paramStr = "{\"name\":\"camera._listAll\",\"parameters\":{\"detail\":false,\"entryCount\":" + maxCount + ",\"sort\":\"newest\"}}";
-
             contentList = SimpleHttpClient.httpPost(imageListurl, paramStr, timeoutValue);
             if (contentList == null)
             {
@@ -331,7 +324,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
                 String fileDateTime = object.getString("dateTime");
 
                 cameraContentList.add(new ThetaCameraContent(fileName, fileUri, null, fileSize, fileDateTime));
-                Log.v(TAG, " [" + (index + 1) + "] " + fileName + " " + fileUri + " " + fileSize + " " + fileDateTime + " ");
+                //Log.v(TAG, " [" + (index + 1) + "] " + fileName + " " + fileUri + " " + fileSize + " " + fileDateTime + " ");
             }
         }
         catch (Exception e)
@@ -348,8 +341,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
         try
         {
             String paramStr = "{\"name\":\"camera.listFiles\",\"parameters\":{\"fileType\":\"all\",\"entryCount\":" +  maxCount + ",\"maxThumbSize\":640,\"_detail\":false, \"_sort\":\"newest\"}}";
-            //String paramStr = "{\"name\":\"camera.listFiles\",\"parameters\":{\"fileType\":\"all\",\"entryCount\":" +  maxCount + ",\"maxThumbSize\":640,\"_detail\":true, \"_sort\":\"newest\"}}";
-            Log.v(TAG, " paramStr : " + paramStr);
+            //Log.v(TAG, " paramStr : " + paramStr);
             contentList = SimpleHttpClient.httpPost(imageListurl, paramStr, timeoutValue);
             if (contentList == null)
             {
@@ -380,11 +372,9 @@ public class ThetaPlaybackControl implements IPlaybackControl
                 String fileUri = object.getString("fileUrl");
                 String fileSize = object.getString("size");
                 String fileDateTime = object.getString("dateTime");    // detail : false
-                //String fileDateTime = object.getString("dateTimeZone"); // detail : true
-                //String thumbnail = object.getString("thumbnail");       // detail : true (Base64)
 
                 cameraContentList.add(new ThetaCameraContent(fileName, null, fileUri, fileSize, fileDateTime));
-                Log.v(TAG, " [" + (index + 1) + "] " + fileName + " " + fileUri + " " + fileSize + " " + fileDateTime);
+                //Log.v(TAG, " [" + (index + 1) + "] " + fileName + " " + fileUri + " " + fileSize + " " + fileDateTime);
             }
         }
         catch (Exception e)
