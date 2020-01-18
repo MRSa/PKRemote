@@ -581,6 +581,14 @@ public class SimpleHttpClient
             if (inputStream == null)
             {
                 Log.w(TAG, "http " + requestMethod + " : Response Code Error: " + responseCode + ": " + url);
+/*
+                inputStream = httpConn.getInputStream();
+                if (inputStream != null)
+                {
+                    // DUMP RESPONSE DETAIL
+                    Log.w(TAG, " RESP : " + readFromInputStream(inputStream));
+                }
+*/
                 return ("");
             }
         }
@@ -621,6 +629,8 @@ public class SimpleHttpClient
         }
 
         // 応答の読み出し
+        return (readFromInputStream(inputStream));
+/*
         BufferedReader reader = null;
         String replyString = "";
         try
@@ -654,7 +664,50 @@ public class SimpleHttpClient
             }
         }
         return (replyString);
+*/
     }
+
+    private static String readFromInputStream(InputStream inputStream)
+    {
+        BufferedReader reader = null;
+        String replyString = "";
+        if (inputStream == null)
+        {
+            return ("");
+        }
+        try
+        {
+            StringBuilder responseBuf = new StringBuilder();
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            int c;
+            while ((c = reader.read()) != -1)
+            {
+                responseBuf.append((char) c);
+            }
+            replyString = responseBuf.toString();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (reader != null)
+                {
+                    reader.close();
+                }
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return (replyString);
+    }
+
 
     public interface IReceivedMessageCallback
     {

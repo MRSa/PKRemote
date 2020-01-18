@@ -25,7 +25,7 @@ public class ThetaCameraContent implements ICameraContent
         this.url = url;
         this.size = size;
         this.date = date;
-        // Log.v(TAG, " [" + " " + "] " + name + " " + path + " (" + size + ") " + date + " " + url);
+        Log.v(TAG, " [" + " " + "] " + name + " " + path + " (" + size + ") " + date + " " + url);
     }
 
     @Override
@@ -68,10 +68,12 @@ public class ThetaCameraContent implements ICameraContent
     private String getContentPathFromUrl()
     {
         // データ内容 : "http://192.168.1.1/files/abcde/100RICOH/R0010032.JPG"
+        //Log.v(TAG, " URL : " + url);
         try
         {
-            int index = url.indexOf("/");
-            return (url.substring(0, index));
+            // http:// を削る
+            int index =  url.lastIndexOf("/");
+            return (url.substring(7, index));
         }
         catch (Exception e)
         {
