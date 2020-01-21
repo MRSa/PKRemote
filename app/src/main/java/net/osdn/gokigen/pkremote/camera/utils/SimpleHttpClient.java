@@ -522,6 +522,16 @@ public class SimpleHttpClient
      *
      *
      */
+    public static String httpOptions(String url, String optionsData, int timeoutMs)
+    {
+        return (httpCommand(url, "OPTIONS", optionsData, null, null, timeoutMs));
+    }
+
+    /**
+     *
+     *
+     *
+     */
     private static String httpCommand(String url, String requestMethod, String postData, Map<String, String> setProperty, String contentType, int timeoutMs)
     {
         HttpURLConnection httpConn = null;
