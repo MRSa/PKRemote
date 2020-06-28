@@ -128,8 +128,24 @@ class PanasonicSsdpClient
                                 cameraStatusReceiver.onStatusNotify(context.getString(R.string.camera_found) + " " + device.getFriendlyName());
 
                                 ///// カメラへの登録要求... /////
+                                int retryTimeout = 3;
                                 String registUrl = device.getCmdUrl() + "cam.cgi?mode=accctrl&type=req_acc&value=" + device.getClientDeviceUuId() + "&value2=GOKIGEN_a01Series";
                                 String reply = SimpleHttpClient.httpGet(registUrl, SSDP_RECEIVE_TIMEOUT);
+                                while ((retryTimeout > 0)&&(reply.contains("ok_under_research_no_msg")))
+                                {
+                                    try
+                                    {
+                                        // 1秒待って再送してみる
+                                        Thread.sleep(1000);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        e.printStackTrace();
+                                    }
+                                    reply = SimpleHttpClient.httpGet(registUrl, SSDP_RECEIVE_TIMEOUT);
+                                    retryTimeout--;
+
+                                }
                                 if (reply.contains("ok"))
                                 {
                                     callback.onDeviceFound(device);

@@ -81,10 +81,18 @@ public class PanasonicCameraWrapper implements IPanasonicCameraHolder, IPanasoni
         {
             runMode.setCamera(panasonicCamera, playbackControl, TIMEOUT_MS);
             playbackControl.setCamera(panasonicCamera, TIMEOUT_MS);
-            focusControl.setCamera(panasonicCamera);
-            captureControl.setCamera(panasonicCamera);
-            zoomControl.setCamera(panasonicCamera);
-
+            if (focusControl != null)
+            {
+                focusControl.setCamera(panasonicCamera);
+            }
+            if (captureControl != null)
+            {
+                captureControl.setCamera(panasonicCamera);
+            }
+            if (zoomControl != null)
+            {
+                zoomControl.setCamera(panasonicCamera);
+            }
             //this.panasonicCameraApi = PanasonicCameraApi.newInstance(panasonicCamera);
             if (eventObserver == null)
             {
