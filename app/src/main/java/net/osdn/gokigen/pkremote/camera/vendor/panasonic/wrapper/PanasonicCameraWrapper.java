@@ -161,6 +161,7 @@ public class PanasonicCameraWrapper implements IPanasonicCameraHolder, IPanasoni
     @Override
     public void startEventWatch(@Nullable ICameraChangeListener listener)
     {
+        Log.v(TAG, " startEventWatch ");
         try
         {
             if (eventObserver != null)
