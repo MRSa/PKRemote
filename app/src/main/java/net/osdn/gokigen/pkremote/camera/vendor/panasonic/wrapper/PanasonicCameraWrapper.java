@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import net.osdn.gokigen.pkremote.ICardSlotSelector;
 import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
@@ -46,6 +47,7 @@ public class PanasonicCameraWrapper implements IPanasonicCameraHolder, IPanasoni
     private static final int TIMEOUT_MS = 5000;
     private final ICameraStatusReceiver provider;
     private final ICameraChangeListener listener;
+    private final ICardSlotSelector cardSlotSelector;
     private IPanasonicCamera panasonicCamera = null;
     //private IPanasonicCameraApi panasonicCameraApi = null;
     private ICameraEventObserver eventObserver = null;
@@ -60,11 +62,12 @@ public class PanasonicCameraWrapper implements IPanasonicCameraHolder, IPanasoni
     private PanasonicStatus statusHolder;
     private PanasonicPlaybackControl playbackControl;
 
-    public PanasonicCameraWrapper(final Activity context, final ICameraStatusReceiver statusReceiver , final @NonNull ICameraChangeListener listener, @NonNull IInformationReceiver informationReceiver)
+    public PanasonicCameraWrapper(final Activity context, final ICameraStatusReceiver statusReceiver , final @NonNull ICameraChangeListener listener, @NonNull IInformationReceiver informationReceiver, @NonNull ICardSlotSelector cardSlotSelector)
     {
         this.context = context;
         this.provider = statusReceiver;
         this.listener = listener;
+        this.cardSlotSelector = cardSlotSelector;
         this.buttonControl = new PanasonicButtonControl();
         this.hardwareStatus = new PanasonicHardwareStatus();
         this.statusHolder = new PanasonicStatus();
@@ -96,7 +99,7 @@ public class PanasonicCameraWrapper implements IPanasonicCameraHolder, IPanasoni
             //this.panasonicCameraApi = PanasonicCameraApi.newInstance(panasonicCamera);
             if (eventObserver == null)
             {
-                eventObserver = CameraEventObserver.newInstance(context, panasonicCamera);
+                eventObserver = CameraEventObserver.newInstance(context, panasonicCamera, cardSlotSelector);
             }
             if (liveViewControl == null)
             {

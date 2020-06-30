@@ -2,6 +2,7 @@ package net.osdn.gokigen.pkremote.camera;
 
 import android.content.SharedPreferences;
 
+import net.osdn.gokigen.pkremote.ICardSlotSelector;
 import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
@@ -62,16 +63,16 @@ public class CameraInterfaceProvider implements IInterfaceProvider
     //private final CameraStatusListener statusListener;
     private ICameraConnection.CameraConnectionMethod connectionMethod = ICameraConnection.CameraConnectionMethod.UNKNOWN;
 
-    public static IInterfaceProvider newInstance(@NonNull AppCompatActivity context, @NonNull ICameraStatusReceiver provider, @NonNull IInformationReceiver informationReceiver)
+    public static IInterfaceProvider newInstance(@NonNull AppCompatActivity context, @NonNull ICameraStatusReceiver provider, @NonNull IInformationReceiver informationReceiver, @NonNull ICardSlotSelector cardSlotSelector)
     {
-        return (new CameraInterfaceProvider(context, provider, informationReceiver));
+        return (new CameraInterfaceProvider(context, provider, informationReceiver, cardSlotSelector));
     }
 
     /**
      *
      *
      */
-    private CameraInterfaceProvider(@NonNull AppCompatActivity context, @NonNull ICameraStatusReceiver provider, @NonNull IInformationReceiver informationReceiver)
+    private CameraInterfaceProvider(@NonNull AppCompatActivity context, @NonNull ICameraStatusReceiver provider, @NonNull IInformationReceiver informationReceiver, @NonNull ICardSlotSelector cardSlotSelector)
     {
         this.context = context;
         CameraStatusListener statusListener = new CameraStatusListener();
@@ -81,7 +82,7 @@ public class CameraInterfaceProvider implements IInterfaceProvider
         sony = new SonyCameraWrapper(context, provider, statusListener, informationReceiver);
         ptpip = new PtpIpInterfaceProvider(context, provider, statusListener, informationReceiver);
         nikon = new NikonInterfaceProvider(context, provider, statusListener, informationReceiver);
-        panasonic = new PanasonicCameraWrapper(context, provider, statusListener, informationReceiver);
+        panasonic = new PanasonicCameraWrapper(context, provider, statusListener, informationReceiver, cardSlotSelector);
         olympuspen = new OlympusPenInterfaceProvider(context, provider);
         theta = new ThetaInterfaceProvider(context, provider);
         this.informationReceiver = informationReceiver;

@@ -5,6 +5,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import net.osdn.gokigen.pkremote.ICardSlotSelector;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraChangeListener;
 import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
 import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera;
@@ -23,16 +24,16 @@ public class CameraEventObserver implements ICameraEventObserver
 
     private final IPanasonicCamera remote;
 
-    public static ICameraEventObserver newInstance(@NonNull Context context, @NonNull IPanasonicCamera apiClient)
+    public static ICameraEventObserver newInstance(@NonNull Context context, @NonNull IPanasonicCamera apiClient, @NonNull ICardSlotSelector cardSlotSelector)
     {
-        return (new CameraEventObserver(context, apiClient));
+        return (new CameraEventObserver(context, apiClient, cardSlotSelector));
     }
 
-    private CameraEventObserver(@NonNull Context context, @NonNull IPanasonicCamera apiClient)
+    private CameraEventObserver(@NonNull Context context, @NonNull IPanasonicCamera apiClient, @NonNull ICardSlotSelector cardSlotSelector)
     {
         super();
         remote = apiClient;
-        statusHolder = new CameraStatusHolder(context);
+        statusHolder = new CameraStatusHolder(context, cardSlotSelector);
         isEventMonitoring = false;
         isActive = false;
     }

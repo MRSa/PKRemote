@@ -92,4 +92,14 @@
         <item >2560</item>
     </string-array>
 
+    <string-array name="sd_card_slot">
+        <item>sd1</item>
+        <item>sd2</item>
+    </string-array>
+
+    <string-array name="sd_card_slot_value">
+        <item>sd1</item>
+        <item>sd2</item>
+    </string-array>
+
 </resources>

@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -22,7 +23,10 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import net.osdn.gokigen.pkremote.camera.CameraInterfaceProvider;
@@ -35,7 +39,7 @@ import net.osdn.gokigen.pkremote.scene.CameraSceneUpdater;
  *
  *
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, IInformationReceiver
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, IInformationReceiver, ICardSlotSelector, AdapterView.OnItemSelectedListener
 {
     private final String TAG = toString();
     private IInterfaceProvider interfaceProvider = null;
@@ -43,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private ImageButton mImageConnectButton = null;
     private ImageButton mReloadButton = null;
+    private Spinner mCardSlotSelection = null;
+    private ICardSlotSelectionReceiver slotSelectionReceiver = null;
     //private TextView mTextMessage = null;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -116,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //mTextMessage = findViewById(R.id.message);
         mImageConnectButton = findViewById(R.id.button_wifi_connect);
         mReloadButton = findViewById(R.id.button_reload);
+        mCardSlotSelection = findViewById(R.id.card_slot_selection);
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -187,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try
         {
             scenceUpdater = CameraSceneUpdater.newInstance(this);
-            interfaceProvider = CameraInterfaceProvider.newInstance(this, scenceUpdater, this);
+            interfaceProvider = CameraInterfaceProvider.newInstance(this, scenceUpdater, this, this);
             scenceUpdater.changeFirstFragment(interfaceProvider);
         }
         catch (Exception e)
@@ -205,12 +212,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             mImageConnectButton.setOnClickListener(this);
             mReloadButton.setOnClickListener(this);
+            setupCardSlotSelection(interfaceProvider.getCammeraConnectionMethod() == ICameraConnection.CameraConnectionMethod.PANASONIC);
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
     }
+
+    private void setupCardSlotSelection(boolean isEnabled)
+    {
+        try
+        {
+            if (mCardSlotSelection == null)
+            {
+                mCardSlotSelection = findViewById(R.id.card_slot_selection);
+            }
+            if (isEnabled)
+            {
+                // 接続モードが Panasonic の時だけ、SD Card 選択を出せるようにする
+                mCardSlotSelection.setVisibility(View.VISIBLE);
+                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sd_card_slot, android.R.layout.simple_spinner_item);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                mCardSlotSelection.setAdapter(adapter);
+                mCardSlotSelection.setOnItemSelectedListener(this);
+            }
+            else
+            {
+                mCardSlotSelection.setVisibility(View.GONE);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
 
     /**
      * 初期化終了時の処理 (カメラへの自動接続)
@@ -284,8 +322,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             e.printStackTrace();
         }
-
-
     }
 
 
@@ -320,6 +356,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     {
                         e.printStackTrace();
                     }
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+    {
+        try
+        {
+            String item = (String) parent.getItemAtPosition(position);
+            Log.v(TAG, " onItemSelected : " +  item);
+            if (slotSelectionReceiver != null)
+            {
+                slotSelectionReceiver.slotSelected(item);
+            }
+            vibrate();
+
+            // scenceUpdater.reloadRemoteImageContents();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent)
+    {
+        // 何もしない
+    }
+
+    @Override
+    public void setupSlotSelector(final boolean isEnable, @Nullable ICardSlotSelectionReceiver slotSelectionReceiver)
+    {
+        try
+        {
+            Log.v(TAG, "  ------- setupSlotSelector " + isEnable);
+            this.slotSelectionReceiver = slotSelectionReceiver;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run()
+                {
+                    setupCardSlotSelection(isEnable);
                 }
             });
         }
