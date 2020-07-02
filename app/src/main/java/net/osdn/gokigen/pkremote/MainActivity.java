@@ -372,12 +372,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             String item = (String) parent.getItemAtPosition(position);
             Log.v(TAG, " onItemSelected : " +  item);
-            if (slotSelectionReceiver != null)
+            if ((slotSelectionReceiver != null)&&(item != null))
             {
                 slotSelectionReceiver.slotSelected(item);
             }
-            vibrate();
-
+            // vibrate();
             // scenceUpdater.reloadRemoteImageContents();
         }
         catch (Exception e)
@@ -406,6 +405,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     setupCardSlotSelection(isEnable);
                 }
             });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void selectSlot(@NonNull String slotId)
+    {
+        try
+        {
+            Log.v(TAG, " selectSlot : " + slotId);
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void changedCardSlot(@NonNull String slotId)
+    {
+        try
+        {
+            Log.v(TAG, " changedCardSlot : " + slotId);
+            scenceUpdater.reloadRemoteImageContents();
+            vibrate();
         }
         catch (Exception e)
         {

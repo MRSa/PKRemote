@@ -33,7 +33,7 @@ public class CameraEventObserver implements ICameraEventObserver
     {
         super();
         remote = apiClient;
-        statusHolder = new CameraStatusHolder(context, cardSlotSelector);
+        statusHolder = new CameraStatusHolder(context, apiClient, cardSlotSelector);
         isEventMonitoring = false;
         isActive = false;
     }
