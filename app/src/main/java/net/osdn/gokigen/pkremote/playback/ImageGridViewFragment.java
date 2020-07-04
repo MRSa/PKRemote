@@ -62,6 +62,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	private static final String OLYMPUS_RAW_SUFFIX = ".orf";
 	private static final String PENTAX_RAW_PEF_SUFFIX = ".pef";
     private static final String PANASONIC_RAW_SUFFIX = ".rw2";
+    private static final String PANASONIC_RAW_SUFFIX2 = ".raw";
     private static final String SONY_RAW_SUFFIX = ".arw";
     private static final String NIKON_RAW_SUFFIX = ".nef";
     private static final String CANON_RAW_SUFFIX = ".crw";
@@ -439,7 +440,6 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 
         // 一覧を取得する
         List<ICameraContent> contents = getContentsList();
-
         List<CameraContentEx> contentItems = new ArrayList<>();
         HashMap<String, CameraContentEx> rawItems = new HashMap<>();
 
@@ -467,6 +467,10 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
             {
                 contentItems.add(new CameraContentEx(item, true, PANASONIC_RAW_SUFFIX));
             }
+            else if (path.endsWith(PANASONIC_RAW_SUFFIX2))
+            {
+                contentItems.add(new CameraContentEx(item, true, PANASONIC_RAW_SUFFIX2));
+            }
             else if (path.endsWith(SONY_RAW_SUFFIX))
             {
                 contentItems.add(new CameraContentEx(item, true, SONY_RAW_SUFFIX));
@@ -492,6 +496,8 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
                 contentItems.add(new CameraContentEx(item, true, FUJI_RAW_SUFFIX));
             }
         }
+
+        Log.v(TAG, " NOF CONTENT ITEMS : " + contentItems.size());
 
         for (CameraContentEx item : contentItems)
         {

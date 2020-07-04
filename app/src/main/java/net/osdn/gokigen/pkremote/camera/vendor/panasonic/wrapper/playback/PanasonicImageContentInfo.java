@@ -55,7 +55,7 @@ public class PanasonicImageContentInfo implements ICameraContent
         try
         {
             String target = getContentName().toLowerCase();
-            return ((target.endsWith("rw2")));
+            return ((target.endsWith("rw2"))||(target.endsWith("raw")));
         }
         catch (Exception e)
         {

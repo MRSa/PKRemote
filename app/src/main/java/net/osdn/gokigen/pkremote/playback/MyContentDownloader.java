@@ -51,6 +51,7 @@ public class MyContentDownloader implements IDownloadContentCallback
     private static final String RAW_SUFFIX_8 = ".CR3";  // RAW: Canon
     private static final String RAW_SUFFIX_9 = ".NEF";  // RAW: Nikon
     private static final String RAW_SUFFIX_0 = ".RAF";  // RAW: Fuji
+    private static final String RAW_SUFFIX_A = ".RAW";  // RAW: Panasonic
     private static final String MOVIE_SUFFIX = ".MOV";
     private static final String MOVIE_SUFFIX_MP4 = ".MP4";
     private static final String JPEG_SUFFIX = ".JPG";
@@ -118,6 +119,12 @@ public class MyContentDownloader implements IDownloadContentCallback
             else if (contentFileName.toUpperCase().contains(RAW_SUFFIX_4))
             {
                 mimeType = "image/x-panasonic-rw2";
+                isSmallSize = false;
+            }
+            else if (contentFileName.toUpperCase().contains(RAW_SUFFIX_A))
+            {
+                // Panasonic
+                mimeType = "image/x-panasonic-raw";
                 isSmallSize = false;
             }
             else if (contentFileName.toUpperCase().contains(RAW_SUFFIX_5))
