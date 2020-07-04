@@ -22,11 +22,13 @@ public class CameraContentEx
         this.isSelected = false;
     }
 
+    /*
     public void setHasRaw(boolean value, String rawSuffix)
     {
         hasRaw = value;
         this.rawSuffix = rawSuffix;
     }
+*/
 
     public void setSelected(boolean isSelected)
     {
@@ -35,12 +37,6 @@ public class CameraContentEx
 
     public boolean hasRaw()
     {
-        if (!(fileInfo.isContentNameValid()))
-        {
-            //
-
-
-        }
         return (hasRaw);
     }
 

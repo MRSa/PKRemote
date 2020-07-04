@@ -32,7 +32,6 @@ import net.osdn.gokigen.pkremote.playback.detail.ImagePagerViewFragment;
 import net.osdn.gokigen.pkremote.playback.grid.ImageGridViewAdapter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -441,7 +440,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         // 一覧を取得する
         List<ICameraContent> contents = getContentsList();
         List<CameraContentEx> contentItems = new ArrayList<>();
-        HashMap<String, CameraContentEx> rawItems = new HashMap<>();
+        //HashMap<String, CameraContentEx> rawItems = new HashMap<>();
 
         for (ICameraContent item : contents)
         {
@@ -457,7 +456,8 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
             }
             else if (path.endsWith(OLYMPUS_RAW_SUFFIX))
             {
-                rawItems.put(path, new CameraContentEx(item, true, OLYMPUS_RAW_SUFFIX));
+                //rawItems.put(path, new CameraContentEx(item, true, OLYMPUS_RAW_SUFFIX));
+                contentItems.add(new CameraContentEx(item, true, OLYMPUS_RAW_SUFFIX));
             }
             else if (path.endsWith(PENTAX_RAW_PEF_SUFFIX))
             {
@@ -498,7 +498,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
         }
 
         Log.v(TAG, " NOF CONTENT ITEMS : " + contentItems.size());
-
+/*
         for (CameraContentEx item : contentItems)
         {
             String path = item.getFileInfo().getContentName().toLowerCase(Locale.getDefault());
@@ -514,6 +514,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
                 }
             }
         }
+*/
         imageContentList = contentItems;
         //Log.v(TAG, ".....imageContentList : " + imageContentList.size());
         adapter.setContentList(imageContentList);
