@@ -204,25 +204,41 @@ public class NikonPlaybackControl implements IPlaybackControl
 
             readPosition = 5 * 16 + 4;
             int length = ((int) rx_body[readPosition] & 0x000000ff) -1;
-            byte[] fileNameArray = new byte[length];
-            for (int index = 0; index < length; index++)
+            if (length > 0)
             {
-                readPosition++;
-                fileNameArray[index] = rx_body[readPosition];
-                readPosition++;
+                // ファイル名を取得
+                byte[] fileNameArray = new byte[length];
+                for (int index = 0; index < length; index++)
+                {
+                    readPosition++;
+                    fileNameArray[index] = rx_body[readPosition];
+                    readPosition++;
+                }
+                content.setContentName(new String(fileNameArray));
             }
-            content.setContentName(new String(fileNameArray));
+            else
+            {
+                // データ異常をログする (ファイル名)
+                Log.v(TAG, " updateImageContent : fileName size is wrong... (" + length + ") " + " bodysize : " + rx_body.length);
+            }
 
             readPosition = 7 * 16 - 1;
             int dateTimeLength = ((int) rx_body[readPosition] & 0x000000ff) -1;
-            byte[] dateTimeArray = new byte[dateTimeLength];
-            for (int index = 0; index < dateTimeLength; index++)
+            if (dateTimeLength > 0)
             {
-                readPosition++;
-                dateTimeArray[index] = rx_body[readPosition];
-                readPosition++;
+                byte[] dateTimeArray = new byte[dateTimeLength];
+                for (int index = 0; index < dateTimeLength; index++) {
+                    readPosition++;
+                    dateTimeArray[index] = rx_body[readPosition];
+                    readPosition++;
+                }
+                content.setCapturedDate(getCameraContentDate(new String(dateTimeArray)));
             }
-            content.setCapturedDate(getCameraContentDate(new String(dateTimeArray)));
+            else
+            {
+                // データ異常をログする (撮影日時）
+                Log.v(TAG, " updateImageContent : dateTime size is wrong... (" + length + ") " + " bodysize : " + rx_body.length);
+            }
         }
         catch (Exception e)
         {
