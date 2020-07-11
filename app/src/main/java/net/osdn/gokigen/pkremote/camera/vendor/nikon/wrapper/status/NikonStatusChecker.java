@@ -12,7 +12,8 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpComma
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonInitEventRequest;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.NikonInitEventRequest;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.StatusRequestMessage;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -174,8 +175,7 @@ public class NikonStatusChecker implements IPtpIpCommandCallback, ICameraStatusW
             {
                 Log.v(TAG, "  CONNECT FAIL...(EVENT) : " + ipAddress + "  " + portNumber);
             }
-            issueCommand(new CanonInitEventRequest(this, eventConnectionNumber));
-
+            issueCommand(new NikonInitEventRequest(this, eventConnectionNumber));
 /*
             Thread thread = new Thread(new Runnable()
             {

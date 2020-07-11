@@ -108,7 +108,7 @@ public class NikonStorageContentHolder  implements IPtpIpCommandCallback
                 List<Integer> directoriesList = parseObjects(rx_body);
                 for (int subDirectory : directoriesList)
                 {
-                    Log.v(TAG, "  STORAGE ID : " + storageId + "  DIRECTORY ID : " + subDirectory);
+                    Log.v(TAG, " TOP STORAGE ID : " + storageId + "  DIRECTORY ID : " + subDirectory);
                     publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_HANDLE2, delayMs, isDumpLog, 0, 0x1007, 12, storageId, 0x00000000, subDirectory, 0)); //
                 }
                 return;
