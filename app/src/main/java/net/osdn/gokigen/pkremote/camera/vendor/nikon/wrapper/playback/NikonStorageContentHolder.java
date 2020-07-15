@@ -5,6 +5,7 @@ import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 
+import net.osdn.gokigen.pkremote.camera.utils.SimpleLogDumper;
 import net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.NikonInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
@@ -23,7 +24,7 @@ public class NikonStorageContentHolder  implements IPtpIpCommandCallback
     private final int storageId;
     private final NikonInterfaceProvider provider;
     private final ImageObjectReceivedCallback callback;
-    private boolean isDumpLog = true;
+    private boolean isDumpLog = false;
     private int subDirectoryCount = 0;
     private int receivedDirectoryCount = 0;
     private int delayMs;
@@ -63,7 +64,8 @@ public class NikonStorageContentHolder  implements IPtpIpCommandCallback
             int readPosition = checkBytes + 12;
             if (readPosition > (rx_body.length + 3))
             {
-                Log.v(TAG, " -*-*-*-*-*- received message is illegal (" + readPosition + " vs " + rx_body.length + ")");
+                Log.v(TAG, " -*-*-*-*-*- received message is illegal ( POSITION: " + readPosition + " vs LENGTH: " + rx_body.length + ")");
+                SimpleLogDumper.dump_bytes(" DETAIL ", rx_body);
                 return (directoryList);
             }
             int nofSubDirectories =  ((int) rx_body[readPosition] & 0x000000ff) +
