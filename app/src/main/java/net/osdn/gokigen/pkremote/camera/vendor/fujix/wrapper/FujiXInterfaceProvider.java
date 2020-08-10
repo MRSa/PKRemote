@@ -43,8 +43,6 @@ import net.osdn.gokigen.pkremote.camera.vendor.fujix.wrapper.status.IFujiXRunMod
 
 import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.FUJIX_COMMAND_POLLING_WAIT;
 import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.FUJIX_COMMAND_POLLING_WAIT_DEFAULT_VALUE;
-import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS;
-import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS_DEFAULT_VALUE;
 
 public class FujiXInterfaceProvider implements IFujiXInterfaceProvider, IDisplayInjector
 {
