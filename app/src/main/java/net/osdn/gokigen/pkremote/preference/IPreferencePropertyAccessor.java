@@ -125,6 +125,9 @@ public interface IPreferencePropertyAccessor
     String PIXPRO_COMMAND_PORT = "pixpro_command_port";
     String PIXPRO_COMMAND_PORT_DEFAULT_VALUE = "9175";
 
+    String PIXPRO_GET_PICS_LIST_TIMEOUT = "pixpro_get_pics_list_timeout";
+    String PIXPRO_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE = "30";
+
 /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
     //String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";

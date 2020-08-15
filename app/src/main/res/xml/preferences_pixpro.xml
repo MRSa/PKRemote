@@ -36,6 +36,14 @@
             android:title="@string/pref_pixpro_control_port"
             android:defaultValue="9175"
             android:summary="@string/pref_summary_pixpro_control_port" />
+
+        <EditTextPreference
+            android:key="pixpro_get_pics_list_timeout"
+            android:title="@string/pref_pixpro_get_pics_list_timeout"
+            android:defaultValue="30"
+            android:inputType="number"
+            android:summary="@string/pref_summary_pixpro_get_pics_list_timeout" />
+
 <!--
         <CheckBoxPreference
             android:key="capture_both_camera_and_live_view"

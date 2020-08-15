@@ -38,6 +38,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.status.PixproCamer
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.status.PixproCameraInformation;
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.status.PixproRunMode;
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.status.PixproStatusChecker;
+import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.PIXPRO_COMMAND_PORT;
 import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.PIXPRO_COMMAND_PORT_DEFAULT_VALUE;
@@ -72,17 +73,24 @@ public class PixproInterfaceProvider implements IPixproInterfaceProvider, IDispl
     {
         String ipAddress;
         String controlPortStr;
+        int communicationTimeoutMs;
         try
         {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
             ipAddress = preferences.getString(PIXPRO_HOST_IP, PIXPRO_HOST_IP_DEFAULT_VALUE);
             controlPortStr = preferences.getString(PIXPRO_COMMAND_PORT, PIXPRO_COMMAND_PORT_DEFAULT_VALUE);
+            communicationTimeoutMs = parseInt(preferences.getString(IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT, IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE), 30) * 1000;
+            if (communicationTimeoutMs < 3000)
+            {
+                communicationTimeoutMs = 3000;  // 最小値は 3000msとする。
+            }
         }
         catch (Exception e)
         {
             e.printStackTrace();
             ipAddress = "172.16.0.254";
             controlPortStr = "9175";
+            communicationTimeoutMs = 30000;  // エラー時は 30000msとする。
         }
         int controlPort = parseInt(controlPortStr, 9175);
         this.commandCommunicator = new PixproCommandCommunicator(this, ipAddress, controlPort, true, false);
@@ -93,7 +101,7 @@ public class PixproInterfaceProvider implements IPixproInterfaceProvider, IDispl
         this.pixproConnection = new PixproConnection(activity, provider, this, statusChecker);
         this.hardwarestatus = new PixproCameraHardwareStatus();
         this.runMode = new PixproRunMode();
-        this.playbackControl = new PixproPlaybackControl(this);
+        this.playbackControl = new PixproPlaybackControl(ipAddress, communicationTimeoutMs,this);
     }
 
     private int parseInt(@NonNull String key, int defaultValue)

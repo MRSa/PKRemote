@@ -366,4 +366,7 @@
     <string name="pixpro_command_line_disconnected">カメラへのコマンド送信回線が切断されました。再試行してください。</string>
     <string name="dialog_title_connect_failed_pixpro">接続失敗(PIXPRO)</string>
 
+    <string name="pref_pixpro_get_pics_list_timeout">撮影画像一覧取得時のタイムアウト（単位：秒）</string>
+    <string name="pref_summary_pixpro_get_pics_list_timeout">通常、変更は不要です (初期値:30)</string>
+
 </resources>
