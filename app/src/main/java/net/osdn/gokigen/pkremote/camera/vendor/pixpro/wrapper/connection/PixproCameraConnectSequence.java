@@ -10,6 +10,7 @@ import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.IPixproInterfaceProvider;
+import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.IConnectionKeyReceiver;
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.command.IPixproCommandCallback;
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.command.IPixproCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.command.messages.IPixproMessages;
@@ -24,6 +25,8 @@ import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.command.messages.c
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.command.messages.connection.PixproConnectSequence09;
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.command.messages.connection.PixproConnectSequence10;
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.command.messages.connection.PixproConnectSequence11;
+
+import java.util.Arrays;
 
 public class PixproCameraConnectSequence implements Runnable, IPixproCommandCallback, IPixproMessages
 {
@@ -109,12 +112,14 @@ public class PixproCameraConnectSequence implements Runnable, IPixproCommandCall
                 break;
             case SEQ_CONNECT_04:
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.pixpro_connect_connecting4), false, false, 0);
-                // ここで、パスワードの Base64情報を切り出す(FC 03 の応答、 0x0058 ～ 64バイトの文字列を切り出して、Base64エンコードする)
+                // ここで、キー文字列の Base64情報を切り出す(FC 03 の応答、 0x0058 ～ 64バイトの文字列を切り出して、Base64エンコードする)
+                getKeyString(rx_body);
                 commandIssuer.enqueueCommand(new PixproConnectSequence05(this));
                 break;
             case SEQ_CONNECT_05:
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.pixpro_connect_connecting5), false, false, 0);
                 // ここで、パスワードの情報を切り出す (FE 03 の応答、 0x0078 ～ 文字列を切り出す。)
+                getPassword(rx_body);
                 commandIssuer.enqueueCommand(new PixproConnectSequence06(this));
                 break;
             case SEQ_CONNECT_06:
@@ -154,6 +159,59 @@ public class PixproCameraConnectSequence implements Runnable, IPixproCommandCall
         interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_start), false, false, 0);
         cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_start));
         commandIssuer.enqueueCommand(new PixproConnectSequence01(this));
+    }
+
+
+    private void getPassword(byte[] rx_body)
+    {
+        try
+        {
+            int startPosition = 0x78;
+            int index = 0x00;
+            while (((startPosition + index) < rx_body.length)&&(rx_body[startPosition + index] != (byte) 0x00))
+            {
+                index++;
+            }
+            if ((startPosition + index) <= rx_body.length)
+            {
+                String password = new String(rx_body, startPosition, index);
+                IConnectionKeyReceiver receiver = interfaceProvider.getConnectionKeyReceiver();
+                if (receiver != null)
+                {
+                    receiver.receivedPassword(password);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void getKeyString(byte[] rx_body)
+    {
+        try
+        {
+            int startPosition = 0x58;
+            int index = 0x00;
+            while (((startPosition + index) < rx_body.length)&&(rx_body[startPosition + index] != (byte) 0x00))
+            {
+                index++;
+            }
+            if ((startPosition + index) <= rx_body.length)
+            {
+                byte[] keyString = Arrays.copyOfRange(rx_body, startPosition, (startPosition + index));
+                IConnectionKeyReceiver receiver = interfaceProvider.getConnectionKeyReceiver();
+                if (receiver != null)
+                {
+                    receiver.receivedKeyString(keyString);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     private void connectFinished()

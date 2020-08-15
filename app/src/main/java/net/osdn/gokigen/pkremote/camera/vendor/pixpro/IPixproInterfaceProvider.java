@@ -15,6 +15,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraHardwareStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraInformation;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher;
+import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.IConnectionKeyReceiver;
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.command.IPixproCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.command.IPixproCommunication;
 
@@ -41,6 +42,8 @@ public interface IPixproInterfaceProvider
 
     IPixproCommandPublisher getCommandPublisher();
     IPixproCommunication getCommandCommunication();
+
+    IConnectionKeyReceiver getConnectionKeyReceiver();
 
     IInformationReceiver getInformationReceiver();
     String getStringFromResource(int resId);

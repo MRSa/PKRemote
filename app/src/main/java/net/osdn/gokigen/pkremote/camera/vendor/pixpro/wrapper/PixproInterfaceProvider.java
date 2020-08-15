@@ -2,6 +2,7 @@ package net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,7 @@ import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraInformation;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher;
+import net.osdn.gokigen.pkremote.camera.utils.SimpleLogDumper;
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.IPixproInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.command.IPixproCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.command.IPixproCommunication;
@@ -46,7 +48,7 @@ import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.P
  *
  *
  */
-public class PixproInterfaceProvider implements IPixproInterfaceProvider, IDisplayInjector
+public class PixproInterfaceProvider implements IPixproInterfaceProvider, IDisplayInjector, IConnectionKeyReceiver, IConnectionKeyProvider
 {
     private final String TAG = toString();
     private final Activity activity;
@@ -58,6 +60,9 @@ public class PixproInterfaceProvider implements IPixproInterfaceProvider, IDispl
     private final PixproStatusChecker statusChecker;
     private final PixproRunMode runMode;
     private final ICameraInformation cameraInformation;
+
+    private String password = null;
+    private byte[] keyphrase = null;
 
     /**
      *
@@ -88,7 +93,7 @@ public class PixproInterfaceProvider implements IPixproInterfaceProvider, IDispl
         this.pixproConnection = new PixproConnection(activity, provider, this, statusChecker);
         this.hardwarestatus = new PixproCameraHardwareStatus();
         this.runMode = new PixproRunMode();
-        this.playbackControl = new PixproPlaybackControl();
+        this.playbackControl = new PixproPlaybackControl(this);
     }
 
     private int parseInt(@NonNull String key, int defaultValue)
@@ -213,6 +218,12 @@ public class PixproInterfaceProvider implements IPixproInterfaceProvider, IDispl
     }
 
     @Override
+    public IConnectionKeyReceiver getConnectionKeyReceiver()
+    {
+        return (this);
+    }
+
+    @Override
     public IInformationReceiver getInformationReceiver()
     {
         return (informationReceiver);
@@ -222,5 +233,51 @@ public class PixproInterfaceProvider implements IPixproInterfaceProvider, IDispl
     public String getStringFromResource(int resId)
     {
         return (activity.getString(resId));
+    }
+
+    @Override
+    public void receivedPassword(@NonNull String password)
+    {
+        Log.v(TAG, " receivedPassword [" + password.length() + "] : " + password);
+        this.password = password;
+    }
+
+    @Override
+    public void receivedKeyString(@NonNull byte[] keyString)
+    {
+        Log.v(TAG, " receivedKeyString");
+        SimpleLogDumper.dump_bytes(" Key[" + keyString.length + "]", keyString);
+        this.keyphrase = keyString;
+    }
+
+    @Override
+    public String getUserString()
+    {
+        return ("usr=dscuser");
+    }
+
+    @Override
+    public String getPasswordString()
+    {
+        String passwordString = "pwd=";
+        try
+        {
+            if (password != null)
+            {
+                passwordString = passwordString + password + "&";
+            }
+            if (keyphrase != null)
+            {
+                // Base64 変換  22文字で切って埋める。
+                String encodeString = Base64.encodeToString(keyphrase, Base64.DEFAULT);
+                passwordString = passwordString + encodeString.substring(0, 22) + "==";
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            passwordString = "pwd=12345678";
+        }
+        return (passwordString);
     }
 }
