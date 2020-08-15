@@ -20,6 +20,7 @@ public interface ICameraConnection
         NIKON,
         OLYMPUS,
         THETA,
+        PIXPRO,
     }
 
     enum CameraConnectionStatus

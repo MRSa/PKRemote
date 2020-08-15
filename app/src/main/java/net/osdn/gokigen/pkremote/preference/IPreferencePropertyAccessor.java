@@ -119,7 +119,13 @@ public interface IPreferencePropertyAccessor
 
     String USE_OSC_THETA_V21 = "use_osc_theta_v21";
 
-    /*
+    String PIXPRO_HOST_IP = "pixpro_host_ip";
+    String PIXPRO_HOST_IP_DEFAULT_VALUE = "172.16.0.254";
+
+    String PIXPRO_COMMAND_PORT = "pixpro_command_port";
+    String PIXPRO_COMMAND_PORT_DEFAULT_VALUE = "9175";
+
+/*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
     //String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";
 

@@ -21,6 +21,7 @@ import net.osdn.gokigen.pkremote.preference.nikon.NikonPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.olympus.OpcPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.olympuspen.OlympusPenPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.panasonic.PanasonicPreferenceFragment;
+import net.osdn.gokigen.pkremote.preference.pixpro.PixproPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.ricohgr2.RicohGr2PreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.sony.SonyPreferenceFragment;
 import net.osdn.gokigen.pkremote.preference.theta.ThetaPreferenceFragment;
@@ -339,6 +340,10 @@ public class CameraSceneUpdater implements ICameraStatusReceiver, IChangeScene, 
                     else if (connectionMethod == ICameraConnection.CameraConnectionMethod.THETA)
                     {
                         preferenceFragment = ThetaPreferenceFragment.newInstance(activity, this);
+                    }
+                    else if (connectionMethod == ICameraConnection.CameraConnectionMethod.PIXPRO)
+                    {
+                        preferenceFragment = PixproPreferenceFragment.newInstance(activity, this);
                     }
                     else //  if (connectionMethod == ICameraConnection.CameraConnectionMethod.OPC)
                     {

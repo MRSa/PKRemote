@@ -5,6 +5,7 @@
         <item>Ricoh Theta(OSC)</item>
         <item>OPC(Olympus Air)</item>
         <item>Olympus(OM-D/PEN)</item>
+        <item>KODAK PIXPRO</item>
         <item>Fuji X Series</item>
         <item>Panasonic</item>
         <item>Sony</item>
@@ -17,6 +18,7 @@
         <item>THETA</item>
         <item>OPC</item>
         <item>OLYMPUS</item>
+        <item>PIXPRO</item>
         <item>FUJI_X</item>
         <item>PANASONIC</item>
         <item>SONY</item>

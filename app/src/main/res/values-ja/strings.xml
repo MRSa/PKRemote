@@ -274,6 +274,7 @@
 
     <string name="pref_exit_power_off_theta">アプリ終了</string>
     <string name="pref_exit_power_off_panasonic">アプリ終了</string>
+    <string name="pref_exit_power_off_pixpro">アプリ終了</string>
     <string name="pref_exit_power_off_sony">アプリ終了</string>
     <string name="pref_summary_sony_api_list">カメラのAPI一覧を表示します。</string>
 
@@ -304,6 +305,17 @@
     <string name="canon_connect_connecting3">接続中&#8230;(3/5)</string>
     <string name="canon_connect_connecting4">接続中&#8230;(4/5)</string>
     <string name="canon_connect_connecting5">接続中&#8230;(5/5)</string>
+
+    <string name="pixpro_connect_connecting1">接続中&#8230;(1/10)</string>
+    <string name="pixpro_connect_connecting2">接続中&#8230;(2/10)</string>
+    <string name="pixpro_connect_connecting3">接続中&#8230;(3/10)</string>
+    <string name="pixpro_connect_connecting4">接続中&#8230;(4/10)</string>
+    <string name="pixpro_connect_connecting5">接続中&#8230;(5/10)</string>
+    <string name="pixpro_connect_connecting6">接続中&#8230;(6/10)</string>
+    <string name="pixpro_connect_connecting7">接続中&#8230;(7/10)</string>
+    <string name="pixpro_connect_connecting8">接続中&#8230;(8/10)</string>
+    <string name="pixpro_connect_connecting9">接続中&#8230;(9/10)</string>
+    <string name="pixpro_connect_connecting10">接続中&#8230;(10/10)</string>
 
     <string name="pref_olympus_get_screennail_as_small_picture">表示画像はスモール画像を使用</string>
     <string name="pref_summary_olympus_get_screennail_as_small_picture">すこし時間がかかりますが、画像表示にスモール画像を使用します。</string>
@@ -344,5 +356,14 @@
 
     <string name="pref_use_osc_theta_v21">THETA Web API v2.1の使用</string>
     <string name="pref_summary_use_osc_theta_v21"> </string>
+
+    <string name="pref_pixpro_host_ip">カメラIPアドレス</string>
+    <string name="pref_summary_pixpro_host_ip">通常、変更は不要です (初期値:172.16.0.254)</string>
+
+    <string name="pref_pixpro_control_port">カメラ制御ポート番号</string>
+    <string name="pref_summary_pixpro_control_port">通常、変更は不要です (初期値:9175)</string>
+
+    <string name="pixpro_command_line_disconnected">カメラへのコマンド送信回線が切断されました。再試行してください。</string>
+    <string name="dialog_title_connect_failed_pixpro">接続失敗(PIXPRO)</string>
 
 </resources>

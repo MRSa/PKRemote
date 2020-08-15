@@ -276,6 +276,7 @@
 
     <string name="pref_exit_power_off_theta">Exit Application</string>
     <string name="pref_exit_power_off_panasonic">Exit Application</string>
+    <string name="pref_exit_power_off_pixpro">Exit Application</string>
     <string name="pref_exit_power_off_sony">Exit Application</string>
     <string name="pref_summary_sony_api_list">Show available camera apis.</string>
 
@@ -306,6 +307,17 @@
     <string name="canon_connect_connecting3">Connecting&#8230;(3/5)</string>
     <string name="canon_connect_connecting4">Connecting&#8230;(4/5)</string>
     <string name="canon_connect_connecting5">Connecting&#8230;(5/5)</string>
+
+    <string name="pixpro_connect_connecting1">Connecting&#8230;(1/10)</string>
+    <string name="pixpro_connect_connecting2">Connecting&#8230;(2/10)</string>
+    <string name="pixpro_connect_connecting3">Connecting&#8230;(3/10)</string>
+    <string name="pixpro_connect_connecting4">Connecting&#8230;(4/10)</string>
+    <string name="pixpro_connect_connecting5">Connecting&#8230;(5/10)</string>
+    <string name="pixpro_connect_connecting6">Connecting&#8230;(6/10)</string>
+    <string name="pixpro_connect_connecting7">Connecting&#8230;(7/10)</string>
+    <string name="pixpro_connect_connecting8">Connecting&#8230;(8/10)</string>
+    <string name="pixpro_connect_connecting9">Connecting&#8230;(9/10)</string>
+    <string name="pixpro_connect_connecting10">Connecting&#8230;(10/10)</string>
 
     <string name="pref_olympus_get_screennail_as_small_picture">Use small image as screen nail</string>
     <string name="pref_summary_olympus_get_screennail_as_small_picture">Use small size image as </string>
@@ -346,5 +358,14 @@
 
     <string name="pref_use_osc_theta_v21">Use THETA Web API v2.1</string>
     <string name="pref_summary_use_osc_theta_v21"> </string>
+
+    <string name="pref_pixpro_host_ip">Camera IP Address</string>
+    <string name="pref_summary_pixpro_host_ip">default: 172.16.0.254 </string>
+
+    <string name="pref_pixpro_control_port">Camera Command Port</string>
+    <string name="pref_summary_pixpro_control_port">default: 9175 </string>
+
+    <string name="pixpro_command_line_disconnected">The command communication line is disconnected. (RETRY please.)</string>
+    <string name="dialog_title_connect_failed_pixpro">Connect failed (PIXPRO)</string>
 
 </resources>
