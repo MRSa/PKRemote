@@ -42,8 +42,8 @@ public class ThetaPlaybackControl implements IPlaybackControl
 
     public ThetaPlaybackControl(@NonNull Activity activity, int timeoutMs, int maxCount)
     {
-        this.timeoutValue  = (timeoutMs < DEFAULT_TIMEOUT) ? DEFAULT_TIMEOUT : timeoutMs;
-        this.maxCount  = (maxCount < DEFAULT_MAX_COUNT) ? DEFAULT_MAX_COUNT : maxCount;
+        this.timeoutValue  = Math.max(DEFAULT_TIMEOUT, timeoutMs);
+        this.maxCount  = Math.max(maxCount, DEFAULT_MAX_COUNT);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
         useThetaV21 = preferences.getBoolean(IPreferencePropertyAccessor.USE_OSC_THETA_V21, false);
         cameraContentList = new ArrayList<>();
@@ -188,6 +188,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
         catch (Exception e)
         {
             e.printStackTrace();
+            callback.onErrorOccurred(new NullPointerException());
         }
     }
 
@@ -220,6 +221,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
         catch (Throwable e)
         {
             e.printStackTrace();
+            callback.onErrorOccurred(new NullPointerException());
         }
     }
 
@@ -253,6 +255,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
         catch (Throwable e)
         {
             e.printStackTrace();
+            callback.onErrorOccurred(new NullPointerException());
         }
     }
 
