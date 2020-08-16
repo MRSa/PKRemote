@@ -117,23 +117,61 @@ public class CanonPreferenceFragment  extends PreferenceFragmentCompat implement
             Map<String, ?> items = preferences.getAll();
             SharedPreferences.Editor editor = preferences.edit();
 
-            if (!items.containsKey(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA))
+            {
                 editor.putBoolean(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, true);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW))
+            {
                 editor.putBoolean(IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW, true);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.CONNECTION_METHOD)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.CONNECTION_METHOD))
+            {
                 editor.putString(IPreferencePropertyAccessor.CONNECTION_METHOD, IPreferencePropertyAccessor.CONNECTION_METHOD_DEFAULT_VALUE);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.CANON_RAW_SUFFIX)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.CANON_RAW_SUFFIX))
+            {
                 editor.putString(IPreferencePropertyAccessor.CANON_RAW_SUFFIX, IPreferencePropertyAccessor.CANON_RAW_SUFFIX_DEFAULT_VALUE);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.CANON_RECEIVE_WAIT)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.CANON_RECEIVE_WAIT))
+            {
                 editor.putString(IPreferencePropertyAccessor.CANON_RECEIVE_WAIT, IPreferencePropertyAccessor.CANON_RECEIVE_WAIT_DEFAULT_VALUE);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL))
+            {
                 editor.putBoolean(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA))
+            {
+                editor.putBoolean(IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE))
+            {
+                editor.putBoolean(IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT))
+            {
+                editor.putString(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT, IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.USE_OSC_THETA_V21))
+            {
+                editor.putBoolean(IPreferencePropertyAccessor.USE_OSC_THETA_V21, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.PIXPRO_HOST_IP))
+            {
+                editor.putString(IPreferencePropertyAccessor.PIXPRO_HOST_IP, IPreferencePropertyAccessor.PIXPRO_HOST_IP_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.PIXPRO_COMMAND_PORT))
+            {
+                editor.putString(IPreferencePropertyAccessor.PIXPRO_COMMAND_PORT, IPreferencePropertyAccessor.PIXPRO_COMMAND_PORT_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT))
+            {
+                editor.putString(IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT, IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE))
+            {
+                editor.putString(IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE, IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE_DEFAULT_VALUE);
             }
             editor.apply();
         }

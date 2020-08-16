@@ -128,6 +128,9 @@ public interface IPreferencePropertyAccessor
     String PIXPRO_GET_PICS_LIST_TIMEOUT = "pixpro_get_pics_list_timeout";
     String PIXPRO_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE = "30";
 
+    String THUMBNAIL_IMAGE_CACHE_SIZE = "thumbnail_image_cache_size";
+    String THUMBNAIL_IMAGE_CACHE_SIZE_DEFAULT_VALUE = "120";
+
 /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
     //String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";

@@ -371,4 +371,7 @@
     <string name="pref_pixpro_get_pics_list_timeout">Get Pics List Timeout(unit: sec.)</string>
     <string name="pref_summary_pixpro_get_pics_list_timeout">If the camera has many number of Pics, increase number.</string>
 
+    <string name="pref_thumbnail_image_cache_size">Thumbnail image cache size</string>
+    <string name="pref_summary_thumbnail_image_cache_size">If you use low memory machine, please decrease this value.(default:120)</string>
+
 </resources>

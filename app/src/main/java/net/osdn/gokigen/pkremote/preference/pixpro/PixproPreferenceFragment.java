@@ -129,6 +129,22 @@ public class PixproPreferenceFragment  extends PreferenceFragmentCompat implemen
             {
                 editor.putString(IPreferencePropertyAccessor.CONNECTION_METHOD, IPreferencePropertyAccessor.CONNECTION_METHOD_DEFAULT_VALUE);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA))
+            {
+                editor.putBoolean(IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE))
+            {
+                editor.putBoolean(IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT))
+            {
+                editor.putString(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT, IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.USE_OSC_THETA_V21))
+            {
+                editor.putBoolean(IPreferencePropertyAccessor.USE_OSC_THETA_V21, false);
+            }
             if (!items.containsKey(IPreferencePropertyAccessor.PIXPRO_HOST_IP))
             {
                 editor.putString(IPreferencePropertyAccessor.PIXPRO_HOST_IP, IPreferencePropertyAccessor.PIXPRO_HOST_IP_DEFAULT_VALUE);
@@ -140,6 +156,10 @@ public class PixproPreferenceFragment  extends PreferenceFragmentCompat implemen
             if (!items.containsKey(IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT))
             {
                 editor.putString(IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT, IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE))
+            {
+                editor.putString(IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE, IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE_DEFAULT_VALUE);
             }
             editor.apply();
         }
@@ -193,7 +213,7 @@ public class PixproPreferenceFragment  extends PreferenceFragmentCompat implemen
             //super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences_pixpro);
 
-            ListPreference connectionMethod = (ListPreference) findPreference(IPreferencePropertyAccessor.CONNECTION_METHOD);
+            ListPreference connectionMethod = findPreference(IPreferencePropertyAccessor.CONNECTION_METHOD);
             if (connectionMethod != null)
             {
                 connectionMethod.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -292,7 +312,7 @@ public class PixproPreferenceFragment  extends PreferenceFragmentCompat implemen
     {
         try
         {
-            ListPreference pref = (ListPreference) findPreference(pref_key);
+            ListPreference pref = findPreference(pref_key);
             String value = preferences.getString(key, defaultValue);
             if (pref != null)
             {
@@ -317,8 +337,9 @@ public class PixproPreferenceFragment  extends PreferenceFragmentCompat implemen
     {
         try
         {
-            CheckBoxPreference pref = (CheckBoxPreference) findPreference(pref_key);
-            if (pref != null) {
+            CheckBoxPreference pref = findPreference(pref_key);
+            if (pref != null)
+            {
                 boolean value = preferences.getBoolean(key, defaultValue);
                 pref.setChecked(value);
             }

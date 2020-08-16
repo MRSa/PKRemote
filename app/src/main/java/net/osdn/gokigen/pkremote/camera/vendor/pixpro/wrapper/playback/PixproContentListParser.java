@@ -1,7 +1,6 @@
 package net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.playback;
 
 
-import android.util.Log;
 import android.util.Xml;
 
 import androidx.annotation.NonNull;
@@ -17,7 +16,7 @@ import java.util.List;
 
 class PixproContentListParser
 {
-    private final String TAG = toString();
+    //private final String TAG = toString();
     private static final String CAMERACONTENT_TAG = "File";
     private static final String PATHROOT_TAG = "PATHROOT";
     private static final String NAME_TAG = "NAME";
@@ -27,12 +26,12 @@ class PixproContentListParser
     private static final String DCFINDEX_TAG = "DCFINDEX";
     private static final String ATTR_TAG = "ATTR";
 
-    private List<PixproCameraContent> contentList;
-    private String pathRoot;
+    private String pathRoot = null;
+//    private List<PixproCameraContent> contentList;
 
     PixproContentListParser()
     {
-        contentList = new ArrayList<>();
+        //contentList = new ArrayList<>();
     }
 
     public List<ICameraContent> parseContentList(@NonNull String receivedMessage)
@@ -40,7 +39,7 @@ class PixproContentListParser
         // 受信したボディを解析して、画像一覧を cameraContentList に入れる
         List<ICameraContent> cameraContentList = new ArrayList<>();
         PixproCameraContent cameraContent = null;
-        contentList.clear();
+        //contentList.clear();
         try
         {
             String tagName = null;
@@ -64,11 +63,11 @@ class PixproContentListParser
                     {
                         if (tag.matches(CAMERACONTENT_TAG))
                         {
+                            //contentList.add(cameraContent);
                             cameraContentList.add(cameraContent);
-                            contentList.add(cameraContent);
                             cameraContent = null;
                         }
-                        Log.v(TAG, "  ----- END TAG : " + tag + "  ------ ");
+                        //Log.v(TAG, "  ----- END TAG : " + tag + "  ------ ");
                     }
                     tagName = null;  // parser.getName();
                 }
@@ -97,7 +96,7 @@ class PixproContentListParser
 
     private void parseData(@NonNull String tagName, @Nullable String content, @Nullable PixproCameraContent cameraContent)
     {
-        Log.v(TAG, "  ----- " + tagName + " : " + content + "  ------ ");
+        //Log.v(TAG, "  ----- " + tagName + " : " + content + "  ------ ");
         try
         {
             if (tagName.matches(PATHROOT_TAG))

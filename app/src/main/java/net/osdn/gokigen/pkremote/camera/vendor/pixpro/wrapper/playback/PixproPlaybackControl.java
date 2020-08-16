@@ -166,6 +166,7 @@ public class PixproPlaybackControl implements IPlaybackControl
             Log.v(TAG, " RECEIVED CONTENT REPLY : " + receivedMessage.length());
             List<ICameraContent> cameraContentList = contentListParser.parseContentList(receivedMessage);
             callback.onCompleted(cameraContentList);
+            System.gc();
         }
         catch (Exception e)
         {
@@ -190,9 +191,9 @@ public class PixproPlaybackControl implements IPlaybackControl
 
     private String getConnectionString()
     {
-        String connectionString = keyProvider.getUserString() + "&" + keyProvider.getPasswordString();
-        Log.v(TAG, " connectionString : " + connectionString);
-        return (connectionString);
+        return (keyProvider.getUserString() + "&" + keyProvider.getPasswordString());
+        // Log.v(TAG, " connectionString : " + connectionString);
+        //return (connectionString);
     }
 
 }

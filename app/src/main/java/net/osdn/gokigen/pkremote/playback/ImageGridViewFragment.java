@@ -46,6 +46,9 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceManager;
 
+import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE;
+import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE_DEFAULT_VALUE;
+
 /**
  *
  *
@@ -84,6 +87,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	private String filterLabel = null;
 	private int currentSelectedIndex = 0;
 	private boolean fragmentIsActive = false;
+	private int imageCacheSize = 120;
 
 
 	public static ImageGridViewFragment newInstance(@NonNull IInterfaceProvider interfaceProvider)
@@ -95,17 +99,24 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 
 	private void setControllers(@NonNull IInterfaceProvider interfaceProvider)
 	{
-		this.interfaceProvider = interfaceProvider;
-		this.playbackControl = interfaceProvider.getPlaybackControl();
-		this.runMode = interfaceProvider.getCameraRunMode();
-        Activity activity = getActivity();
-        if (activity != null)
+        try
         {
-            this.contentDownloader = new MyContentDownloader(getActivity(), playbackControl, null);
+            this.interfaceProvider = interfaceProvider;
+            this.playbackControl = interfaceProvider.getPlaybackControl();
+            this.runMode = interfaceProvider.getCameraRunMode();
+            Activity activity = getActivity();
+            if (activity != null)
+            {
+                this.contentDownloader = new MyContentDownloader(activity, playbackControl, null);
+            }
+            else
+            {
+                this.contentDownloader = null;
+            }
         }
-        else
+        catch (Exception e)
         {
-            this.contentDownloader = null;
+            e.printStackTrace();
         }
 	}
 
@@ -113,9 +124,25 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-        Log.v(TAG, "ImageGridViewFragment::onCreate()");
 
-        imageCache = new LruCache<>(120);
+        Activity activity = getActivity();
+        if (activity != null)
+        {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+            String cacheSizeStr = preferences.getString(THUMBNAIL_IMAGE_CACHE_SIZE, THUMBNAIL_IMAGE_CACHE_SIZE_DEFAULT_VALUE);
+            try
+            {
+                imageCacheSize = Integer.parseInt(cacheSizeStr);
+            }
+            catch (Exception ee)
+            {
+                ee.printStackTrace();
+                imageCacheSize = 120;
+            }
+        }
+        Log.v(TAG, "ImageGridViewFragment::onCreate() cache : " + imageCacheSize);
+
+        imageCache = new LruCache<>(imageCacheSize);
 		executor = Executors.newFixedThreadPool(1);
 		setHasOptionsMenu(true);
 	}

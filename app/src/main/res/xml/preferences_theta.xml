@@ -56,6 +56,14 @@
         android:key="auto_connect_to_camera"
         android:title="@string/pref_auto_connect_camera"
         android:summary="@string/pref_summary_auto_connect_camera" />
+
+        <EditTextPreference
+            android:key="thumbnail_image_cache_size"
+            android:title="@string/pref_thumbnail_image_cache_size"
+            android:defaultValue="120"
+            android:inputType="number"
+            android:summary="@string/pref_summary_thumbnail_image_cache_size" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

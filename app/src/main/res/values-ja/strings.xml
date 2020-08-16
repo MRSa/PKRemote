@@ -369,4 +369,7 @@
     <string name="pref_pixpro_get_pics_list_timeout">撮影画像一覧取得時のタイムアウト（単位：秒）</string>
     <string name="pref_summary_pixpro_get_pics_list_timeout">通常、変更は不要です (初期値:30)</string>
 
+    <string name="pref_thumbnail_image_cache_size">サムネイル画像キャッシュ数</string>
+    <string name="pref_summary_thumbnail_image_cache_size">小メモリ機の場合には、この値を減らしてください。(初期値:120)</string>
+
 </resources>

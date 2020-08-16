@@ -113,41 +113,69 @@ public class RicohGr2PreferenceFragment  extends PreferenceFragmentCompat implem
             Map<String, ?> items = preferences.getAll();
             SharedPreferences.Editor editor = preferences.edit();
 
-            if (!items.containsKey(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA))
+            {
                 editor.putBoolean(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, true);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW))
+            {
                 editor.putBoolean(IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW, true);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.USE_PLAYBACK_MENU)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.USE_PLAYBACK_MENU))
+            {
                 editor.putBoolean(IPreferencePropertyAccessor.USE_PLAYBACK_MENU, true);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.CONNECTION_METHOD)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.CONNECTION_METHOD))
+            {
                 editor.putString(IPreferencePropertyAccessor.CONNECTION_METHOD, IPreferencePropertyAccessor.CONNECTION_METHOD_DEFAULT_VALUE);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.GR2_DISPLAY_CAMERA_VIEW)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.GR2_DISPLAY_CAMERA_VIEW))
+            {
                 editor.putBoolean(IPreferencePropertyAccessor.GR2_DISPLAY_CAMERA_VIEW, true);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.GR2_LCD_SLEEP)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.GR2_LCD_SLEEP))
+            {
                 editor.putBoolean(IPreferencePropertyAccessor.GR2_LCD_SLEEP, false);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.SHARE_AFTER_SAVE)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.SHARE_AFTER_SAVE))
+            {
                 editor.putBoolean(IPreferencePropertyAccessor.SHARE_AFTER_SAVE, false);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.USE_GR2_SPECIAL_COMMAND)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.USE_GR2_SPECIAL_COMMAND))
+            {
                 editor.putBoolean(IPreferencePropertyAccessor.USE_GR2_SPECIAL_COMMAND, true);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.PENTAX_CAPTURE_AFTER_AF)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.PENTAX_CAPTURE_AFTER_AF))
+            {
                 editor.putBoolean(IPreferencePropertyAccessor.PENTAX_CAPTURE_AFTER_AF, false);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.SMALL_PICTURE_SIZE)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.SMALL_PICTURE_SIZE))
+            {
                 editor.putString(IPreferencePropertyAccessor.SMALL_PICTURE_SIZE, IPreferencePropertyAccessor.SMALL_PICTURE_SIZE_DEFAULT_VALUE);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT))
+            {
                 editor.putString(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT, IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE);
             }
-            if (!items.containsKey(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_MAX_COUNT)) {
+            if (!items.containsKey(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_MAX_COUNT))
+            {
                 editor.putString(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_MAX_COUNT, IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_MAX_COUNT_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.PIXPRO_HOST_IP))
+            {
+                editor.putString(IPreferencePropertyAccessor.PIXPRO_HOST_IP, IPreferencePropertyAccessor.PIXPRO_HOST_IP_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.PIXPRO_COMMAND_PORT))
+            {
+                editor.putString(IPreferencePropertyAccessor.PIXPRO_COMMAND_PORT, IPreferencePropertyAccessor.PIXPRO_COMMAND_PORT_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT))
+            {
+                editor.putString(IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT, IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE))
+            {
+                editor.putString(IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE, IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE_DEFAULT_VALUE);
             }
             editor.apply();
         }
