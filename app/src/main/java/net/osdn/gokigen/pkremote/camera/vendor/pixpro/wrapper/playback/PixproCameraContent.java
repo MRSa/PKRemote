@@ -1,7 +1,5 @@
 package net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.playback;
 
-import android.util.Log;
-
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
 
 import java.util.Calendar;
@@ -126,10 +124,10 @@ public class PixproCameraContent implements ICameraContent
         {
             // === 年月日時分秒の数値情報変換 (文字列からint型数値へ) ===
             // === int型数値：4バイト表記  上位2バイトが年月日、下位にバイトが時分秒 ===
-            //    (MS-DOS : FAT由来の日付フォーマット)
+            //    (MS-DOS : FAT由来のフォーマット)
             // 上位２バイトの年月日情報、10進表記
-            //   bit0-4 : 日
-            //   bit8-5 : 月
+            //   bit0-4  : 日
+            //   bit8-5  : 月
             //   bit15-9 : 年 (+1980する)
             //
             // 下位にバイトの時分秒情報、10進数表記。
