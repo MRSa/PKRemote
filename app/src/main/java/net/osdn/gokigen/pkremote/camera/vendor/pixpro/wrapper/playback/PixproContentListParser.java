@@ -1,6 +1,5 @@
 package net.osdn.gokigen.pkremote.camera.vendor.pixpro.wrapper.playback;
 
-
 import android.util.Xml;
 
 import androidx.annotation.NonNull;
