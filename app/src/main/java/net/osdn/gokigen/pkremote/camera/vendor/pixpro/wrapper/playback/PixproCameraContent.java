@@ -101,6 +101,15 @@ public class PixproCameraContent implements ICameraContent
     @Override
     public boolean isMovie()
     {
+        try
+        {
+            String target = name.toLowerCase();
+            return ((target.endsWith("mov")) || (target.endsWith("mp4")));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         return (false);
     }
 
