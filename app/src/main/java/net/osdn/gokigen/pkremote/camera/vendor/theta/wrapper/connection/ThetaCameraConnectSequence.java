@@ -93,10 +93,10 @@ public class ThetaCameraConnectSequence implements Runnable
 
         try
         {
-            String response = SimpleHttpClient.httpPost(commandsExecuteUrl, startSessionData, TIMEOUT_MS);
+            String response = SimpleHttpClient.httpPostWithHeader(commandsExecuteUrl, startSessionData, null, "application/json;charset=utf-8", TIMEOUT_MS);
             Log.v(TAG, " " + commandsExecuteUrl + " " + startSessionData + " " + response);
 
-            String response2 = SimpleHttpClient.httpPost(getStateUrl, "", TIMEOUT_MS);
+            String response2 = SimpleHttpClient.httpPostWithHeader(getStateUrl, "", null, "application/json;charset=utf-8", TIMEOUT_MS);
             Log.v(TAG, " " + getStateUrl + " " + response2);
 
             onConnectNotify();
@@ -117,10 +117,10 @@ public class ThetaCameraConnectSequence implements Runnable
 
         try
         {
-            String responseS = SimpleHttpClient.httpPost(commandsExecuteUrl, startSessionData, TIMEOUT_MS);
+            String responseS = SimpleHttpClient.httpPostWithHeader(commandsExecuteUrl, startSessionData, null, "application/json;charset=utf-8", TIMEOUT_MS);
             Log.v(TAG, " " + commandsExecuteUrl + " " + startSessionData + " " + responseS);
 
-            String response = SimpleHttpClient.httpPost(getStateUrl, "", TIMEOUT_MS);
+            String response = SimpleHttpClient.httpPostWithHeader(getStateUrl, "", null, "application/json;charset=utf-8", TIMEOUT_MS);
             Log.v(TAG, " " + getStateUrl + " " + response);
             if (response.length() > 0)
             {
@@ -140,7 +140,7 @@ public class ThetaCameraConnectSequence implements Runnable
                    String sessionId = jsonObject.getString("sessionId");
                    String setApiLevelData = "{\"name\":\"camera.setOptions\",\"parameters\":{" + "\"sessionId\" : \"" + sessionId + "\", \"options\":{ \"clientVersion\":2}}}";
 
-                   String response3 = SimpleHttpClient.httpPost(commandsExecuteUrl, setApiLevelData, TIMEOUT_MS);
+                   String response3 = SimpleHttpClient.httpPostWithHeader(commandsExecuteUrl, setApiLevelData, null, "application/json;charset=utf-8", TIMEOUT_MS);
                    Log.v(TAG, " " + commandsExecuteUrl + " " + setApiLevelData + " " + response3);
                }
                 onConnectNotify();

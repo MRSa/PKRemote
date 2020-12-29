@@ -38,7 +38,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
     private final int maxCount;
     private final boolean useThetaV21;
 
-    private List<ICameraContent> cameraContentList;
+    private final List<ICameraContent> cameraContentList;
 
     public ThetaPlaybackControl(@NonNull Activity activity, int timeoutMs, int maxCount)
     {
@@ -101,7 +101,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
             String postData = "{\"name\":\"camera.getImage\",\"parameters\":{\"_type\":\"thumb\",\"fileUri\":\"" + path + "\"}}";
             //Log.v(TAG, " postData : " + postData);
 
-            Bitmap bmp = SimpleHttpClient.httpPostBitmap(url, postData, timeoutValue);
+            Bitmap bmp = SimpleHttpClient.httpPostBitmapWithHeader(url, postData, null, "application/json;charset=utf-8", timeoutValue);
             HashMap<String, Object> map = new HashMap<>();
             map.put("Orientation", 0);
             callback.onCompleted(bmp, map);
@@ -141,7 +141,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
                 {
                     //Log.v(TAG, " exec getFileList");
                     String imageListurl = "http://192.168.1.1/osc/commands/execute";
-                    String contentList = SimpleHttpClient.httpPost(imageListurl, paramData, timeoutValue);
+                    String contentList = SimpleHttpClient.httpPostWithHeader(imageListurl, paramData, null, "application/json;charset=utf-8", timeoutValue);
                     if (contentList != null)
                     {
                         JSONObject resultsObject = new JSONObject(contentList).getJSONObject("results");
@@ -232,7 +232,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
         String postData = "{\"name\":\"camera.getImage\",\"parameters\":{\"_type\":\"full\",\"fileUri\":\"" + path + "\"}}";
         try
         {
-            SimpleHttpClient.httpPostBytes(urlToGet, postData, null, timeoutValue, new SimpleHttpClient.IReceivedMessageCallback() {
+            SimpleHttpClient.httpPostBytesWithHeader(urlToGet, postData, null, "application/json;charset=utf-8", timeoutValue, new SimpleHttpClient.IReceivedMessageCallback() {
                 @Override
                 public void onCompleted() {
                     callback.onCompleted();
@@ -295,7 +295,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
         String contentList;
         try
         {
-            contentList = SimpleHttpClient.httpPost(imageListurl, paramStr, timeoutValue);
+            contentList = SimpleHttpClient.httpPostWithHeader(imageListurl, paramStr, null, "application/json;charset=utf-8", timeoutValue);
             if (contentList == null)
             {
                 // ぬるぽ発行
@@ -345,7 +345,7 @@ public class ThetaPlaybackControl implements IPlaybackControl
         {
             String paramStr = "{\"name\":\"camera.listFiles\",\"parameters\":{\"fileType\":\"all\",\"entryCount\":" +  maxCount + ",\"maxThumbSize\":640,\"_detail\":false, \"_sort\":\"newest\"}}";
             //Log.v(TAG, " paramStr : " + paramStr);
-            contentList = SimpleHttpClient.httpPost(imageListurl, paramStr, timeoutValue);
+            contentList = SimpleHttpClient.httpPostWithHeader(imageListurl, paramStr, null, "application/json;charset=utf-8", timeoutValue);
             if (contentList == null)
             {
                 // ぬるぽ発行

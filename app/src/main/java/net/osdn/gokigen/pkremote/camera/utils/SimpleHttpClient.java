@@ -146,6 +146,16 @@ public class SimpleHttpClient
         httpCommandBytes(url, "POST", postData, setProperty, null, timeoutMs, callback);
     }
 
+    /**
+     *
+     *
+     *
+     */
+    public static void httpPostBytesWithHeader(String url, String postData, Map<String, String> setProperty, @Nullable String contentType, int timeoutMs, @NonNull IReceivedMessageCallback callback)
+    {
+        httpCommandBytes(url, "POST", postData, setProperty, contentType, timeoutMs, callback);
+    }
+
     private static void httpCommandBytes(@NonNull String url, @NonNull String requestMethod, @Nullable String postData, @Nullable Map<String, String> setProperty, @Nullable String contentType, int timeoutMs, @NonNull IReceivedMessageCallback callback)
     {
         HttpURLConnection httpConn = null;
@@ -353,6 +363,16 @@ public class SimpleHttpClient
     public static Bitmap httpPostBitmap(String url, String postData, int timeoutMs)
     {
         return (httpCommandBitmap(url, "POST", postData, null, null, timeoutMs));
+    }
+
+    /**
+     *
+     *
+     *
+     */
+    public static Bitmap httpPostBitmapWithHeader(String url, String postData, @Nullable Map<String, String> setProperty, @Nullable String contentType, int timeoutMs)
+    {
+        return (httpCommandBitmap(url, "POST", postData, setProperty, contentType, timeoutMs));
     }
 
     /**

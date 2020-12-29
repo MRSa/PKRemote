@@ -6,8 +6,8 @@ android {
         applicationId "net.osdn.gokigen.pkremote"
         minSdkVersion 14
         targetSdkVersion 29
-        versionCode 10800
-        versionName "1.8.0"
+        versionCode 10801
+        versionName "1.8.1"
     }
     buildTypes {
         release {
@@ -20,10 +20,10 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.exifinterface:exifinterface:1.2.0'
+    implementation 'androidx.exifinterface:exifinterface:1.3.2'
     implementation 'androidx.preference:preference:1.1.1'
-    implementation 'com.google.android.material:material:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
 
     api files('libs/olycamerakit.jar')
