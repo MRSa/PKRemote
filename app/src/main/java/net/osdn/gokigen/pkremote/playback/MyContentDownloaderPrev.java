@@ -32,10 +32,10 @@ import androidx.annotation.Nullable;
 import androidx.preference.PreferenceManager;
 
 /**
- *   コンテントのダウンロード
+ *   コンテントのダウンロード (Scoped Storage非対応)
  *
  */
-public class MyContentDownloader implements IDownloadContentCallback
+public class MyContentDownloaderPrev implements IDownloadContentCallback
 {
     private final String TAG = toString();
     private final Activity activity;
@@ -66,7 +66,7 @@ public class MyContentDownloader implements IDownloadContentCallback
      *   コンストラクタ
      *
      */
-    public MyContentDownloader(@NonNull Activity activity, @NonNull final IPlaybackControl playbackControl, @Nullable IContentDownloadNotify receiver)
+    public MyContentDownloaderPrev(@NonNull Activity activity, @NonNull final IPlaybackControl playbackControl, @Nullable IContentDownloadNotify receiver)
     {
         this.activity = activity;
         this.playbackControl = playbackControl;
