@@ -1,6 +1,7 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection;
 
 import android.app.Activity;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -29,6 +30,7 @@ class CanonCameraDisconnectSequence implements Runnable
     {
         try
         {
+            Log.v(TAG, " disconnect");
             liveview.disconnect();
             async.disconnect();
             command.disconnect();

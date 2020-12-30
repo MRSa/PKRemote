@@ -372,4 +372,10 @@
     <string name="pref_thumbnail_image_cache_size">サムネイル画像キャッシュ数</string>
     <string name="pref_summary_thumbnail_image_cache_size">小メモリ機の場合には、この値を減らしてください。(初期値:120)</string>
 
+    <string name="pref_canon_host_ip">カメラIPアドレス</string>
+    <string name="pref_summary_canon_host_ip">通常、変更は不要です (初期値:192.168.0.1)</string>
+
+    <string name="pref_canon_connection_mode">接続シーケンス</string>
+    <string name="pref_summary_canon_connection_mode">通常、変更は不要です (初期値: TYPE0)</string>
+
 </resources>

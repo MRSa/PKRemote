@@ -1,9 +1,11 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.IInformationReceiver;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
@@ -37,6 +39,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.liveview.PtpIpLiveV
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback.CanonPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.IPtpIpRunModeHolder;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.PtpIpStatusChecker;
+import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplayInjector
 {
@@ -46,38 +49,68 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
     private static final int ASYNC_RESPONSE_PORT = 15741;  // ??
     private static final int CONTROL_PORT = 15740;
     private static final int EVENT_PORT = 15740;
-    private static final String CAMERA_IP = "192.168.0.1";
 
-    private final Activity activity;
+    //private static final String CAMERA_IP = "192.168.0.1";
+    //private final Activity activity;
+
     private final PtpIpRunMode runmode;
     private final PtpIpHardwareStatus hardwareStatus;
-    private PtpIpButtonControl ptpIpButtonControl;
-    private CanonConnection canonConnection;
-    private PtpIpCommandPublisher commandPublisher;
-    private PtpIpLiveViewControl liveViewControl;
-    private PtpIpAsyncResponseReceiver asyncReceiver;
-    private PtpIpZoomControl zoomControl;
+    private final PtpIpButtonControl ptpIpButtonControl;
+    private final CanonConnection canonConnection;
+    private final PtpIpCommandPublisher commandPublisher;
+    private final PtpIpLiveViewControl liveViewControl;
+    private final PtpIpAsyncResponseReceiver asyncReceiver;
+    private final PtpIpZoomControl zoomControl;
     //private PtpIpCaptureControl captureControl;
     //private PtpIpFocusingControl focusingControl;
-    private PtpIpStatusChecker statusChecker;
-    private ICameraStatusUpdateNotify statusListener;
-    private CanonPlaybackControl playbackControl;
-    private IInformationReceiver informationReceiver;
+    private final PtpIpStatusChecker statusChecker;
+    private final ICameraStatusUpdateNotify statusListener;
+    private final CanonPlaybackControl playbackControl;
+    private final IInformationReceiver informationReceiver;
 
     public PtpIpInterfaceProvider(@NonNull Activity context, @NonNull ICameraStatusReceiver provider, @NonNull ICameraStatusUpdateNotify statusListener, @NonNull IInformationReceiver informationReceiver)
     {
-        this.activity = context;
-        commandPublisher = new PtpIpCommandPublisher(CAMERA_IP, CONTROL_PORT);
-        liveViewControl = new PtpIpLiveViewControl(context, CAMERA_IP, STREAM_PORT);
-        asyncReceiver = new PtpIpAsyncResponseReceiver(CAMERA_IP, ASYNC_RESPONSE_PORT);
-        statusChecker = new PtpIpStatusChecker(activity, commandPublisher, CAMERA_IP, EVENT_PORT);
-        canonConnection = new CanonConnection(context, provider, this, statusChecker);
+        //this.activity = context;
+        String ipAddress; // "192.168.0.1";
+        int sequenceType = 0;
+        try
+        {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            ipAddress = preferences.getString(IPreferencePropertyAccessor.CANON_HOST_IP, IPreferencePropertyAccessor.CANON_HOST_IP_DEFAULT_VALUE);
+            if (ipAddress == null)
+            {
+                ipAddress = "192.168.0.1";
+            }
+            try
+            {
+                String sequenceTypeStr = preferences.getString(IPreferencePropertyAccessor.CANON_CONNECTION_SEQUENCE, IPreferencePropertyAccessor.CANON_CONNECTION_SEQUENCE_DEFAULT_VALUE);
+                if (sequenceTypeStr != null)
+                {
+                    sequenceType = Integer.parseInt(sequenceTypeStr);
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            ipAddress = "192.168.0.1";
+        }
+
+        commandPublisher = new PtpIpCommandPublisher(ipAddress, CONTROL_PORT);
+        liveViewControl = new PtpIpLiveViewControl(context, ipAddress, STREAM_PORT);
+        asyncReceiver = new PtpIpAsyncResponseReceiver(ipAddress, ASYNC_RESPONSE_PORT);
+        statusChecker = new PtpIpStatusChecker(context, commandPublisher, ipAddress, EVENT_PORT);
+        canonConnection = new CanonConnection(context, provider, this, statusChecker, sequenceType);
         zoomControl = new PtpIpZoomControl();
         this.statusListener = statusListener;
         this.runmode = new PtpIpRunMode();
         this.hardwareStatus = new PtpIpHardwareStatus();
         this.ptpIpButtonControl = new PtpIpButtonControl();
-        this.playbackControl = new CanonPlaybackControl(activity, this);
+        this.playbackControl = new CanonPlaybackControl(context, this);
         this.informationReceiver = informationReceiver;
     }
 

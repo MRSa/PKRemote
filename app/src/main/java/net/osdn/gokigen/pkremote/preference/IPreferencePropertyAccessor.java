@@ -131,6 +131,12 @@ public interface IPreferencePropertyAccessor
     String THUMBNAIL_IMAGE_CACHE_SIZE = "thumbnail_image_cache_size";
     String THUMBNAIL_IMAGE_CACHE_SIZE_DEFAULT_VALUE = "120";
 
+    String CANON_HOST_IP = "canon_host_ip";
+    String CANON_HOST_IP_DEFAULT_VALUE = "192.168.0.1";
+
+    String CANON_CONNECTION_SEQUENCE = "canon_connection_mode";
+    String CANON_CONNECTION_SEQUENCE_DEFAULT_VALUE = "0";
+
 /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
     //String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";

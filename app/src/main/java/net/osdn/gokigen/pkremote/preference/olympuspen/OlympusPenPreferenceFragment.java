@@ -164,6 +164,12 @@ public class OlympusPenPreferenceFragment  extends PreferenceFragmentCompat impl
             {
                 editor.putString(IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE, IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE_DEFAULT_VALUE);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.CANON_HOST_IP)) {
+                editor.putString(IPreferencePropertyAccessor.CANON_HOST_IP, IPreferencePropertyAccessor.CANON_HOST_IP_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.CANON_CONNECTION_SEQUENCE)) {
+                editor.putString(IPreferencePropertyAccessor.CANON_CONNECTION_SEQUENCE, IPreferencePropertyAccessor.CANON_CONNECTION_SEQUENCE_DEFAULT_VALUE);
+            }
             editor.apply();
         }
         catch (Exception e)

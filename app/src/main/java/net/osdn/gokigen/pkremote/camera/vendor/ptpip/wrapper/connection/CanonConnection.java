@@ -33,15 +33,17 @@ public class CanonConnection implements ICameraConnection
     private final BroadcastReceiver connectionReceiver;
     private final Executor cameraExecutor = Executors.newFixedThreadPool(1);
     private final PtpIpStatusChecker statusChecker;
+    private final int sequenceType;
     private CameraConnectionStatus connectionStatus = CameraConnectionStatus.UNKNOWN;
 
-    public CanonConnection(@NonNull final Activity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull IPtpIpInterfaceProvider interfaceProvider, @NonNull PtpIpStatusChecker statusChecker)
+    public CanonConnection(@NonNull final Activity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull IPtpIpInterfaceProvider interfaceProvider, @NonNull PtpIpStatusChecker statusChecker, int sequenceType)
     {
         Log.v(TAG, "CanonConnection()");
         this.context = context;
         this.statusReceiver = statusReceiver;
         this.interfaceProvider = interfaceProvider;
         this.statusChecker = statusChecker;
+        this.sequenceType = sequenceType;
         connectionReceiver = new BroadcastReceiver()
         {
             @Override
@@ -204,7 +206,7 @@ public class CanonConnection implements ICameraConnection
      */
     private void disconnectFromCamera(final boolean powerOff)
     {
-        Log.v(TAG, " disconnectFromCamera()");
+        Log.v(TAG, " disconnectFromCamera() : " + powerOff);
         try
         {
             cameraExecutor.execute(new CanonCameraDisconnectSequence(context, interfaceProvider));
@@ -224,7 +226,16 @@ public class CanonConnection implements ICameraConnection
         connectionStatus = CameraConnectionStatus.CONNECTING;
         try
         {
-            cameraExecutor.execute(new CanonCameraConnectSequenceForPlayback(context, statusReceiver, this, interfaceProvider, statusChecker));
+/*
+            if (sequenceType == 1)
+            {
+                cameraExecutor.execute(new CanonCameraConnectSequenceForPlaybackType1(context, statusReceiver, this, interfaceProvider, statusChecker));
+            }
+            else
+*/
+            {
+                cameraExecutor.execute(new CanonCameraConnectSequenceForPlayback(context, statusReceiver, this, interfaceProvider, statusChecker));
+            }
         }
         catch (Exception e)
         {

@@ -104,4 +104,16 @@
         <item>sd2</item>
     </string-array>
 
+    <string-array name="canon_connection_mode">
+        <item>TYPE0</item>
+        <item>TYPE1</item>
+        <item>TYPE2</item>
+    </string-array>
+
+    <string-array name="canon_connection_mode_value">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
 </resources>

@@ -43,6 +43,20 @@
             android:defaultValue="20"
             android:summary="@string/pref_summary_canon_receive_wait" />
 
+        <EditTextPreference
+            android:key="canon_host_ip"
+            android:title="@string/pref_canon_host_ip"
+            android:defaultValue="192.168.0.1"
+            android:summary="@string/pref_summary_canon_host_ip" />
+
+        <ListPreference
+            android:title="@string/pref_canon_connection_mode"
+            android:summary="@string/pref_summary_canon_connection_mode"
+            android:entryValues="@array/canon_connection_mode_value"
+            android:entries="@array/canon_connection_mode"
+            android:key="canon_connection_mode"
+            android:defaultValue="0"/>
+
         <!--
 
         <PreferenceScreen
