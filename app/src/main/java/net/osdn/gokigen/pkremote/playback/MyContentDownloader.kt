@@ -157,7 +157,7 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
                 downloadDialog.show()
             }
             val resolver = activity.contentResolver
-            val directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).path + File.separator + activity.getString(R.string.app_name2) + File.separator
+            val directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).path + File.separator + activity.getString(R.string.app_name2)
             val calendar = Calendar.getInstance()
             val extendName = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(calendar.time)
             val periodPosition = targetFileName.indexOf(".")
