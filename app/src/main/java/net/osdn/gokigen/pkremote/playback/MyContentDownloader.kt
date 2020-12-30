@@ -1,8 +1,9 @@
+@file:Suppress("DEPRECATION")
+
 package net.osdn.gokigen.pkremote.playback
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.ProgressDialog
 import android.content.ContentValues
 import android.content.Intent
 import android.database.DatabaseUtils
@@ -24,10 +25,11 @@ import java.io.File
 import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import android.app.ProgressDialog as ProgressDialogOld
 
 class MyContentDownloader(private val activity : Activity, private val playbackControl : IPlaybackControl, private val receiver : IContentDownloadNotify?) : IDownloadContentCallback
 {
-    private lateinit var downloadDialog : ProgressDialog //= ProgressDialog(activity)
+    private lateinit var downloadDialog : ProgressDialogOld //= ProgressDialog(activity)
     private val dumpLog = false
     private var outputStream: OutputStream? = null
     private var targetFileName = ""
@@ -50,11 +52,6 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
         }
         Log.v(TAG, "  ----- RECORD Directory PATH : $directoryPath -----")
         return (target)
-    }
-
-    private fun isExternalStorageWritable(): Boolean
-    {
-        return (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED)
     }
 
     /**
@@ -148,11 +145,11 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
             activity.runOnUiThread {
                 if (!::downloadDialog.isInitialized)
                 {
-                    downloadDialog = ProgressDialog(activity)
+                    downloadDialog = ProgressDialogOld(activity)
                 }
                 downloadDialog.setTitle(activity.getString(R.string.dialog_download_file_title) + appendTitle)
                 downloadDialog.setMessage(activity.getString(R.string.dialog_download_message) + " " + targetFileName)
-                downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
+                downloadDialog.setProgressStyle(ProgressDialogOld.STYLE_HORIZONTAL)
                 downloadDialog.setCancelable(false)
                 downloadDialog.show()
             }
