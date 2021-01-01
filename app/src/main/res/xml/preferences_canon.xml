@@ -50,6 +50,14 @@
             android:summary="@string/pref_summary_canon_host_ip" />
 
         <ListPreference
+            android:title="@string/pref_canon_small_picture_type"
+            android:summary="@string/pref_summary_canon_small_picture_type"
+            android:entryValues="@array/canon_small_picture_type_value"
+            android:entries="@array/canon_small_picture_type"
+            android:key="canon_small_picture_type"
+            android:defaultValue="0"/>
+
+        <ListPreference
             android:title="@string/pref_canon_connection_mode"
             android:summary="@string/pref_summary_canon_connection_mode"
             android:entryValues="@array/canon_connection_mode_value"

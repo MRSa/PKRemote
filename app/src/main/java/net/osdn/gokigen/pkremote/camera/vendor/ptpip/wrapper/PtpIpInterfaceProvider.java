@@ -34,6 +34,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpComma
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommunication;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpAsyncResponseReceiver;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpCommandPublisher;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpCommandPublisher0;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection.CanonConnection;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.liveview.PtpIpLiveViewControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback.CanonPlaybackControl;
@@ -57,6 +58,7 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
     private final PtpIpHardwareStatus hardwareStatus;
     private final PtpIpButtonControl ptpIpButtonControl;
     private final CanonConnection canonConnection;
+    //private final PtpIpCommandPublisher0 commandPublisher;
     private final PtpIpCommandPublisher commandPublisher;
     private final PtpIpLiveViewControl liveViewControl;
     private final PtpIpAsyncResponseReceiver asyncReceiver;
@@ -100,7 +102,8 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
             ipAddress = "192.168.0.1";
         }
 
-        commandPublisher = new PtpIpCommandPublisher(ipAddress, CONTROL_PORT);
+        commandPublisher = new PtpIpCommandPublisher(ipAddress, CONTROL_PORT, false, false);
+        //commandPublisher = new PtpIpCommandPublisher0(ipAddress, CONTROL_PORT);
         liveViewControl = new PtpIpLiveViewControl(context, ipAddress, STREAM_PORT);
         asyncReceiver = new PtpIpAsyncResponseReceiver(ipAddress, ASYNC_RESPONSE_PORT);
         statusChecker = new PtpIpStatusChecker(context, commandPublisher, ipAddress, EVENT_PORT);

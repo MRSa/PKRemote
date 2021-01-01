@@ -378,4 +378,7 @@
     <string name="pref_canon_connection_mode">接続シーケンス</string>
     <string name="pref_summary_canon_connection_mode">通常、変更は不要です (初期値: TYPE0)</string>
 
+    <string name="pref_canon_small_picture_type">スモール画像取得シーケンス</string>
+    <string name="pref_summary_canon_small_picture_type">(初期値: TYPE0)</string>
+
 </resources>

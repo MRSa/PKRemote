@@ -32,20 +32,20 @@ public class CanonPlaybackControl implements IPlaybackControl
     private final Activity activity;
     private final PtpIpInterfaceProvider provider;
     private final CanonFullImageReceiver fullImageReceiver;
-    private final CanonSmallImageReceiver smallImageReciever;
-    //private int delayMs = 20;
+    private final ICanonSmallImageReceiver smallImageReciever;
     private String raw_suffix = "CR2";
-    private boolean use_screennail_image = false;
-    private CanonImageObjectReceiver canonImageObjectReceiver;
+    private boolean useScreennailImage = false;
+    private final CanonImageObjectReceiver canonImageObjectReceiver;
 
     public CanonPlaybackControl(Activity activity, PtpIpInterfaceProvider provider)
     {
+        int smallImageSequence = 0;
         int delayMs = 20;
         try
         {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
             raw_suffix = preferences.getString(IPreferencePropertyAccessor.CANON_RAW_SUFFIX, IPreferencePropertyAccessor.CANON_RAW_SUFFIX_DEFAULT_VALUE);
-            use_screennail_image = preferences.getBoolean(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL, false);
+            useScreennailImage = preferences.getBoolean(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL, false);
             try
             {
                 delayMs = Integer.parseInt(preferences.getString(IPreferencePropertyAccessor.CANON_RECEIVE_WAIT, IPreferencePropertyAccessor.CANON_RECEIVE_WAIT_DEFAULT_VALUE));
@@ -58,6 +58,14 @@ public class CanonPlaybackControl implements IPlaybackControl
             {
                 delayMs = 10;  // 最短は 10msにする
             }
+            try
+            {
+                smallImageSequence = Integer.parseInt(preferences.getString(IPreferencePropertyAccessor.CANON_SMALL_PICTURE_TYPE, IPreferencePropertyAccessor.CANON_SMALL_PICTURE_TYPE_DEFAULT_VALUE));
+            }
+            catch (Exception ee)
+            {
+                ee.printStackTrace();
+            }
         }
         catch (Exception e)
         {
@@ -66,9 +74,15 @@ public class CanonPlaybackControl implements IPlaybackControl
         this.activity = activity;
         this.provider = provider;
         this.fullImageReceiver = new CanonFullImageReceiver(activity, provider.getCommandPublisher());
-        this.smallImageReciever = new CanonSmallImageReceiver(activity, provider.getCommandPublisher());
+        if (smallImageSequence == 1)
+        {
+            this.smallImageReciever = new CanonReducedImageReceiver(activity, provider.getCommandPublisher());
+        }
+        else
+        {
+            this.smallImageReciever = new CanonSmallImageReceiver(activity, provider.getCommandPublisher());
+        }
         canonImageObjectReceiver = new CanonImageObjectReceiver(provider, delayMs);
-
     }
 
     @Override
@@ -101,7 +115,7 @@ public class CanonPlaybackControl implements IPlaybackControl
     {
         Log.v(TAG, " downloadContentScreennail() " + path);
 
-        if (!use_screennail_image)
+        if (!useScreennailImage)
         {
             // Thumbnail と同じ画像を表示する
             downloadContentThumbnail(path, callback);
@@ -152,17 +166,13 @@ public class CanonPlaybackControl implements IPlaybackControl
             {
                 start = 1;
             }
-            //String indexStr = path.substring(start, path.indexOf("."));
-            final String indexStr = path.substring(start);
-            //Log.v(TAG, "downloadContentThumbnail() : [" + path + "] " + indexStr);
 
+            final String indexStr = path.substring(start);
             CanonImageContentInfo content = canonImageObjectReceiver.getContentObject(indexStr);
             if (content != null)
             {
-                IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
-                //int storageId = content.getStorageId();
                 int objectId = content.getId();
-                // Log.v(TAG, "downloadContentThumbnail() " + indexStr + " [" + objectId + "] (" + storageId + ")");
+                IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
                 publisher.enqueueCommand(new PtpIpCommandGeneric(new PtpIpThumbnailImageReceiver(activity, callback), objectId, false, 0, 0x910a, 8, objectId, 0x00032000));
             }
         }
@@ -211,7 +221,6 @@ public class CanonPlaybackControl implements IPlaybackControl
         {
             return;
         }
-
         try
         {
             Thread thread = new Thread(new Runnable() {
@@ -235,7 +244,6 @@ public class CanonPlaybackControl implements IPlaybackControl
         try
         {
             Log.v(TAG, "   showPictureStarted() ");
-
             IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
             publisher.flushHoldQueue();
             System.gc();
@@ -252,7 +260,6 @@ public class CanonPlaybackControl implements IPlaybackControl
         try
         {
             Log.v(TAG, "   showPictureFinished() ");
-
             IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
             publisher.flushHoldQueue();
             System.gc();
@@ -262,5 +269,4 @@ public class CanonPlaybackControl implements IPlaybackControl
             e.printStackTrace();
         }
     }
-
 }

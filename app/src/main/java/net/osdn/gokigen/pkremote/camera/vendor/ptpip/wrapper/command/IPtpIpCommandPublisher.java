@@ -9,6 +9,10 @@ public interface IPtpIpCommandPublisher
 
     boolean flushHoldQueue();
 
+    int isExistCommandMessageQueue(int id);
+    int getCurrentQueueSize();
+    boolean flushQueue();
+
     void start();
     void stop();
 }

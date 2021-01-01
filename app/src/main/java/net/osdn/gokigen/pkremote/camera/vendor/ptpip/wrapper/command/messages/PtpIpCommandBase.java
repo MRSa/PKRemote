@@ -34,7 +34,7 @@ public class PtpIpCommandBase implements IPtpIpCommand, IPtpIpMessages
     @Override
     public int receiveDelayMs()
     {
-        return (15);
+        return (30);
     }
 
     @Override
@@ -108,4 +108,29 @@ public class PtpIpCommandBase implements IPtpIpCommand, IPtpIpMessages
     {
         return (true);
     }
+
+    @Override
+    public boolean isRetrySend()
+    {
+        return (false);
+    }
+
+    @Override
+    public boolean isLastReceiveRetry()
+    {
+        return (false);
+    }
+
+    @Override
+    public int maxRetryCount()
+    {
+        return (3500);
+    }
+
+    @Override
+    public boolean isIncrementSequenceNumberToRetry()
+    {
+        return (false);
+    }
+
 }

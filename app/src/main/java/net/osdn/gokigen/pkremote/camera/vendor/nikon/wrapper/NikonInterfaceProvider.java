@@ -38,7 +38,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpComma
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommunication;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpAsyncResponseReceiver;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpCommandPublisher;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpCommandPublisher0;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection.NikonConnection;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.liveview.PtpIpLiveViewControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.IPtpIpRunModeHolder;
@@ -61,7 +61,7 @@ public class NikonInterfaceProvider implements INikonInterfaceProvider, IDisplay
     private final PtpIpHardwareStatus hardwareStatus;
     private PtpIpButtonControl ptpIpButtonControl;
     private NikonConnection nikonConnection;
-    private PtpIpCommandPublisher commandPublisher;
+    private PtpIpCommandPublisher0 commandPublisher;
     private PtpIpLiveViewControl liveViewControl;
     private PtpIpAsyncResponseReceiver asyncReceiver;
     private PtpIpZoomControl zoomControl;
@@ -85,7 +85,7 @@ public class NikonInterfaceProvider implements INikonInterfaceProvider, IDisplay
         {
             e.printStackTrace();
         }
-        commandPublisher = new PtpIpCommandPublisher(ipAddress, CONTROL_PORT);
+        commandPublisher = new PtpIpCommandPublisher0(ipAddress, CONTROL_PORT);
         liveViewControl = new PtpIpLiveViewControl(context, ipAddress, STREAM_PORT);
         asyncReceiver = new PtpIpAsyncResponseReceiver(ipAddress, ASYNC_RESPONSE_PORT);
         statusChecker = new NikonStatusChecker(activity, commandPublisher, ipAddress, EVENT_PORT);

@@ -15,9 +15,9 @@ import java.util.Queue;
 
 import static net.osdn.gokigen.pkremote.camera.utils.SimpleLogDumper.dump_bytes;
 
-public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpCommunication
+public class PtpIpCommandPublisher0 implements IPtpIpCommandPublisher, IPtpIpCommunication
 {
-    private static final String TAG = PtpIpCommandPublisher.class.getSimpleName();
+    private static final String TAG = PtpIpCommandPublisher0.class.getSimpleName();
 
     private static final int SEQUENCE_START_NUMBER = 1;
     private static final int BUFFER_SIZE = 1024 * 1024 + 16;  // 受信バッファは 256kB
@@ -35,10 +35,10 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
     private DataOutputStream dos = null;
     private BufferedReader bufferedReader = null;
     private int sequenceNumber = SEQUENCE_START_NUMBER;
-    private Queue<IPtpIpCommand> commandQueue;
-    private Queue<IPtpIpCommand> holdCommandQueue;
+    private final Queue<IPtpIpCommand> commandQueue;
+    private final Queue<IPtpIpCommand> holdCommandQueue;
 
-    public PtpIpCommandPublisher(@NonNull String ip, int portNumber)
+    public PtpIpCommandPublisher0(@NonNull String ip, int portNumber)
     {
         this.ipAddress = ip;
         this.portNumber = portNumber;
@@ -229,6 +229,34 @@ public class PtpIpCommandPublisher implements IPtpIpCommandPublisher, IPtpIpComm
     {
         Log.v(TAG, "  flushHoldQueue()");
         holdCommandQueue.clear();
+        System.gc();
+        return (true);
+    }
+
+    @Override
+    public int isExistCommandMessageQueue(int id)
+    {
+        int count = 0;
+        for (IPtpIpCommand cmd : commandQueue)
+        {
+            if (cmd.getId() == id)
+            {
+                count++;
+            }
+        }
+        return (count);
+    }
+
+    @Override
+    public int getCurrentQueueSize()
+    {
+        return (commandQueue.size());
+    }
+
+    @Override
+    public boolean flushQueue()
+    {
+        commandQueue.clear();
         System.gc();
         return (true);
     }

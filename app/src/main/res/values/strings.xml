@@ -380,4 +380,7 @@
     <string name="pref_canon_connection_mode">Connection Sequence</string>
     <string name="pref_summary_canon_connection_mode">default: TYPE0 </string>
 
+    <string name="pref_canon_small_picture_type">Small Picture Getting Sequence</string>
+    <string name="pref_summary_canon_small_picture_type">default: TYPE0 </string>
+
 </resources>

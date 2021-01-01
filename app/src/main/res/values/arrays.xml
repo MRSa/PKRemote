@@ -116,4 +116,14 @@
         <item>2</item>
     </string-array>
 
+    <string-array name="canon_small_picture_type">
+        <item>TYPE0</item>
+        <item>TYPE1</item>
+    </string-array>
+
+    <string-array name="canon_small_picture_type_value">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
 </resources>

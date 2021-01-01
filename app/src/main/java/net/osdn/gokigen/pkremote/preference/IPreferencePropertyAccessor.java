@@ -137,6 +137,9 @@ public interface IPreferencePropertyAccessor
     String CANON_CONNECTION_SEQUENCE = "canon_connection_mode";
     String CANON_CONNECTION_SEQUENCE_DEFAULT_VALUE = "0";
 
+    String CANON_SMALL_PICTURE_TYPE = "canon_small_picture_type";
+    String CANON_SMALL_PICTURE_TYPE_DEFAULT_VALUE = "0";
+
 /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
     //String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";
