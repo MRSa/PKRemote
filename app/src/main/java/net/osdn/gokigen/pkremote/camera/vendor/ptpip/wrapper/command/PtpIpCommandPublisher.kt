@@ -651,7 +651,7 @@ class PtpIpCommandPublisher(private val ipAddress : String, private val portNumb
                 }
                 if (byte_array[offset + 4].toUByte().toInt() == 0x09)
                 {
-                    // データバイト...
+                    // データバイト... (Start Data Packet で データレングスを特定する
                     lenlen = (byte_array[offset + 15].toUByte().toInt() and 0xff shl 24) + (byte_array[offset + 14].toUByte().toInt() and 0xff shl 16) + (byte_array[offset + 13].toUByte().toInt() and 0xff shl 8) + (byte_array[offset + 12].toUByte().toInt() and 0xff)
                 }
             }

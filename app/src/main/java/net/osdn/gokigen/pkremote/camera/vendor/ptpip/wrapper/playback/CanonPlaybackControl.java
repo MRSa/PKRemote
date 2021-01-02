@@ -36,10 +36,10 @@ public class CanonPlaybackControl implements IPlaybackControl
     private String raw_suffix = "CR2";
     private boolean useScreennailImage = false;
     private final CanonImageObjectReceiver canonImageObjectReceiver;
+    private int smallImageSequence = 0;
 
     public CanonPlaybackControl(Activity activity, PtpIpInterfaceProvider provider)
     {
-        int smallImageSequence = 0;
         int delayMs = 20;
         try
         {
@@ -147,7 +147,14 @@ public class CanonPlaybackControl implements IPlaybackControl
 
                 // 画像を取得する
                 CanonScreennailImageReceiver receiver = new CanonScreennailImageReceiver(activity, objectId, publisher, callback);
-                publisher.enqueueCommand(new CanonRequestInnerDevelopStart(receiver, objectId, true, objectId, objectId, 0x0f, 0x02));   // 0x9141 : RequestInnerDevelopStart
+                if (smallImageSequence == 1)
+                {
+                    publisher.enqueueCommand(new CanonRequestInnerDevelopStart(receiver, objectId, true, objectId, objectId, 0x06, 0x02));   // 0x9141 : RequestInnerDevelopStart
+                }
+                else
+                {
+                    publisher.enqueueCommand(new CanonRequestInnerDevelopStart(receiver, objectId, true, objectId, objectId, 0x0f, 0x02));   // 0x9141 : RequestInnerDevelopStart
+                }
             }
         }
         catch (Exception e)
