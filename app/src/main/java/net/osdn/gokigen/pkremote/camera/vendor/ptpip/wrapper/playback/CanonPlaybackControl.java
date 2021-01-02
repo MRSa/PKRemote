@@ -74,13 +74,13 @@ public class CanonPlaybackControl implements IPlaybackControl
         this.activity = activity;
         this.provider = provider;
         this.fullImageReceiver = new CanonFullImageReceiver(activity, provider.getCommandPublisher());
-        if (smallImageSequence == 1)
+        if (smallImageSequence == 2)
         {
-            this.smallImageReciever = new CanonReducedImageReceiver(activity, provider.getCommandPublisher());
+            this.smallImageReciever = new CanonReducedImageReceiver(activity, provider.getCommandPublisher(), smallImageSequence);
         }
         else
         {
-            this.smallImageReciever = new CanonSmallImageReceiver(activity, provider.getCommandPublisher());
+            this.smallImageReciever = new CanonSmallImageReceiver(activity, provider.getCommandPublisher(), smallImageSequence);
         }
         canonImageObjectReceiver = new CanonImageObjectReceiver(provider, delayMs);
     }
@@ -147,7 +147,7 @@ public class CanonPlaybackControl implements IPlaybackControl
 
                 // 画像を取得する
                 CanonScreennailImageReceiver receiver = new CanonScreennailImageReceiver(activity, objectId, publisher, callback);
-                publisher.enqueueCommand(new CanonRequestInnerDevelopStart(receiver, objectId, true, objectId, objectId));   // 0x9141 : RequestInnerDevelopStart
+                publisher.enqueueCommand(new CanonRequestInnerDevelopStart(receiver, objectId, true, objectId, objectId, 0x0f, 0x02));   // 0x9141 : RequestInnerDevelopStart
             }
         }
         catch (Exception e)

@@ -14,22 +14,21 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.sp
 import java.io.ByteArrayOutputStream
 import java.util.*
 
-class CanonReducedImageReceiver(private val activity: Activity, private val publisher: IPtpIpCommandPublisher, private val sequenceType : Int) : IPtpIpCommandCallback, ICanonSmallImageReceiver
+class CanonSmallImageReceiver(private val activity: Activity, private val publisher: IPtpIpCommandPublisher, private val sequenceType : Int) : IPtpIpCommandCallback, ICanonSmallImageReceiver
 {
     private val mine = this
+    private val isDumpLog = false
 
     private var callback: IDownloadContentCallback? = null
     private var objectId = 0
     private var isReceiveMulti = false
     private var receivedFirstData = false
-
     private var receivedTotalBytes = 0
     private var receivedRemainBytes = 0
 
-
     override fun issueCommand(objectId: Int, callback: IDownloadContentCallback?)
     {
-        Log.v(TAG, " issueCommand() : ${objectId}")
+        Log.v(TAG, " issueCommand() : $objectId")
         if (this.objectId != 0)
         {
             // already issued
@@ -38,18 +37,7 @@ class CanonReducedImageReceiver(private val activity: Activity, private val publ
         }
         this.callback = callback
         this.objectId = objectId
-
-        publisher.enqueueCommand(PtpIpCommandGeneric(this, objectId + 11, false, objectId, 0x911b, 4, 0x00)) // 0x911b : SetUILock
-/*
-        publisher.enqueueCommand(CanonRequestInnerDevelopStart(object : IPtpIpCommandCallback {
-            override fun receivedMessage(id: Int, rx_body: ByteArray?) {
-                Log.v(TAG, " getRequestStatusEvent  : $objectId " + (rx_body?.size ?: 0))
-                publisher.enqueueCommand(PtpIpCommandGeneric(mine, objectId + 5, false, objectId, 0x9116))
-            }
-            override fun onReceiveProgress(currentBytes: Int, totalBytes: Int, rx_body: ByteArray?) { }
-            override fun isReceiveMulti(): Boolean { return (false) }
-        }, objectId, false, objectId, objectId))  // 0x9141 : RequestInnerDevelopStart
-*/
+        publisher.enqueueCommand(PtpIpCommandGeneric(this, objectId + 7, isDumpLog, objectId, 0x902f))
     }
 
     override fun receivedMessage(id: Int, rx_body: ByteArray?)
@@ -58,18 +46,26 @@ class CanonReducedImageReceiver(private val activity: Activity, private val publ
         {
             when (id)
             {
+                (objectId + 7) -> {
+                    if (sequenceType == 1)
+                    {
+                        publisher.enqueueCommand(CanonRequestInnerDevelopStart(this, objectId + 8, isDumpLog, objectId, objectId, 0x06, 0x02))  // 0x9141 : RequestInnerDevelopStart
+                    }
+                    else
+                    {
+                        publisher.enqueueCommand(CanonRequestInnerDevelopStart(this, objectId + 8, isDumpLog, objectId, objectId, 0x0f, 0x02))  // 0x9141 : RequestInnerDevelopStart
+                    }
+                }
                 (objectId + 1) -> {
                     sendTransferComplete(rx_body)
                 }
                 (objectId + 2) -> {
                     Log.v(TAG, " requestInnerDevelopEnd() : $objectId")
-                    publisher.enqueueCommand(CanonRequestInnerDevelopEnd(this, objectId + 3, false, objectId)) // 0x9143 : RequestInnerDevelopEnd
+                    publisher.enqueueCommand(CanonRequestInnerDevelopEnd(this, objectId + 3, isDumpLog, objectId)) // 0x9143 : RequestInnerDevelopEnd
                 }
                 (objectId + 3) -> {
-                    //Log.v(TAG, "  --- COMMAND RESET : " + objectId + " --- ");
-
                     // リセットコマンドを送ってみる
-                    publisher.enqueueCommand(PtpIpCommandGeneric(this, objectId + 4, false, objectId, 0x902f))
+                    publisher.enqueueCommand(PtpIpCommandGeneric(this, objectId + 4, isDumpLog, objectId, 0x902f))
                 }
                 (objectId + 4) -> {
                     // 画像取得終了
@@ -82,27 +78,11 @@ class CanonReducedImageReceiver(private val activity: Activity, private val publ
                     receivedFirstData = false
                     System.gc()
                 }
-                (objectId + 11) -> {
-                    requestReducedObject()
+                (objectId + 5) -> {
+                    requestGetPartialObject(rx_body)
                 }
-                (objectId + 12) -> {
-                    receivedReducedObject(rx_body)
-                }
-                (objectId + 13) -> {
-                    publisher.enqueueCommand(PtpIpCommandGeneric(this, objectId + 14, false, objectId, 0x911c)) // 0x911c : ResetUILock
-                }
-                (objectId + 14) -> {
-                    Log.v(TAG, " ----- SMALL IMAGE RECEIVE SEQUENCE(0x911c) FINISHED  : $objectId")
-                    callback?.onCompleted()
-                    objectId = 0
-                    callback = null
-                    receivedTotalBytes = 0
-                    receivedRemainBytes = 0
-                    receivedFirstData = false
-                    System.gc()
-                }
-                (objectId + 6) -> {
-                    Log.v(TAG, " RECEIVED 0x9141 reply.")
+                (objectId + 8) -> {
+                    checkReplyInnerDevelopStart(rx_body)
                 }
                 else -> {
                     Log.v(TAG, " RECEIVED UNKNOWN ID : $id")
@@ -144,7 +124,7 @@ class CanonReducedImageReceiver(private val activity: Activity, private val publ
             receivedFirstData = true
 
             // データを最初に読んだとき。ヘッダ部分を読み飛ばす
-            dataPosition = rx_body[0].toInt() and 0xff
+            dataPosition = rx_body[0].toUByte().toInt() and 0xff
         }
         else if (receivedRemainBytes > 0)
         {
@@ -210,6 +190,12 @@ class CanonReducedImageReceiver(private val activity: Activity, private val publ
         return (isReceiveMulti)
     }
 
+    private fun checkReplyInnerDevelopStart(rx_body: ByteArray?)
+    {
+        Log.v(TAG, " getRequestStatusEvent  : $objectId (" + (rx_body?.size ?: 0) + ") ")
+        publisher.enqueueCommand(PtpIpCommandGeneric(mine, objectId + 5, isDumpLog, objectId, 0x9116)) // Event Receive
+    }
+
     private fun requestGetPartialObject(rx_body: ByteArray?) {
         Log.v(TAG, " requestGetPartialObject() : $objectId")
         if (rx_body != null)
@@ -221,7 +207,8 @@ class CanonReducedImageReceiver(private val activity: Activity, private val publ
 
         // 0x9107 : GetPartialObject  (元は 0x00020000)
         var pictureLength: Int
-        if (rx_body != null && rx_body.size > 52) {
+        if (rx_body != null && rx_body.size > 52)
+        {
             val dataIndex = 48
             pictureLength = (rx_body[dataIndex].toUByte().toInt() and 0xff) + (rx_body[dataIndex + 1].toUByte().toInt() and 0xff shl 8) + (rx_body[dataIndex + 2].toUByte().toInt() and 0xff shl 16) + (rx_body[dataIndex + 3].toUByte().toInt() and 0xff shl 24)
         }
@@ -234,37 +221,18 @@ class CanonReducedImageReceiver(private val activity: Activity, private val publ
             pictureLength = 0x020000
         }
         Log.v(TAG, " requestGetPartialObject()  size : $pictureLength ")
-        publisher.enqueueCommand(PtpIpCommandCanonGetPartialObject(this, objectId + 1, false, objectId, 0x01, 0x00, pictureLength, pictureLength))
-    }
-
-    private fun requestReducedObject()
-    {
-        Log.v(TAG, " requestReducedObject() : $objectId  size : 0x00200000 ")
-        isReceiveMulti = true
-        receivedFirstData = false
-        publisher.enqueueCommand(PtpIpCommandGeneric(this, objectId + 12, true, objectId, 0x916f, 12, objectId, 0x00200000, 0x00)) // 0x916f : GetReducedObject
-    }
-
-    private fun receivedReducedObject(rx_body: ByteArray?)
-    {
-        Log.v(TAG, " receivedReducedObject() : $objectId")
-        if (rx_body != null)
-        {
-            SimpleLogDumper.dump_bytes(" receivedReducedObject ", Arrays.copyOfRange(rx_body, 0, 64))
-        }
-        isReceiveMulti = false
-        publisher.enqueueCommand(PtpIpCommandGeneric(this, objectId + 13, true, objectId, 0x9177, 8, objectId, 0x00)) // 0x9177 : NotifySaveComplete
+        publisher.enqueueCommand(PtpIpCommandCanonGetPartialObject(this, objectId + 1, isDumpLog, objectId, 0x01, 0x00, pictureLength, pictureLength))
     }
 
     private fun sendTransferComplete(rx_body: ByteArray?)
     {
         Log.v(TAG, " sendTransferComplete(), id : $objectId size: " + (rx_body?.size ?: 0))
-        publisher.enqueueCommand(PtpIpCommandGeneric(this, objectId + 2, false, objectId, 0x9117, 4, 0x01)) // 0x9117 : TransferComplete
+        publisher.enqueueCommand(PtpIpCommandGeneric(this, objectId + 2, isDumpLog, objectId, 0x9117, 4, 0x01)) // 0x9117 : TransferComplete
         isReceiveMulti = false
     }
 
     companion object
     {
-        private val TAG = CanonReducedImageReceiver::class.java.simpleName
+        private val TAG = CanonSmallImageReceiver::class.java.simpleName
     }
 }

@@ -17,7 +17,18 @@ public class CanonRequestInnerDevelopStart  extends PtpIpCommandBase
     private final byte data2;
     private final byte data3;
 
-    public CanonRequestInnerDevelopStart(@NonNull IPtpIpCommandCallback callback, int id, boolean isDumpLog, int holdId, int objectId)
+    private final byte data4;
+    private final byte data5;
+    private final byte data6;
+    private final byte data7;
+
+    private final byte data8;
+    private final byte data9;
+    private final byte dataA;
+    private final byte dataB;
+
+
+    public CanonRequestInnerDevelopStart(@NonNull IPtpIpCommandCallback callback, int id, boolean isDumpLog, int holdId, int objectId, int dataX, int dataY)
     {
         this.callback = callback;
         this.isDumpLog = isDumpLog;
@@ -28,6 +39,17 @@ public class CanonRequestInnerDevelopStart  extends PtpIpCommandBase
         data1 = ((byte)((0x0000ff00 & objectId) >> 8));
         data2 = ((byte)((0x00ff0000 & objectId) >> 16));
         data3 = ((byte)((0xff000000 & objectId) >> 24));
+
+        data4 = ((byte) (0x000000ff & dataX));
+        data5 = ((byte)((0x0000ff00 & dataX) >> 8));
+        data6 = ((byte)((0x00ff0000 & dataX) >> 16));
+        data7 = ((byte)((0xff000000 & dataX) >> 24));
+
+        data8 = ((byte) (0x000000ff & dataY));
+        data9 = ((byte)((0x0000ff00 & dataY) >> 8));
+        dataA = ((byte)((0x00ff0000 & dataY) >> 16));
+        dataB = ((byte)((0xff000000 & dataY) >> 24));
+
     }
 
     @Override
@@ -101,8 +123,8 @@ public class CanonRequestInnerDevelopStart  extends PtpIpCommandBase
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
 
                 // data
-                (byte) 0x0f, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                data4, data5, data6, data7,
+                data8, data9, dataA, dataB,
         });
     }
 
@@ -123,6 +145,5 @@ public class CanonRequestInnerDevelopStart  extends PtpIpCommandBase
     {
         return (false);
     }
-
 
 }
