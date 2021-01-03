@@ -68,6 +68,7 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
 
         // Download the image.
         var isSmallSize = requestSmallSize
+        var isVideo = false
         try
         {
             isDownloading = true
@@ -131,10 +132,12 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
                 contentFileName.toUpperCase(Locale.US).contains(MOVIE_SUFFIX) -> {
                     mimeType = "video/mp4"
                     isSmallSize = false
+                    isVideo = true
                 }
                 contentFileName.toUpperCase(Locale.US).contains(MOVIE_SUFFIX_MP4) -> {
                     mimeType = "video/mp4"
                     isSmallSize = false
+                    isVideo = true
                 }
                 else -> {
                     mimeType = "image/jpeg"
@@ -170,10 +173,24 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
             val extStorageUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 values.put(MediaStore.Images.Media.RELATIVE_PATH, directoryPath)
                 values.put(MediaStore.Images.Media.IS_PENDING, true)
-                MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                if (isVideo)
+                {
+                    MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                }
+                else
+                {
+                    MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                }
             } else {
                 values.put(MediaStore.Images.Media.DATA, getExternalOutputDirectory().absolutePath + File.separator + outputFileName)
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                if (isVideo)
+                {
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                }
+                else
+                {
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                }
             }
             imageUri = resolver.insert(extStorageUri, values)
             if (imageUri != null)
