@@ -32,7 +32,7 @@ public class CanonPlaybackControl implements IPlaybackControl
     private final Activity activity;
     private final PtpIpInterfaceProvider provider;
     private final CanonFullImageReceiver fullImageReceiver;
-    private final ICanonSmallImageReceiver smallImageReciever;
+    private final ICanonImageReceiver smallImageReciever;
     private String raw_suffix = "CR2";
     private boolean useScreennailImage = false;
     private final CanonImageObjectReceiver canonImageObjectReceiver;
@@ -76,11 +76,15 @@ public class CanonPlaybackControl implements IPlaybackControl
         this.fullImageReceiver = new CanonFullImageReceiver(activity, provider.getCommandPublisher());
         if (smallImageSequence == 2)
         {
-            this.smallImageReciever = new CanonReducedImageReceiver(activity, provider.getCommandPublisher(), smallImageSequence);
+            this.smallImageReciever = new CanonFullImageReceiver(activity, provider.getCommandPublisher());
+        }
+        else if (smallImageSequence == 3)
+        {
+            this.smallImageReciever = new CanonImageReceiver(activity, provider.getCommandPublisher(), smallImageSequence);
         }
         else
         {
-            this.smallImageReciever = new CanonSmallImageReceiver(activity, provider.getCommandPublisher(), smallImageSequence);
+            this.smallImageReciever = new CanonImageReceiver(activity, provider.getCommandPublisher(), smallImageSequence);
         }
         canonImageObjectReceiver = new CanonImageObjectReceiver(provider, delayMs);
     }
@@ -206,7 +210,7 @@ public class CanonPlaybackControl implements IPlaybackControl
                 if (isSmallSize)
                 {
                     // スモールサイズの画像取得コマンド（シーケンス）を発行する
-                    smallImageReciever.issueCommand(content.getId(), callback);
+                    smallImageReciever.issueCommand(content.getId(), content.getOriginalSize(), callback);
                 }
                 else
                 {

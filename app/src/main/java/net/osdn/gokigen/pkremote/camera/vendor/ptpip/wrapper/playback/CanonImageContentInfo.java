@@ -25,17 +25,20 @@ public class CanonImageContentInfo implements ICameraContent
         try
         {
             //  撮影日時を解析
-            long objectDate = (rx_body[0x30] & 0xff) + ((rx_body[0x31] & 0xff) << 8);
-            objectDate = objectDate + ((rx_body[0x32] & 0xff) << 16) + ((rx_body[0x33] & 0xff) << 24);
+            if (rx_body.length >= 0x33)
+            {
+                long objectDate = (rx_body[0x30] & 0xff) + ((rx_body[0x31] & 0xff) << 8);
+                objectDate = objectDate + ((rx_body[0x32] & 0xff) << 16) + ((rx_body[0x33] & 0xff) << 24);
 
-            //  UTC から 端末のタイムゾーンに変換する（オフセット時間をとる）
-            TimeZone tz = TimeZone.getDefault();
-            Date now = new Date();
-            long offsetFromUtc = tz.getOffset(now.getTime());
+                //  UTC から 端末のタイムゾーンに変換する（オフセット時間をとる）
+                TimeZone tz = TimeZone.getDefault();
+                Date now = new Date();
+                long offsetFromUtc = tz.getOffset(now.getTime());
 
-            date = new Date(objectDate * 1000 - offsetFromUtc);
-            isDateValid = true;
-            return;
+                date = new Date(objectDate * 1000 - offsetFromUtc);
+                isDateValid = true;
+                return;
+            }
         }
         catch (Exception e)
         {
@@ -69,8 +72,12 @@ public class CanonImageContentInfo implements ICameraContent
     {
         try
         {
-            byte[] fileNameArray = Arrays.copyOfRange(rx_body, 0x20, 0x20 + 8 + 1 + 3);
-            return (new String(fileNameArray));
+            if (rx_body.length > 0x20)
+            {
+                int copySize = (rx_body.length < (0x20 + 8 + 3)) ? rx_body.length : (0x20 + 8 + 1 + 3);
+                byte[] fileNameArray = Arrays.copyOfRange(rx_body, 0x20, copySize);
+                return (new String(fileNameArray));
+            }
         }
         catch (Exception e)
         {

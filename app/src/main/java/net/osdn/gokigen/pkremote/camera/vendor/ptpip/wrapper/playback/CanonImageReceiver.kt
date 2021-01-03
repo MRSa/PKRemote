@@ -14,7 +14,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.sp
 import java.io.ByteArrayOutputStream
 import java.util.*
 
-class CanonSmallImageReceiver(private val activity: Activity, private val publisher: IPtpIpCommandPublisher, private val sequenceType : Int) : IPtpIpCommandCallback, ICanonSmallImageReceiver
+class CanonImageReceiver(private val activity: Activity, private val publisher: IPtpIpCommandPublisher, private val sequenceType : Int) : IPtpIpCommandCallback, ICanonImageReceiver
 {
     private val mine = this
     private val isDumpLog = false
@@ -26,9 +26,9 @@ class CanonSmallImageReceiver(private val activity: Activity, private val publis
     private var receivedTotalBytes = 0
     private var receivedRemainBytes = 0
 
-    override fun issueCommand(objectId: Int, callback: IDownloadContentCallback?)
+    override fun issueCommand(objectId: Int, imageSize: Int, callback: IDownloadContentCallback?)
     {
-        Log.v(TAG, " issueCommand() : $objectId")
+        Log.v(TAG, " issueCommand() : $objectId (size:$imageSize)")
         if (this.objectId != 0)
         {
             // already issued
@@ -233,6 +233,6 @@ class CanonSmallImageReceiver(private val activity: Activity, private val publis
 
     companion object
     {
-        private val TAG = CanonSmallImageReceiver::class.java.simpleName
+        private val TAG = CanonImageReceiver::class.java.simpleName
     }
 }

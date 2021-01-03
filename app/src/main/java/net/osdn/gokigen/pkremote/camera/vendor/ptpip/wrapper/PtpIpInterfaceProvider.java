@@ -107,7 +107,7 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
         liveViewControl = new PtpIpLiveViewControl(context, ipAddress, STREAM_PORT);
         asyncReceiver = new PtpIpAsyncResponseReceiver(ipAddress, ASYNC_RESPONSE_PORT);
         statusChecker = new PtpIpStatusChecker(context, commandPublisher, ipAddress, EVENT_PORT);
-        canonConnection = new CanonConnection(context, provider, this, statusChecker, sequenceType);
+        canonConnection = new CanonConnection(context, provider, this, statusChecker, ipAddress, sequenceType);
         zoomControl = new PtpIpZoomControl();
         this.statusListener = statusListener;
         this.runmode = new PtpIpRunMode();

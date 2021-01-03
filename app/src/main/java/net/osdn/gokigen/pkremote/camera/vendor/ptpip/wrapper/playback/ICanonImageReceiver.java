@@ -2,7 +2,7 @@ package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback;
 
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentCallback;
 
-public interface ICanonSmallImageReceiver
+public interface ICanonImageReceiver
 {
-    void issueCommand(final int objectId, IDownloadContentCallback callback);
+    void issueCommand(final int objectId, int imageSize, IDownloadContentCallback callback);
 }

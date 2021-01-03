@@ -18,9 +18,9 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.sp
 import java.io.ByteArrayOutputStream;
 
 
-public class CanonSmallImageReceiverPrev implements IPtpIpCommandCallback, ICanonSmallImageReceiver
+public class CanonImageReceiverPrev implements IPtpIpCommandCallback, ICanonImageReceiver
 {
-    private static final String TAG = CanonSmallImageReceiver.class.getSimpleName();
+    private static final String TAG = CanonImageReceiver.class.getSimpleName();
 
     private final Activity activity;
     private final IPtpIpCommandPublisher publisher;
@@ -33,7 +33,7 @@ public class CanonSmallImageReceiverPrev implements IPtpIpCommandCallback, ICano
     private int received_total_bytes = 0;
     private int received_remain_bytes = 0;
 
-    public CanonSmallImageReceiverPrev(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher publisher)
+    public CanonImageReceiverPrev(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher publisher)
     {
         this.activity = activity;
         this.publisher = publisher;
@@ -41,7 +41,7 @@ public class CanonSmallImageReceiverPrev implements IPtpIpCommandCallback, ICano
     }
 
     @Override
-    public void issueCommand(final int objectId, IDownloadContentCallback callback)
+    public void issueCommand(final int objectId, int imageSize, IDownloadContentCallback callback)
     {
         if (this.objectId != 0)
         {

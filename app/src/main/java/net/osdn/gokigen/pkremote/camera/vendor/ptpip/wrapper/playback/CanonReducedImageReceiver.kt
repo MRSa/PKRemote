@@ -10,11 +10,10 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpComma
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandCanonGetPartialObject
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopEnd
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonRequestInnerDevelopStart
 import java.io.ByteArrayOutputStream
 import java.util.*
 
-class CanonReducedImageReceiver(private val activity: Activity, private val publisher: IPtpIpCommandPublisher, private val sequenceType : Int) : IPtpIpCommandCallback, ICanonSmallImageReceiver
+class CanonReducedImageReceiver(private val activity: Activity, private val publisher: IPtpIpCommandPublisher, private val sequenceType : Int) : IPtpIpCommandCallback, ICanonImageReceiver
 {
     private val mine = this
 
@@ -27,9 +26,9 @@ class CanonReducedImageReceiver(private val activity: Activity, private val publ
     private var receivedRemainBytes = 0
 
 
-    override fun issueCommand(objectId: Int, callback: IDownloadContentCallback?)
+    override fun issueCommand(objectId: Int, imageSize: Int, callback: IDownloadContentCallback?)
     {
-        Log.v(TAG, " issueCommand() : ${objectId}")
+        Log.v(TAG, " issueCommand() : $objectId (size: $imageSize)")
         if (this.objectId != 0)
         {
             // already issued
@@ -172,13 +171,9 @@ class CanonReducedImageReceiver(private val activity: Activity, private val publ
             if (bodySize <= 12)
             {
                 Log.v(TAG, "  BODY SIZE IS SMALL : " + dataPosition + " (" + bodySize + ") [" + receivedRemainBytes + "] " + rx_body.size + "  ")
-                //int startpos = (data_position > 48) ? (data_position - 48) : 0;
-                //SimpleLogDumper.dump_bytes("[xxx]", Arrays.copyOfRange(rx_body, startpos, (data_position + 48)));
                 break
             }
 
-            // Log.v(TAG, " RX DATA : " + data_position + " (" + body_size + ") [" + received_remain_bytes + "] (" + received_total_bytes + ")");
-            //SimpleLogDumper.dump_bytes("[yyy] " + data_position + ": ", Arrays.copyOfRange(rx_body, data_position, (data_position + 64)));
             if (dataPosition + bodySize > length)
             {
                 // データがすべてバッファ内になかったときは、バッファすべてコピーして残ったサイズを記憶しておく。

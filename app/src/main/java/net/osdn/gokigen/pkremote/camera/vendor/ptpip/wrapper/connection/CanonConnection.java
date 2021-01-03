@@ -33,16 +33,18 @@ public class CanonConnection implements ICameraConnection
     private final BroadcastReceiver connectionReceiver;
     private final Executor cameraExecutor = Executors.newFixedThreadPool(1);
     private final PtpIpStatusChecker statusChecker;
+    private final String ipAddress;
     private final int sequenceType;
     private CameraConnectionStatus connectionStatus = CameraConnectionStatus.UNKNOWN;
 
-    public CanonConnection(@NonNull final Activity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull IPtpIpInterfaceProvider interfaceProvider, @NonNull PtpIpStatusChecker statusChecker, int sequenceType)
+    public CanonConnection(@NonNull final Activity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull IPtpIpInterfaceProvider interfaceProvider, @NonNull PtpIpStatusChecker statusChecker, @NonNull String ipAddress, int sequenceType)
     {
         Log.v(TAG, "CanonConnection()");
         this.context = context;
         this.statusReceiver = statusReceiver;
         this.interfaceProvider = interfaceProvider;
         this.statusChecker = statusChecker;
+        this.ipAddress = ipAddress;
         this.sequenceType = sequenceType;
         connectionReceiver = new BroadcastReceiver()
         {
@@ -60,10 +62,10 @@ public class CanonConnection implements ICameraConnection
      */
     private void onReceiveBroadcastOfConnection(Context context, Intent intent)
     {
-        interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_check_wifi), false, false, 0);
-        statusReceiver.onStatusNotify(context.getString(R.string.connect_check_wifi));
+        interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_check_wifi) + " : " + ipAddress, false, false, 0);
+        statusReceiver.onStatusNotify(context.getString(R.string.connect_check_wifi) + " " + ipAddress);
 
-        Log.v(TAG, context.getString(R.string.connect_check_wifi));
+        Log.v(TAG, context.getString(R.string.connect_check_wifi) + " : " + ipAddress);
 
         String action = intent.getAction();
         if (action == null)
@@ -135,7 +137,7 @@ public class CanonConnection implements ICameraConnection
     @Override
     public void connect()
     {
-        Log.v(TAG, "connect()");
+        Log.v(TAG, "connect() seq : " + sequenceType);
         connectToCamera();
     }
 
@@ -222,7 +224,7 @@ public class CanonConnection implements ICameraConnection
      */
     private void connectToCamera()
     {
-        Log.v(TAG, " connectToCamera()");
+        Log.v(TAG, " connectToCamera() sequence Type : " + sequenceType);
         connectionStatus = CameraConnectionStatus.CONNECTING;
         try
         {
