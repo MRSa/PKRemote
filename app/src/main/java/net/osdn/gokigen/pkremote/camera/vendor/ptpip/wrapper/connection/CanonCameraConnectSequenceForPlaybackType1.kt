@@ -64,7 +64,7 @@ class CanonCameraConnectSequenceForPlaybackType1(val context: Activity, val came
         return false
     }
 
-    @ExperimentalUnsignedTypes
+    //@ExperimentalUnsignedTypes
     override fun receivedMessage(id: Int, rx_body: ByteArray)
     {
         when (id)
@@ -119,7 +119,6 @@ class CanonCameraConnectSequenceForPlaybackType1(val context: Activity, val came
         //commandIssuer.enqueueCommand(CanonRegistrationMessage(this))
     }
 
-    @ExperimentalUnsignedTypes
     private fun sendInitEventRequest(receiveData: ByteArray)
     {
         interfaceProvider.informationReceiver.updateMessage(context.getString(R.string.connect_start_2), false, false, 0)
