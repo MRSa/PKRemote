@@ -28,16 +28,16 @@ import androidx.preference.PreferenceManager;
 public class OlympusPenPlaybackControl implements IPlaybackControl
 {
     private final String TAG = toString();
-    private static final int DEFAULT_TIMEOUT = 3000;
+    private static final int DEFAULT_TIMEOUT = 15000;
     private final Activity activity;
     private final int timeoutValue;
-    private OlympusPenObjectDataHolder imageListHolder = new OlympusPenObjectDataHolder();
+    private final OlympusPenObjectDataHolder imageListHolder = new OlympusPenObjectDataHolder();
 
     public OlympusPenPlaybackControl(@NonNull Activity activity, int timeoutMs)
     {
         Log.v(TAG, "OlympusPenPlaybackControl()");
         this.activity = activity;
-        this.timeoutValue  = (timeoutMs < DEFAULT_TIMEOUT) ? DEFAULT_TIMEOUT : timeoutMs;
+        this.timeoutValue  = Math.max(timeoutMs, DEFAULT_TIMEOUT);
     }
 
     @Override
