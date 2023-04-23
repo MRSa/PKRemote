@@ -15,7 +15,7 @@
     <string name="title_settings">設定</string>
     <string name="title_photo_library">画像</string>
     <string name="title_auto_transfer">自動転送</string>
-
+    <string name="permission_not_granted">ユーザの許可が得られませんでしたので終了します。</string>
 
     <string name="dialog_title_confirmation">確認</string>
     <string name="dialog_positive_execute">OK</string>
