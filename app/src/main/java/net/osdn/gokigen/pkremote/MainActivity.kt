@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity(),
     AdapterView.OnItemSelectedListener
 {
     private var interfaceProvider: IInterfaceProvider? = null
-    private var scenceUpdater: CameraSceneUpdater? = null
+    private var sceneUpdater: CameraSceneUpdater? = null
     private var mImageConnectButton: ImageButton? = null
     private var mReloadButton: ImageButton? = null
     private var mCardSlotSelection: Spinner? = null
@@ -52,22 +52,22 @@ class MainActivity : AppCompatActivity(),
         //BottomNavigationView.OnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_photo_library -> {
-                    scenceUpdater?.changeScenceToImageList()
+                    sceneUpdater?.changeScenceToImageList()
                     return@OnItemSelectedListener true
                 }
 
                 R.id.navigation_calendar -> {
-                    scenceUpdater?.changeSceneToCalendar()
+                    sceneUpdater?.changeSceneToCalendar()
                     return@OnItemSelectedListener true
                 }
 
                 R.id.navigation_auto_transfer -> {
-                    scenceUpdater?.changeSceneToAutoTransfer()
+                    sceneUpdater?.changeSceneToAutoTransfer()
                     return@OnItemSelectedListener true
                 }
 
                 R.id.navigation_settings -> {
-                    scenceUpdater?.changeSceneToConfiguration()
+                    sceneUpdater?.changeSceneToConfiguration()
                     return@OnItemSelectedListener true
                 }
             }
@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity(),
     {
         //Log.v(TAG, "onBackPressed()");
         super.onBackPressed()
-        runOnUiThread { scenceUpdater?.updateBottomNavigationMenu() }
+        runOnUiThread { sceneUpdater?.updateBottomNavigationMenu() }
     }
 
     /**
@@ -224,13 +224,13 @@ class MainActivity : AppCompatActivity(),
     {
         try
         {
-            scenceUpdater = CameraSceneUpdater.newInstance(this)
-            if (scenceUpdater != null)
+            sceneUpdater = CameraSceneUpdater.newInstance(this)
+            if (sceneUpdater != null)
             {
-                val scene : ICameraStatusReceiver = scenceUpdater as CameraSceneUpdater
+                val scene : ICameraStatusReceiver = sceneUpdater as CameraSceneUpdater
                 interfaceProvider = CameraInterfaceProvider.newInstance(this, scene, this, this)
                 val provider = interfaceProvider as IInterfaceProvider
-                scenceUpdater?.changeFirstFragment(provider)
+                sceneUpdater?.changeFirstFragment(provider)
             }
         }
         catch (e: Exception)
@@ -306,7 +306,7 @@ class MainActivity : AppCompatActivity(),
             if (isAutoConnectCamera)
             {
                 // 自動接続の指示があったとき
-                scenceUpdater?.changeCameraConnection()
+                sceneUpdater?.changeCameraConnection()
             }
         }
         catch (e: Exception)
@@ -323,13 +323,13 @@ class MainActivity : AppCompatActivity(),
             {
                 R.id.button_wifi_connect -> {
                     // カメラとの接続を行う
-                    scenceUpdater?.changeCameraConnection()
+                    sceneUpdater?.changeCameraConnection()
                     vibrate()
                 }
 
                 R.id.button_reload -> {
                     // 画像一覧情報をリロードする
-                    scenceUpdater?.reloadRemoteImageContents()
+                    sceneUpdater?.reloadRemoteImageContents()
                     vibrate()
                 }
 
@@ -466,7 +466,7 @@ class MainActivity : AppCompatActivity(),
         try
         {
             Log.v(TAG, " changedCardSlot : $slotId")
-            scenceUpdater?.reloadRemoteImageContents()
+            sceneUpdater?.reloadRemoteImageContents()
             vibrate()
         }
         catch (e: Exception)
