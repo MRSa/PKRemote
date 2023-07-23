@@ -208,6 +208,18 @@ public class OpcPreferenceFragment extends PreferenceFragmentCompat implements S
         if (!items.containsKey(IPreferencePropertyAccessor.CANON_SMALL_PICTURE_TYPE)) {
             editor.putString(IPreferencePropertyAccessor.CANON_SMALL_PICTURE_TYPE, IPreferencePropertyAccessor.CANON_SMALL_PICTURE_TYPE_DEFAULT_VALUE);
         }
+        if (!items.containsKey(IPreferencePropertyAccessor.VISIONKIDS_HOST_IP)) {
+            editor.putString(IPreferencePropertyAccessor.VISIONKIDS_HOST_IP, IPreferencePropertyAccessor.VISIONKIDS_HOST_IP_DEFAULT_VALUE);
+        }
+        if (!items.containsKey(IPreferencePropertyAccessor.VISIONKIDS_FTP_USER)) {
+            editor.putString(IPreferencePropertyAccessor.VISIONKIDS_FTP_USER, IPreferencePropertyAccessor.VISIONKIDS_FTP_USER_DEFAULT_VALUE);
+        }
+        if (!items.containsKey(IPreferencePropertyAccessor.VISIONKIDS_FTP_PASS)) {
+            editor.putString(IPreferencePropertyAccessor.VISIONKIDS_FTP_PASS, IPreferencePropertyAccessor.VISIONKIDS_FTP_PASS_DEFAULT_VALUE);
+        }
+        if (!items.containsKey(IPreferencePropertyAccessor.VISIONKIDS_LIST_TIMEOUT)) {
+            editor.putString(IPreferencePropertyAccessor.VISIONKIDS_LIST_TIMEOUT, IPreferencePropertyAccessor.VISIONKIDS_LIST_TIMEOUT_DEFAULT_VALUE);
+        }
         editor.apply();
     }
 

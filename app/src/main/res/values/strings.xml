@@ -383,4 +383,16 @@
     <string name="pref_canon_small_picture_type">Small Picture Getting Sequence</string>
     <string name="pref_summary_canon_small_picture_type">default: TYPE0 </string>
 
+    <string name="pref_visionkids_host_ip">Camera IP Address</string>
+    <string name="pref_summary_visionkids_host_ip">default: 192.168.4.100 </string>
+
+    <string name="pref_visionkids_ftp_user">Camera Access User</string>
+    <string name="pref_summary_visionkids_ftp_user">default: ftp </string>
+
+    <string name="pref_visionkids_ftp_pass">Camera Access Pass</string>
+    <string name="pref_summary_visionkids_ftp_pass">default: ftp </string>
+
+    <string name="pref_visionkids_get_pics_list_timeout">Get Pics List Timeout(unit: sec.)</string>
+    <string name="pref_summary_visionkids_get_pics_list_timeout">If the camera has many number of Pics, increase number.</string>
+
 </resources>

@@ -140,6 +140,20 @@ public interface IPreferencePropertyAccessor
     String CANON_SMALL_PICTURE_TYPE = "canon_small_picture_type";
     String CANON_SMALL_PICTURE_TYPE_DEFAULT_VALUE = "0";
 
+    String VISIONKIDS_HOST_IP = "visionkids_host_ip";
+    String VISIONKIDS_HOST_IP_DEFAULT_VALUE = "192.168.4.100";
+
+    String VISIONKIDS_FTP_USER = "visionkids_ftp_user";
+    String VISIONKIDS_FTP_USER_DEFAULT_VALUE = "ftp";
+
+    String VISIONKIDS_FTP_PASS = "visionkids_ftp_pass";
+    String VISIONKIDS_FTP_PASS_DEFAULT_VALUE = "ftp";
+
+    String VISIONKIDS_LIST_TIMEOUT = "visionkids_get_pics_list_timeout";
+    String VISIONKIDS_LIST_TIMEOUT_DEFAULT_VALUE = "30";
+
+
+
 /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";
     //String GR2_DISPLAY_MODE_DEFAULT_VALUE = "0";

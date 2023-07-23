@@ -381,4 +381,16 @@
     <string name="pref_canon_small_picture_type">スモール画像取得シーケンス</string>
     <string name="pref_summary_canon_small_picture_type">スモール画像がうまく取得できない場合、設定を変更してみてください。 (初期値: TYPE0)</string>
 
+    <string name="pref_visionkids_host_ip">カメラIPアドレス</string>
+    <string name="pref_summary_visionkids_host_ip">通常、変更は不要です (初期値:192.168.4.100)</string>
+
+    <string name="pref_visionkids_ftp_user">カメラアクセス用設定(User)</string>
+    <string name="pref_summary_visionkids_ftp_user">通常、変更は不要です (初期値:ftp)</string>
+
+    <string name="pref_visionkids_ftp_pass">カメラアクセス用設定(Pass)</string>
+    <string name="pref_summary_visionkids_ftp_pass">通常、変更は不要です (初期値:ftp)</string>
+
+    <string name="pref_visionkids_get_pics_list_timeout">撮影画像一覧取得時のタイムアウト（単位：秒）</string>
+    <string name="pref_summary_visionkids_get_pics_list_timeout">通常、変更は不要です (初期値:30)</string>
+
 </resources>

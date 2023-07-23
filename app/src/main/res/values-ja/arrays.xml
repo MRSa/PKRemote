@@ -11,6 +11,7 @@
         <item>Sony</item>
         <item>Canon</item>
         <item>Nikon</item>
+        <item>Vision Kids</item>
     </string-array>
 
     <string-array name="connection_method_value">
@@ -24,6 +25,7 @@
         <item>SONY</item>
         <item>CANON</item>
         <item>NIKON</item>
+        <item>VISIONKIDS</item>
     </string-array>
 
     <string-array name="sound_volume_level">
