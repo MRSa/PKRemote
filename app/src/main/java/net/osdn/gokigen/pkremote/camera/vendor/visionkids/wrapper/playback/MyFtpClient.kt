@@ -1,4 +1,4 @@
-package net.osdn.gokigen.pkremote.camera.vendor.visionkids.wrapper
+package net.osdn.gokigen.pkremote.camera.vendor.visionkids.wrapper.playback
 
 import android.util.Log
 import net.osdn.gokigen.pkremote.camera.utils.SimpleLogDumper
@@ -17,7 +17,6 @@ class MyFtpClient(private val callbackReceiver: IFtpServiceCallback, private val
     private var isConnected = false
     private var socket: Socket? = null
     private var dataOutputStream: DataOutputStream? = null
-    //private var bufferedReader: BufferedReader? = null
     private var connectedAddress : String? = null
     private val commandQueue : Queue<FtpCommand> = ArrayDeque()
 
@@ -410,6 +409,5 @@ class MyFtpClient(private val callbackReceiver: IFtpServiceCallback, private val
         private const val PACKET_BUFFER_SIZE = 8192
 
         private const val FTP_CONTROL_PORT = 21
-        // private const val FTP_DATA_PORT = 20
     }
 }

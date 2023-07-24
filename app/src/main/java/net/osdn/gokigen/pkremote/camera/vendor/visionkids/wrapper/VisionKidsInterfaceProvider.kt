@@ -7,11 +7,8 @@ import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICaptureControl
 import net.osdn.gokigen.pkremote.camera.interfaces.control.IFocusingControl
-import net.osdn.gokigen.pkremote.camera.interfaces.control.IFocusingModeNotify
 import net.osdn.gokigen.pkremote.camera.interfaces.control.IZoomLensControl
-import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IAutoFocusFrameDisplay
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IDisplayInjector
-import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IIndicatorControl
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ILiveViewControl
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ILiveViewListener
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl
@@ -21,22 +18,19 @@ import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher
 import net.osdn.gokigen.pkremote.camera.vendor.visionkids.IVisionKidsInterfaceProvider
+import net.osdn.gokigen.pkremote.camera.vendor.visionkids.wrapper.connection.VisionKidsConnection
 import net.osdn.gokigen.pkremote.camera.vendor.visionkids.wrapper.playback.VisionKidsPlaybackControl
 
-class VisionKidsInterfaceProvider(private val activity: AppCompatActivity, private val provider: ICameraStatusReceiver, private val informationReceiver: IInformationReceiver) : IVisionKidsInterfaceProvider, IDisplayInjector
+class VisionKidsInterfaceProvider(activity: AppCompatActivity, provider: ICameraStatusReceiver, informationReceiver: IInformationReceiver) : IVisionKidsInterfaceProvider, ICameraRunMode
 {
-    private val playbackControl = VisionKidsPlaybackControl()
-
-    // IDisplayInjector
-    override fun injectDisplay(frameDisplayer: IAutoFocusFrameDisplay?, indicator: IIndicatorControl?, focusingModeNotify: IFocusingModeNotify?)
-    {
-        // TODO("Not yet implemented")
-    }
+    private val playbackControl = VisionKidsPlaybackControl(activity, provider, informationReceiver)
+    private val cameraConnection = VisionKidsConnection(activity, provider)
+    private val hardwareStatus = VisionKidsHardwareStatus()
 
     // IVisionKidsInterfaceProvider
-    override fun getVisionKidsCameraConnection(): ICameraConnection?
+    override fun getVisionKidsCameraConnection(): ICameraConnection
     {
-        return (null)
+        return (cameraConnection)
     }
 
     // IVisionKidsInterfaceProvider
@@ -106,15 +100,21 @@ class VisionKidsInterfaceProvider(private val activity: AppCompatActivity, priva
     }
 
     // IVisionKidsInterfaceProvider
-    override fun getHardwareStatus(): ICameraHardwareStatus?
+    override fun getHardwareStatus(): ICameraHardwareStatus
     {
-        return (null)
+        return (hardwareStatus)
     }
 
     // IVisionKidsInterfaceProvider
-    override fun getCameraRunMode(): ICameraRunMode?
+    override fun getCameraRunMode(): ICameraRunMode
     {
-        return (null)
+        return (this)
     }
+
+    // ICameraRunMode
+    override fun changeRunMode(isRecording: Boolean) { }
+
+    // ICameraRunMode
+    override fun isRecordingMode(): Boolean { return (false) }
 
 }

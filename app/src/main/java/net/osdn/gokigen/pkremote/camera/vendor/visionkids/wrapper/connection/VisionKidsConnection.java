@@ -1,6 +1,5 @@
 package net.osdn.gokigen.pkremote.camera.vendor.visionkids.wrapper.connection;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +12,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
@@ -24,21 +24,19 @@ import java.util.concurrent.Executors;
 public class VisionKidsConnection implements ICameraConnection
 {
     private final String TAG = toString();
-    private final Activity context;
+    private final AppCompatActivity context;
     private final ICameraStatusReceiver statusReceiver;
     private final BroadcastReceiver connectionReceiver;
     private final Executor cameraExecutor = Executors.newFixedThreadPool(1);
-
     private CameraConnectionStatus connectionStatus = CameraConnectionStatus.UNKNOWN;
-
 
     /**
      *
      *
      */
-    public VisionKidsConnection(@NonNull final Activity context, @NonNull final ICameraStatusReceiver statusReceiver)
+    public VisionKidsConnection(@NonNull final AppCompatActivity context, @NonNull final ICameraStatusReceiver statusReceiver)
     {
-        Log.v(TAG, "ThetaConnection()");
+        Log.v(TAG, "VisionKidsConnection()");
         this.context = context;
         this.statusReceiver = statusReceiver;
         connectionReceiver = new BroadcastReceiver()
@@ -63,7 +61,6 @@ public class VisionKidsConnection implements ICameraConnection
         String action = intent.getAction();
         if (action == null)
         {
-            //
             Log.v(TAG, "intent.getAction() : null");
             return;
         }
@@ -164,7 +161,7 @@ public class VisionKidsConnection implements ICameraConnection
     {
         Log.v(TAG, "alertConnectingFailed() : " + message);
         final AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.dialog_title_connect_failed_theta))
+                .setTitle(context.getString(R.string.dialog_title_connect_failed_visionkids))
                 .setMessage(message)
                 .setPositiveButton(context.getString(R.string.dialog_title_button_retry), (dialog, which) -> connect())
                 .setNeutralButton(R.string.dialog_title_button_network_settings, (dialog, which) -> {

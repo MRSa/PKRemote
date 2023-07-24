@@ -78,6 +78,7 @@
     <string name="dialog_title_connect_failed_nikon">Connect failed (Nikon)</string>
     <string name="dialog_title_connect_failed_olympus">Connect failed (Olympus)</string>
     <string name="dialog_title_connect_failed_theta">Connect failed (Theta)</string>
+    <string name="dialog_title_connect_failed_visionkids">Connect failed (VisionKids)</string>
 
     <string name="dialog_title_button_retry">Retry</string>
     <string name="dialog_title_button_network_settings">WiFi Settings</string>

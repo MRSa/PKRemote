@@ -1,4 +1,4 @@
-package net.osdn.gokigen.pkremote.camera.vendor.visionkids.wrapper
+package net.osdn.gokigen.pkremote.camera.vendor.visionkids.wrapper.playback
 
 interface IFtpServiceCallback
 {
