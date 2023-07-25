@@ -14,6 +14,46 @@ class VisionKidsCameraContentProvider(context: AppCompatActivity) : IFtpServiceC
     private val cameraContentList = ArrayList<ICameraContent>()
     private lateinit var callback : ICameraContentListCallback
 
+    fun getCameraContent(name: String) : ICameraContent?
+    {
+        try
+        {
+            for (cameraContent in cameraContentList)
+            {
+                if (cameraContent.contentName == name)
+                {
+                    return (cameraContent)
+                }
+            }
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
+        return (null)
+    }
+
+    fun forceDisconnect()
+    {
+        try
+        {
+            ftpClient.enqueueCommand(FtpCommand("quit", "QUIT\r\n"))
+            try
+            {
+                Thread.sleep(750)
+            }
+            catch (ee: Exception)
+            {
+                ee.printStackTrace()
+            }
+            ftpClient.disconnect()
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
+    }
+
 
     fun getContentList(callback: ICameraContentListCallback)
     {
@@ -230,5 +270,4 @@ class VisionKidsCameraContentProvider(context: AppCompatActivity) : IFtpServiceC
     {
         private val TAG = VisionKidsCameraContentProvider::class.java.simpleName
     }
-
 }

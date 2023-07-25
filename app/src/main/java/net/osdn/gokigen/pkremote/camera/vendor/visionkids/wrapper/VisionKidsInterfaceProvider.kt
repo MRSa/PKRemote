@@ -24,7 +24,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.visionkids.wrapper.playback.Visio
 class VisionKidsInterfaceProvider(activity: AppCompatActivity, provider: ICameraStatusReceiver, informationReceiver: IInformationReceiver) : IVisionKidsInterfaceProvider, ICameraRunMode
 {
     private val playbackControl = VisionKidsPlaybackControl(activity, provider, informationReceiver)
-    private val cameraConnection = VisionKidsConnection(activity, provider)
+    private val cameraConnection = VisionKidsConnection(activity, provider, playbackControl)
     private val hardwareStatus = VisionKidsHardwareStatus()
 
     // IVisionKidsInterfaceProvider

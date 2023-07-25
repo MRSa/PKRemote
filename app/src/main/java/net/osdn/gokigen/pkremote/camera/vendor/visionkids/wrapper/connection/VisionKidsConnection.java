@@ -27,6 +27,7 @@ public class VisionKidsConnection implements ICameraConnection
     private final AppCompatActivity context;
     private final ICameraStatusReceiver statusReceiver;
     private final BroadcastReceiver connectionReceiver;
+    private final IVisionKidsConnection myConnection;
     private final Executor cameraExecutor = Executors.newFixedThreadPool(1);
     private CameraConnectionStatus connectionStatus = CameraConnectionStatus.UNKNOWN;
 
@@ -34,7 +35,7 @@ public class VisionKidsConnection implements ICameraConnection
      *
      *
      */
-    public VisionKidsConnection(@NonNull final AppCompatActivity context, @NonNull final ICameraStatusReceiver statusReceiver)
+    public VisionKidsConnection(@NonNull final AppCompatActivity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull final IVisionKidsConnection myConnection)
     {
         Log.v(TAG, "VisionKidsConnection()");
         this.context = context;
@@ -47,6 +48,7 @@ public class VisionKidsConnection implements ICameraConnection
                 onReceiveBroadcastOfConnection(context, intent);
             }
         };
+        this.myConnection = myConnection;
     }
 
     /**
@@ -221,7 +223,7 @@ public class VisionKidsConnection implements ICameraConnection
         Log.v(TAG, "disconnectFromCamera()");
         try
         {
-            cameraExecutor.execute(new VisionKidsCameraDisconnectSequence());
+            cameraExecutor.execute(new VisionKidsCameraDisconnectSequence(myConnection));
         }
         catch (Exception e)
         {

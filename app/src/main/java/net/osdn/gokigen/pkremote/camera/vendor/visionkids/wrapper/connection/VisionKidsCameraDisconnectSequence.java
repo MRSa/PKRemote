@@ -2,13 +2,16 @@ package net.osdn.gokigen.pkremote.camera.vendor.visionkids.wrapper.connection;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 public class VisionKidsCameraDisconnectSequence implements Runnable
 {
     private final String TAG = this.toString();
+    private final IVisionKidsConnection connection;
 
-    VisionKidsCameraDisconnectSequence()
+    VisionKidsCameraDisconnectSequence(@NonNull final IVisionKidsConnection connection)
     {
-        // なにもしない
+        this.connection = connection;
     }
 
     @Override
@@ -16,5 +19,6 @@ public class VisionKidsCameraDisconnectSequence implements Runnable
     {
         // なにもしない（というかできない）
         Log.v(TAG, " Power off (VisionKids)");
+        connection.forceDisconnect();
     }
 }
