@@ -94,7 +94,24 @@ class VisionKidsCameraContentProvider(context: AppCompatActivity) : IFtpServiceC
             else
             {
                 Log.v(TAG, " onReceivedFtpResponse($command/$code) [${response.length}] $response")
+                when (command)
+                {
+                    "receiveFromDevice(data)" -> onReceivedDataError(response)
+                }
             }
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
+    }
+
+    private fun onReceivedDataError(response: String)
+    {
+        try
+        {
+            // Occurs data receive timeout, so disconnect ftp
+            ftpClient.enqueueCommand(FtpCommand("quit", "QUIT\r\n"))
         }
         catch (e: Exception)
         {
