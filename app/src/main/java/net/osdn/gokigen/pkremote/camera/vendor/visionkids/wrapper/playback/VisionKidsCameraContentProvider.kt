@@ -1,13 +1,18 @@
 package net.osdn.gokigen.pkremote.camera.vendor.visionkids.wrapper.playback
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.RouteInfo
+import android.os.Build
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor
+import java.net.Inet6Address
 
-class VisionKidsCameraContentProvider(context: AppCompatActivity) : IFtpServiceCallback
+class VisionKidsCameraContentProvider(private val context: AppCompatActivity) : IFtpServiceCallback
 {
     private val ftpClient = MyFtpClient(this)
     private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -54,12 +59,41 @@ class VisionKidsCameraContentProvider(context: AppCompatActivity) : IFtpServiceC
         }
     }
 
+    fun getHostAddress() : String
+    {
+        val autoHost = preferences.getBoolean(IPreferencePropertyAccessor.VISIONKIDS_AUTO_SET_HOST_IP, true)
+        var address = preferences.getString(IPreferencePropertyAccessor.VISIONKIDS_HOST_IP, IPreferencePropertyAccessor.VISIONKIDS_HOST_IP_DEFAULT_VALUE)?: IPreferencePropertyAccessor.VISIONKIDS_HOST_IP_DEFAULT_VALUE
+        try
+        {
+            if ((autoHost)&&(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M))
+            {
+                val connectivityManager = context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                val activeNetwork = connectivityManager.activeNetwork?: return (address)
+                val routes: List<RouteInfo> = connectivityManager.getLinkProperties(activeNetwork)?.routes ?: return (address)
+                for (route in routes)
+                {
+                    val gateway = route.gateway
+                    if ((route.isDefaultRoute) && (!(gateway is Inet6Address))&&(gateway != null))
+                    {
+                        address = gateway.toString().replace("/","")
+                        Log.v(TAG, " --------- default Gateway : $address  --------- ")
+                        break
+                    }
+                }
+            }
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
+        return (address)
+    }
 
     fun getContentList(callback: ICameraContentListCallback)
     {
         try
         {
-            val address = preferences.getString(IPreferencePropertyAccessor.VISIONKIDS_HOST_IP, IPreferencePropertyAccessor.VISIONKIDS_HOST_IP_DEFAULT_VALUE)?: IPreferencePropertyAccessor.VISIONKIDS_HOST_IP_DEFAULT_VALUE
+            val address = getHostAddress()
             this.callback = callback
             ftpClient.connect(address)
         }

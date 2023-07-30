@@ -16,13 +16,11 @@ import net.osdn.gokigen.pkremote.camera.playback.ProgressEvent
 import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient
 import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient.IReceivedMessageCallback
 import net.osdn.gokigen.pkremote.camera.vendor.visionkids.wrapper.connection.IVisionKidsConnection
-import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor
 import java.util.Date
 
 class VisionKidsPlaybackControl(activity: AppCompatActivity, private val provider: ICameraStatusReceiver, private val informationReceiver: IInformationReceiver, timeoutMs: Int = DEFAULT_TIMEOUT): IPlaybackControl, IVisionKidsConnection
 {
     private val contentProvider = VisionKidsCameraContentProvider(activity)
-    private val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
     private val timeoutValue = Math.max(DEFAULT_TIMEOUT, timeoutMs)
 
     override fun getRawFileSuffix(): String
@@ -77,7 +75,7 @@ class VisionKidsPlaybackControl(activity: AppCompatActivity, private val provide
     {
         try
         {
-            val address = preferences.getString(IPreferencePropertyAccessor.VISIONKIDS_HOST_IP, IPreferencePropertyAccessor.VISIONKIDS_HOST_IP_DEFAULT_VALUE)?: IPreferencePropertyAccessor.VISIONKIDS_HOST_IP_DEFAULT_VALUE
+            val address = contentProvider.getHostAddress()
             val urlToGet = "http://$address/DCIM/T/$path".replace("//","/")
             Log.v(TAG, "downloadContentThumbnail($path) : $urlToGet")
 
@@ -99,7 +97,7 @@ class VisionKidsPlaybackControl(activity: AppCompatActivity, private val provide
         {
             // 取得先URLを特定する
             val dataType = if (isSmallSize) { "T" } else { "O" }
-            val address = preferences.getString(IPreferencePropertyAccessor.VISIONKIDS_HOST_IP, IPreferencePropertyAccessor.VISIONKIDS_HOST_IP_DEFAULT_VALUE)?: IPreferencePropertyAccessor.VISIONKIDS_HOST_IP_DEFAULT_VALUE
+            val address = contentProvider.getHostAddress()
             val urlToGet = "http://$address/DCIM/$dataType/$path".replace("//","/")
             Log.v(TAG, "downloadContent($path, $isSmallSize) : $urlToGet")
 

@@ -185,6 +185,10 @@ public class OlympusPenPreferenceFragment  extends PreferenceFragmentCompat impl
             if (!items.containsKey(IPreferencePropertyAccessor.VISIONKIDS_LIST_TIMEOUT)) {
                 editor.putString(IPreferencePropertyAccessor.VISIONKIDS_LIST_TIMEOUT, IPreferencePropertyAccessor.VISIONKIDS_LIST_TIMEOUT_DEFAULT_VALUE);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.VISIONKIDS_AUTO_SET_HOST_IP))
+            {
+                editor.putBoolean(IPreferencePropertyAccessor.VISIONKIDS_AUTO_SET_HOST_IP, true);
+            }
             editor.apply();
         }
         catch (Exception e)

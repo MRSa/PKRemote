@@ -396,4 +396,6 @@
     <string name="pref_visionkids_get_pics_list_timeout">Get Pics List Timeout(unit: sec.)</string>
     <string name="pref_summary_visionkids_get_pics_list_timeout">If the camera has many number of Pics, increase number.</string>
 
+    <string name="pref_visionkids_auto_detect_ip_host">Set camera ip automatically.</string>
+    <string name="pref_summary_visionkids_auto_detect_ip_host">Normally to keep ON.</string>
 </resources>

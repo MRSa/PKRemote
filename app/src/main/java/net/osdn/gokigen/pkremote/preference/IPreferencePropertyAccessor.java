@@ -152,7 +152,7 @@ public interface IPreferencePropertyAccessor
     String VISIONKIDS_LIST_TIMEOUT = "visionkids_get_pics_list_timeout";
     String VISIONKIDS_LIST_TIMEOUT_DEFAULT_VALUE = "30";
 
-
+    String VISIONKIDS_AUTO_SET_HOST_IP = "visionkids_auto_detect_ip_host";
 
 /*
     //String GR2_DISPLAY_MODE = "gr2_display_mode";

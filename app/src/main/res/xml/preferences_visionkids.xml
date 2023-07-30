@@ -25,6 +25,11 @@
     <PreferenceCategory
         android:title="@string/pref_cat_camera">
 
+        <CheckBoxPreference
+            android:key="visionkids_auto_detect_ip_host"
+            android:title="@string/pref_visionkids_auto_detect_ip_host"
+            android:summary="@string/pref_summary_visionkids_auto_detect_ip_host" />
+
         <EditTextPreference
             android:key="visionkids_host_ip"
             android:title="@string/pref_visionkids_host_ip"

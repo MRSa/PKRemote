@@ -75,104 +75,107 @@ class VisionKidsPreferenceFragment: PreferenceFragmentCompat(), SharedPreference
     private fun initializePreferences() {
         try {
             val items = preferences!!.all
-            val editor = preferences!!.edit()
+            val editor = preferences?.edit()
             if (!items.containsKey(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA)) {
-                editor.putBoolean(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, true)
+                editor?.putBoolean(IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA, true)
             }
             if (!items.containsKey(IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW)) {
-                editor.putBoolean(
+                editor?.putBoolean(
                     IPreferencePropertyAccessor.CAPTURE_BOTH_CAMERA_AND_LIVE_VIEW,
                     true
                 )
             }
             if (!items.containsKey(IPreferencePropertyAccessor.CONNECTION_METHOD)) {
-                editor.putString(
+                editor?.putString(
                     IPreferencePropertyAccessor.CONNECTION_METHOD,
                     IPreferencePropertyAccessor.CONNECTION_METHOD_DEFAULT_VALUE
                 )
             }
             if (!items.containsKey(IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA)) {
-                editor.putBoolean(IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA, false)
+                editor?.putBoolean(IPreferencePropertyAccessor.GET_SMALL_PICTURE_AS_VGA, false)
             }
             if (!items.containsKey(IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE)) {
-                editor.putBoolean(IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE, false)
+                editor?.putBoolean(IPreferencePropertyAccessor.USE_SMARTPHONE_TRANSFER_MODE, false)
             }
             if (!items.containsKey(IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT)) {
-                editor.putString(
+                editor?.putString(
                     IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT,
                     IPreferencePropertyAccessor.RICOH_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE
                 )
             }
             if (!items.containsKey(IPreferencePropertyAccessor.USE_OSC_THETA_V21)) {
-                editor.putBoolean(IPreferencePropertyAccessor.USE_OSC_THETA_V21, false)
+                editor?.putBoolean(IPreferencePropertyAccessor.USE_OSC_THETA_V21, false)
             }
             if (!items.containsKey(IPreferencePropertyAccessor.PIXPRO_HOST_IP)) {
-                editor.putString(
+                editor?.putString(
                     IPreferencePropertyAccessor.PIXPRO_HOST_IP,
                     IPreferencePropertyAccessor.PIXPRO_HOST_IP_DEFAULT_VALUE
                 )
             }
             if (!items.containsKey(IPreferencePropertyAccessor.PIXPRO_COMMAND_PORT)) {
-                editor.putString(
+                editor?.putString(
                     IPreferencePropertyAccessor.PIXPRO_COMMAND_PORT,
                     IPreferencePropertyAccessor.PIXPRO_COMMAND_PORT_DEFAULT_VALUE
                 )
             }
             if (!items.containsKey(IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT)) {
-                editor.putString(
+                editor?.putString(
                     IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT,
                     IPreferencePropertyAccessor.PIXPRO_GET_PICS_LIST_TIMEOUT_DEFAULT_VALUE
                 )
             }
             if (!items.containsKey(IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE)) {
-                editor.putString(
+                editor?.putString(
                     IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE,
                     IPreferencePropertyAccessor.THUMBNAIL_IMAGE_CACHE_SIZE_DEFAULT_VALUE
                 )
             }
             if (!items.containsKey(IPreferencePropertyAccessor.CANON_HOST_IP)) {
-                editor.putString(
+                editor?.putString(
                     IPreferencePropertyAccessor.CANON_HOST_IP,
                     IPreferencePropertyAccessor.CANON_HOST_IP_DEFAULT_VALUE
                 )
             }
             if (!items.containsKey(IPreferencePropertyAccessor.CANON_CONNECTION_SEQUENCE)) {
-                editor.putString(
+                editor?.putString(
                     IPreferencePropertyAccessor.CANON_CONNECTION_SEQUENCE,
                     IPreferencePropertyAccessor.CANON_CONNECTION_SEQUENCE_DEFAULT_VALUE
                 )
             }
             if (!items.containsKey(IPreferencePropertyAccessor.CANON_SMALL_PICTURE_TYPE)) {
-                editor.putString(
+                editor?.putString(
                     IPreferencePropertyAccessor.CANON_SMALL_PICTURE_TYPE,
                     IPreferencePropertyAccessor.CANON_SMALL_PICTURE_TYPE_DEFAULT_VALUE
                 )
             }
             if (!items.containsKey(IPreferencePropertyAccessor.VISIONKIDS_HOST_IP)) {
-                editor.putString(
+                editor?.putString(
                     IPreferencePropertyAccessor.VISIONKIDS_HOST_IP,
                     IPreferencePropertyAccessor.VISIONKIDS_HOST_IP_DEFAULT_VALUE
                 )
             }
             if (!items.containsKey(IPreferencePropertyAccessor.VISIONKIDS_FTP_USER)) {
-                editor.putString(
+                editor?.putString(
                     IPreferencePropertyAccessor.VISIONKIDS_FTP_USER,
                     IPreferencePropertyAccessor.VISIONKIDS_FTP_USER_DEFAULT_VALUE
                 )
             }
             if (!items.containsKey(IPreferencePropertyAccessor.VISIONKIDS_FTP_PASS)) {
-                editor.putString(
+                editor?.putString(
                     IPreferencePropertyAccessor.VISIONKIDS_FTP_PASS,
                     IPreferencePropertyAccessor.VISIONKIDS_FTP_PASS_DEFAULT_VALUE
                 )
             }
             if (!items.containsKey(IPreferencePropertyAccessor.VISIONKIDS_LIST_TIMEOUT)) {
-                editor.putString(
+                editor?.putString(
                     IPreferencePropertyAccessor.VISIONKIDS_LIST_TIMEOUT,
                     IPreferencePropertyAccessor.VISIONKIDS_LIST_TIMEOUT_DEFAULT_VALUE
                 )
             }
-            editor.apply()
+            if (!items.containsKey(IPreferencePropertyAccessor.VISIONKIDS_AUTO_SET_HOST_IP)) {
+                editor?.putBoolean(IPreferencePropertyAccessor.VISIONKIDS_AUTO_SET_HOST_IP, true)
+            }
+            editor?.apply()
         }
         catch (e: Exception)
         {
@@ -202,8 +205,8 @@ class VisionKidsPreferenceFragment: PreferenceFragmentCompat(), SharedPreference
                     Log.v(TAG, " $key , $value")
                 }
 
-                IPreferencePropertyAccessor.USE_OSC_THETA_V21 -> {
-                    value = preferences?.getBoolean(key, false)?: false
+                IPreferencePropertyAccessor.VISIONKIDS_AUTO_SET_HOST_IP -> {
+                    value = preferences?.getBoolean(key, true)?: true
                     Log.v(TAG, " $key , $value")
                 }
 
@@ -322,15 +325,12 @@ class VisionKidsPreferenceFragment: PreferenceFragmentCompat(), SharedPreference
     /**
      * BooleanPreference の表示データを設定
      *
-     * @param pref_key     Preference(表示)のキー
-     * @param key          Preference(データ)のキー
-     * @param defaultValue Preferenceのデフォルト値
      */
-    private fun setBooleanPreference(pref_key: String, key: String, defaultValue: Boolean)
+    private fun setBooleanPreference(prefKey: String, key: String, defaultValue: Boolean)
     {
         try
         {
-            val pref = findPreference<CheckBoxPreference>(pref_key)
+            val pref = findPreference<CheckBoxPreference>(prefKey)
             if (pref != null)
             {
                 val value = preferences?.getBoolean(key, defaultValue)?: defaultValue
@@ -358,6 +358,11 @@ class VisionKidsPreferenceFragment: PreferenceFragmentCompat(), SharedPreference
                 setBooleanPreference(
                     IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA,
                     IPreferencePropertyAccessor.AUTO_CONNECT_TO_CAMERA,
+                    defaultValue
+                )
+                setBooleanPreference(
+                    IPreferencePropertyAccessor.VISIONKIDS_AUTO_SET_HOST_IP,
+                    IPreferencePropertyAccessor.VISIONKIDS_AUTO_SET_HOST_IP,
                     defaultValue
                 )
             }
