@@ -134,6 +134,8 @@ public interface IPreferencePropertyAccessor
     String CANON_HOST_IP = "canon_host_ip";
     String CANON_HOST_IP_DEFAULT_VALUE = "192.168.0.1";
 
+    String CANON_AUTO_DETECT_HOST_IP = "canon_auto_detect_host_ip";
+
     String CANON_CONNECTION_SEQUENCE = "canon_connection_mode";
     String CANON_CONNECTION_SEQUENCE_DEFAULT_VALUE = "0";
 

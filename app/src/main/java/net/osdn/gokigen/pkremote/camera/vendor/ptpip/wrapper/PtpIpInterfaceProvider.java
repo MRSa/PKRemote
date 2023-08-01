@@ -1,7 +1,13 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.LinkProperties;
+import android.net.Network;
+import android.net.RouteInfo;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -34,13 +40,15 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpComma
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommunication;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpAsyncResponseReceiver;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpCommandPublisher;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpCommandPublisher0;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection.CanonConnection;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.liveview.PtpIpLiveViewControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback.CanonPlaybackControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.IPtpIpRunModeHolder;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.PtpIpStatusChecker;
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
+
+import java.net.InetAddress;
+import java.util.List;
 
 public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplayInjector
 {
@@ -77,19 +85,12 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
         int sequenceType = 0;
         try
         {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            ipAddress = preferences.getString(IPreferencePropertyAccessor.CANON_HOST_IP, IPreferencePropertyAccessor.CANON_HOST_IP_DEFAULT_VALUE);
-            if (ipAddress == null)
-            {
-                ipAddress = "192.168.0.1";
-            }
+            ipAddress = getHostAddress(context);
             try
             {
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
                 String sequenceTypeStr = preferences.getString(IPreferencePropertyAccessor.CANON_CONNECTION_SEQUENCE, IPreferencePropertyAccessor.CANON_CONNECTION_SEQUENCE_DEFAULT_VALUE);
-                if (sequenceTypeStr != null)
-                {
-                    sequenceType = Integer.parseInt(sequenceTypeStr);
-                }
+                sequenceType = Integer.parseInt(sequenceTypeStr);
             }
             catch (Exception e)
             {
@@ -115,6 +116,55 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
         this.ptpIpButtonControl = new PtpIpButtonControl();
         this.playbackControl = new CanonPlaybackControl(context, this);
         this.informationReceiver = informationReceiver;
+    }
+
+    private String getHostAddress(@NonNull Activity context)
+    {
+        String ipAddress = "192.168.0.1";
+        try
+        {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            boolean autoDetactHostIp = preferences.getBoolean(IPreferencePropertyAccessor.CANON_AUTO_DETECT_HOST_IP, true);
+            ipAddress = preferences.getString(IPreferencePropertyAccessor.CANON_HOST_IP, IPreferencePropertyAccessor.CANON_HOST_IP_DEFAULT_VALUE);
+            if ((autoDetactHostIp)&&(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M))
+            {
+                ConnectivityManager connectivityManager = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                Network activeNetwork = connectivityManager.getActiveNetwork();
+                if (activeNetwork == null)
+                {
+                    return (ipAddress);
+                }
+                LinkProperties linkProperties = connectivityManager.getLinkProperties(activeNetwork);
+                if (linkProperties == null)
+                {
+                    return (ipAddress);
+                }
+                List<RouteInfo> routes = linkProperties.getRoutes();
+                for (RouteInfo route: routes)
+                {
+                    try
+                    {
+                        InetAddress gateway = route.getGateway();
+                        if ((route.isDefaultRoute())&&(gateway != null))
+                        {
+                            ipAddress = gateway.toString().replace("/","");
+                            Log.v(TAG, " --------- default Gateway : ipAddress  --------- ");
+                            break;
+                        }
+
+                    }
+                    catch (Exception ee)
+                    {
+                        ee.printStackTrace();
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (ipAddress);
     }
 
     @Override

@@ -162,6 +162,9 @@ public class SonyPreferenceFragment  extends PreferenceFragmentCompat implements
             if (!items.containsKey(IPreferencePropertyAccessor.CANON_HOST_IP)) {
                 editor.putString(IPreferencePropertyAccessor.CANON_HOST_IP, IPreferencePropertyAccessor.CANON_HOST_IP_DEFAULT_VALUE);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.CANON_AUTO_DETECT_HOST_IP)) {
+                editor.putBoolean(IPreferencePropertyAccessor.CANON_AUTO_DETECT_HOST_IP, true);
+            }
             if (!items.containsKey(IPreferencePropertyAccessor.CANON_CONNECTION_SEQUENCE)) {
                 editor.putString(IPreferencePropertyAccessor.CANON_CONNECTION_SEQUENCE, IPreferencePropertyAccessor.CANON_CONNECTION_SEQUENCE_DEFAULT_VALUE);
             }
