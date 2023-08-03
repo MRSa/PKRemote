@@ -332,6 +332,9 @@
     <string name="canon_get_image_screennail">Get Image&#8230;</string>
     <string name="canon_get_image_screennail_done">Done.</string>
 
+    <string name="pref_nikon_auto_detect_host_ip">Set camera ip automatically.</string>
+    <string name="pref_summary_nikon_auto_detect_host_ip">Normally to keep ON.</string>
+
     <string name="pref_canon_auto_detect_host_ip">Set camera ip automatically.</string>
     <string name="pref_summary_canon_auto_detect_host_ip">Normally to keep ON.</string>
 

@@ -330,6 +330,9 @@
     <string name="canon_get_image_screennail">画像取得中&#8230;</string>
     <string name="canon_get_image_screennail_done">完了</string>
 
+    <string name="pref_nikon_auto_detect_host_ip">カメラIPアドレスを自動設定</string>
+    <string name="pref_summary_nikon_auto_detect_host_ip">通常、ONのままでご使用ください。</string>
+
     <string name="pref_canon_auto_detect_host_ip">カメラIPアドレスを自動設定</string>
     <string name="pref_summary_canon_auto_detect_host_ip">通常、ONのままでご使用ください。</string>
 

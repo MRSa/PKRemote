@@ -42,6 +42,10 @@
             android:defaultValue="50"
             android:summary="@string/pref_summary_nikon_receive_wait" />
 
+        <CheckBoxPreference
+            android:key="nikon_auto_detect_host_ip"
+            android:title="@string/pref_nikon_auto_detect_host_ip"
+            android:summary="@string/pref_summary_nikon_auto_detect_host_ip" />
 <!--
         <CheckBoxPreference
             android:key="ble_wifi_on"

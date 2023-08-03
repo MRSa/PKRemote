@@ -120,6 +120,21 @@ class PreferencePropertyInitializer(context: Context)
             if (!items.containsKey(IPreferencePropertyAccessor.VISIONKIDS_AUTO_SET_HOST_IP)) {
                 editor?.putBoolean(IPreferencePropertyAccessor.VISIONKIDS_AUTO_SET_HOST_IP, true)
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.NIKON_AUTO_DETECT_HOST_IP)) {
+                editor?.putBoolean(IPreferencePropertyAccessor.NIKON_AUTO_DETECT_HOST_IP, true)
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.CANON_RAW_SUFFIX))
+            {
+                editor.putString(IPreferencePropertyAccessor.CANON_RAW_SUFFIX, IPreferencePropertyAccessor.CANON_RAW_SUFFIX_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.CANON_RECEIVE_WAIT))
+            {
+                editor.putString(IPreferencePropertyAccessor.CANON_RECEIVE_WAIT, IPreferencePropertyAccessor.CANON_RECEIVE_WAIT_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL))
+            {
+                editor.putBoolean(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL, false);
+            }
             editor?.apply()
         }
         catch (e: Exception)

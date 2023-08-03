@@ -109,6 +109,8 @@ public interface IPreferencePropertyAccessor
     String NIKON_CAMERA_IP_ADDRESS = "nikon_host_ip";
     String NIKON_CAMERA_IP_ADDRESS_DEFAULT_VALUE = "192.168.1.1";
 
+    String NIKON_AUTO_DETECT_HOST_IP = "nikon_auto_detect_host_ip";
+
     String NIKON_RECEIVE_WAIT = "nikon_receive_wait";
     String NIKON_RECEIVE_WAIT_DEFAULT_VALUE = "50";
 
