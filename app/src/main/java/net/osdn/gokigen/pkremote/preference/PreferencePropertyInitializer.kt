@@ -135,6 +135,75 @@ class PreferencePropertyInitializer(context: Context)
             {
                 editor.putBoolean(IPreferencePropertyAccessor.CANON_USE_SCREENNAIL_AS_SMALL, false);
             }
+            if (!items.containsKey(IPreferencePropertyAccessor.FUJIX_DISPLAY_CAMERA_VIEW)) {
+                editor.putBoolean(IPreferencePropertyAccessor.FUJIX_DISPLAY_CAMERA_VIEW, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.FUJIX_FOCUS_XY)) {
+                editor.putString(IPreferencePropertyAccessor.FUJIX_FOCUS_XY, IPreferencePropertyAccessor.FUJIX_FOCUS_XY_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.FUJIX_LIVEVIEW_WAIT)) {
+                editor.putString(IPreferencePropertyAccessor.FUJIX_LIVEVIEW_WAIT, IPreferencePropertyAccessor.FUJIX_LIVEVIEW_WAIT_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.FUJIX_COMMAND_POLLING_WAIT)) {
+                editor.putString(IPreferencePropertyAccessor.FUJIX_COMMAND_POLLING_WAIT, IPreferencePropertyAccessor.FUJIX_COMMAND_POLLING_WAIT_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.FUJIX_CONNECTION_FOR_READ)) {
+                editor.putBoolean(IPreferencePropertyAccessor.FUJIX_CONNECTION_FOR_READ, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS)) {
+                editor.putString(IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS, IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.NIKON_RECEIVE_WAIT)) {
+                editor.putString(IPreferencePropertyAccessor.NIKON_RECEIVE_WAIT, IPreferencePropertyAccessor.NIKON_RECEIVE_WAIT_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.NIKON_USE_SCREENNAIL_AS_SMALL)) {
+                editor.putBoolean(IPreferencePropertyAccessor.NIKON_USE_SCREENNAIL_AS_SMALL, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.BLE_WIFI_ON)) {
+                editor.putBoolean(IPreferencePropertyAccessor.BLE_WIFI_ON, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.LIVE_VIEW_QUALITY))
+            {
+                editor.putString(IPreferencePropertyAccessor.LIVE_VIEW_QUALITY, IPreferencePropertyAccessor.LIVE_VIEW_QUALITY_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.SOUND_VOLUME_LEVEL))
+            {
+                editor.putString(IPreferencePropertyAccessor.SOUND_VOLUME_LEVEL, IPreferencePropertyAccessor.SOUND_VOLUME_LEVEL_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.RAW))
+            {
+                editor.putBoolean(IPreferencePropertyAccessor.RAW, true);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.SHARE_AFTER_SAVE)) {
+                editor.putBoolean(IPreferencePropertyAccessor.SHARE_AFTER_SAVE, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.USE_PLAYBACK_MENU)) {
+                editor.putBoolean(IPreferencePropertyAccessor.USE_PLAYBACK_MENU, true);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.GR2_DISPLAY_CAMERA_VIEW)) {
+                editor.putBoolean(IPreferencePropertyAccessor.GR2_DISPLAY_CAMERA_VIEW, true);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.GR2_LCD_SLEEP)) {
+                editor.putBoolean(IPreferencePropertyAccessor.GR2_LCD_SLEEP, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.USE_GR2_SPECIAL_COMMAND)) {
+                editor.putBoolean(IPreferencePropertyAccessor.USE_GR2_SPECIAL_COMMAND, true);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.PENTAX_CAPTURE_AFTER_AF)) {
+                editor.putBoolean(IPreferencePropertyAccessor.PENTAX_CAPTURE_AFTER_AF, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.SMALL_PICTURE_SIZE)) {
+                editor.putString(IPreferencePropertyAccessor.SMALL_PICTURE_SIZE, IPreferencePropertyAccessor.SMALL_PICTURE_SIZE_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.PEN_SMALL_PICTURE_SIZE)) {
+                editor.putString(IPreferencePropertyAccessor.PEN_SMALL_PICTURE_SIZE, IPreferencePropertyAccessor.PEN_SMALL_PICTURE_SIZE_DEFAULT_VALUE);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.OLYMPUS_USE_SCREENNAIL_AS_SMALL)) {
+                editor.putBoolean(IPreferencePropertyAccessor.OLYMPUS_USE_SCREENNAIL_AS_SMALL, false);
+            }
+            if (!items.containsKey(IPreferencePropertyAccessor.USE_PLAYBACK_MENU)) {
+                editor.putBoolean(IPreferencePropertyAccessor.USE_PLAYBACK_MENU, true)
+            }
             editor?.apply()
         }
         catch (e: Exception)
