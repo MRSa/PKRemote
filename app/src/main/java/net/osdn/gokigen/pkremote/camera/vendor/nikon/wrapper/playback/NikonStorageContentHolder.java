@@ -24,12 +24,12 @@ public class NikonStorageContentHolder  implements IPtpIpCommandCallback
     private final int storageId;
     private final NikonInterfaceProvider provider;
     private final ImageObjectReceivedCallback callback;
-    private boolean isDumpLog = false;
+    private final boolean isDumpLog = false;
     private int subDirectoryCount = 0;
     private int receivedDirectoryCount = 0;
-    private int delayMs;
+    private final int delayMs;
     private boolean isObjectReceived = false;
-    private SparseArray<NikonImageContentInfo> imageObjectList;
+    private final SparseArray<NikonImageContentInfo> imageObjectList;
 
     NikonStorageContentHolder(@NonNull NikonInterfaceProvider provider, int storageId, @NonNull ImageObjectReceivedCallback callback, int delayMs)
     {
@@ -55,36 +55,36 @@ public class NikonStorageContentHolder  implements IPtpIpCommandCallback
         }
     }
 
-    private List<Integer> parseObjects(byte[] rx_body)
+    private List<Integer> parseObjects(byte[] rxBody)
     {
         List<Integer> directoryList = new ArrayList<>();
         try
         {
-            int checkBytes = rx_body[0];
+            int checkBytes = rxBody[0];
             int readPosition = checkBytes + 12;
-            if (readPosition > (rx_body.length + 3))
+            if (readPosition > (rxBody.length + 3))
             {
-                Log.v(TAG, " -*-*-*-*-*- received message is illegal ( POSITION: " + readPosition + " vs LENGTH: " + rx_body.length + ")");
-                SimpleLogDumper.dump_bytes(" DETAIL ", rx_body);
+                Log.v(TAG, " -*-*-*-*-*- received message is illegal ( POSITION: " + readPosition + " vs LENGTH: " + rxBody.length + ")");
+                SimpleLogDumper.dump_bytes(" DETAIL ", rxBody);
                 return (directoryList);
             }
-            int nofSubDirectories =  ((int) rx_body[readPosition] & 0x000000ff) +
-                    (((int) rx_body[readPosition + 1] & 0x000000ff) << 8) +
-                    (((int) rx_body[readPosition + 2] & 0x000000ff) << 16) +
-                    (((int) rx_body[readPosition + 3] & 0x000000ff) << 24);
-            Log.v(TAG, " NOF SUB DIRECTRIES : " + nofSubDirectories + " body length : " + rx_body.length);
+            int nofSubDirectories =  ((int) rxBody[readPosition] & 0x000000ff) +
+                    (((int) rxBody[readPosition + 1] & 0x000000ff) << 8) +
+                    (((int) rxBody[readPosition + 2] & 0x000000ff) << 16) +
+                    (((int) rxBody[readPosition + 3] & 0x000000ff) << 24);
+            Log.v(TAG, " NOF SUB DIRECTRIES : " + nofSubDirectories + " body length : " + rxBody.length);
             for (int index = 0; (index < nofSubDirectories); index++)
             {
                 readPosition = readPosition + 4;
-                if ((readPosition + 4) > rx_body.length)
+                if ((readPosition + 4) > rxBody.length)
                 {
-                    Log.v(TAG, " POSITION IS OVER. (" + readPosition + "  " + rx_body.length);
+                    Log.v(TAG, " POSITION IS OVER. (" + readPosition + "  " + rxBody.length);
                     break;
                 }
-                byte data0 = rx_body[readPosition];
-                byte data1 = rx_body[readPosition + 1];
-                byte data2 = rx_body[readPosition + 2];
-                byte data3 = rx_body[readPosition + 3];
+                byte data0 = rxBody[readPosition];
+                byte data1 = rxBody[readPosition + 1];
+                byte data2 = rxBody[readPosition + 2];
+                byte data3 = rxBody[readPosition + 3];
                 int objectId = ((int) data0 & 0x000000ff) + (((int) data1 & 0x000000ff) << 8) + (((int) data2 & 0x000000ff) << 16)+ (((int) data3 & 0x000000ff) << 24);
                 directoryList.add(objectId);
             }
@@ -103,6 +103,7 @@ public class NikonStorageContentHolder  implements IPtpIpCommandCallback
     {
         try
         {
+            Log.v(TAG, " receivedMessage : " + id);
             IPtpIpCommandPublisher publisher = provider.getCommandPublisher();
             if (id == GET_STORAGE_HANDLE1)
             {
@@ -110,7 +111,10 @@ public class NikonStorageContentHolder  implements IPtpIpCommandCallback
                 List<Integer> directoriesList = parseObjects(rx_body);
                 for (int subDirectory : directoriesList)
                 {
-                    Log.v(TAG, " TOP STORAGE ID : " + storageId + "  DIRECTORY ID : " + subDirectory);
+                    Log.v(TAG, " (A) TOP STORAGE ID : " + storageId + "  DIRECTORY ID : " + subDirectory);
+
+                    // データ(追加)受信確認
+
                     publisher.enqueueCommand(new PtpIpCommandGeneric(this, GET_STORAGE_HANDLE2, delayMs, isDumpLog, 0, 0x1007, 12, storageId, 0x00000000, subDirectory, 0)); //
                 }
                 return;
@@ -123,7 +127,7 @@ public class NikonStorageContentHolder  implements IPtpIpCommandCallback
                 final List<Integer> subDirectoriesList = parseObjects(rx_body);
                 for (final int subDirectory : subDirectoriesList)
                 {
-                    Log.v(TAG, "  STORAGE ID : " + storageId + "  DIRECTORY ID : " + subDirectory);
+                    Log.v(TAG, " (B) STORAGE ID : " + storageId + "  DIRECTORY ID : " + subDirectory);
 
                     publisher.enqueueCommand(new PtpIpCommandGeneric(new IPtpIpCommandCallback() {
                         @Override

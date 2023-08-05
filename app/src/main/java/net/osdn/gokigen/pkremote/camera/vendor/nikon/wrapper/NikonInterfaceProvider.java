@@ -44,7 +44,7 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpComma
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommunication;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpAsyncResponseReceiver;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpCommandPublisher0;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection.NikonConnection;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.liveview.PtpIpLiveViewControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.IPtpIpRunModeHolder;
@@ -67,7 +67,8 @@ public class NikonInterfaceProvider implements INikonInterfaceProvider, IDisplay
     private final PtpIpHardwareStatus hardwareStatus;
     private final PtpIpButtonControl ptpIpButtonControl;
     private final NikonConnection nikonConnection;
-    private final PtpIpCommandPublisher0 commandPublisher;
+    private final PtpIpCommandPublisher commandPublisher;
+    //private final PtpIpCommandPublisher0 commandPublisher;
     private final PtpIpLiveViewControl liveViewControl;
     private final PtpIpAsyncResponseReceiver asyncReceiver;
     private final PtpIpZoomControl zoomControl;
@@ -81,7 +82,8 @@ public class NikonInterfaceProvider implements INikonInterfaceProvider, IDisplay
     public NikonInterfaceProvider(@NonNull AppCompatActivity context, @NonNull ICameraStatusReceiver provider, @NonNull ICameraStatusUpdateNotify statusListener, @NonNull IInformationReceiver informationReceiver)
     {
         this.activity = context;
-        commandPublisher = new PtpIpCommandPublisher0();
+        commandPublisher = new PtpIpCommandPublisher(false, false);
+        //commandPublisher = new PtpIpCommandPublisher0();
         liveViewControl = new PtpIpLiveViewControl(context, false);
         asyncReceiver = new PtpIpAsyncResponseReceiver();
         statusChecker = new NikonStatusChecker(activity, this);
