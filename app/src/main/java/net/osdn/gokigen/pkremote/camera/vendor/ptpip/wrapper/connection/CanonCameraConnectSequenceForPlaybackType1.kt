@@ -1,8 +1,8 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection
 
-import android.app.Activity
 import android.graphics.Color
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import net.osdn.gokigen.pkremote.R
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver
@@ -12,9 +12,8 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessa
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.PtpIpCommandGeneric
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.PtpIpStatusChecker
 
-class CanonCameraConnectSequenceForPlaybackType1(val context: Activity, val cameraStatusReceiver: ICameraStatusReceiver, val cameraConnection: ICameraConnection, val interfaceProvider: IPtpIpInterfaceProvider, val statusChecker: PtpIpStatusChecker) : Runnable, IPtpIpCommandCallback, IPtpIpMessages
+class CanonCameraConnectSequenceForPlaybackType1(val context: AppCompatActivity, val cameraStatusReceiver: ICameraStatusReceiver, val cameraConnection: ICameraConnection, val interfaceProvider: IPtpIpInterfaceProvider, val statusChecker: PtpIpStatusChecker, private val isDumpLog: Boolean = true) : Runnable, IPtpIpCommandCallback, IPtpIpMessages
 {
-    private val isDumpLog = true
     private val commandIssuer = interfaceProvider.commandPublisher
     //private var requestMessageCount = 0
 
@@ -28,7 +27,7 @@ class CanonCameraConnectSequenceForPlaybackType1(val context: Activity, val came
             val issuer = interfaceProvider.commandPublisher
             if (!issuer.isConnected)
             {
-                if (!interfaceProvider.commandCommunication.connect())
+                if (!interfaceProvider.commandCommunication.connect(interfaceProvider.ipAddress, interfaceProvider.controlPortNumber))
                 {
                     // 接続失敗...
                     interfaceProvider.informationReceiver.updateMessage(context.getString(R.string.dialog_title_connect_failed_canon), false, true, Color.RED)
@@ -65,16 +64,16 @@ class CanonCameraConnectSequenceForPlaybackType1(val context: Activity, val came
     }
 
     //@ExperimentalUnsignedTypes
-    override fun receivedMessage(id: Int, rx_body: ByteArray)
+    override fun receivedMessage(id: Int, rxBody: ByteArray)
     {
         when (id)
         {
-            IPtpIpMessages.SEQ_REGISTRATION -> if (checkRegistrationMessage(rx_body)) {
-                sendInitEventRequest(rx_body)
+            IPtpIpMessages.SEQ_REGISTRATION -> if (checkRegistrationMessage(rxBody)) {
+                sendInitEventRequest(rxBody)
             } else {
                 cameraConnection.alertConnectingFailed(context.getString(R.string.connect_error_message))
             }
-            IPtpIpMessages.SEQ_EVENT_INITIALIZE -> if (checkEventInitialize(rx_body)) {
+            IPtpIpMessages.SEQ_EVENT_INITIALIZE -> if (checkEventInitialize(rxBody)) {
                 interfaceProvider.informationReceiver.updateMessage(context.getString(R.string.canon_connect_connecting1), false, false, 0)
                 commandIssuer.enqueueCommand(PtpIpCommandGeneric(this, IPtpIpMessages.SEQ_OPEN_SESSION, isDumpLog, 0, 0x1002, 4, 0x41))
             } else {

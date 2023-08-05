@@ -15,8 +15,8 @@ import java.util.Locale;
 class PtpIpStatusHolder implements IPtpIpCameraProperties
 {
     private final String TAG = toString();
-    private SparseIntArray statusHolder;
-    private SparseArrayCompat<String> statusNameArray;
+    private final SparseIntArray statusHolder;
+    private final SparseArrayCompat<String> statusNameArray;
 
     PtpIpStatusHolder()
     {

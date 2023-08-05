@@ -1,9 +1,7 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -14,6 +12,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
@@ -27,24 +26,22 @@ import java.util.concurrent.Executors;
 public class CanonConnection implements ICameraConnection
 {
     private final String TAG = toString();
-    private final Activity context;
+    private final AppCompatActivity context;
     private final ICameraStatusReceiver statusReceiver;
     private final IPtpIpInterfaceProvider interfaceProvider;
     private final BroadcastReceiver connectionReceiver;
     private final Executor cameraExecutor = Executors.newFixedThreadPool(1);
     private final PtpIpStatusChecker statusChecker;
-    private final String ipAddress;
     private final int sequenceType;
     private CameraConnectionStatus connectionStatus = CameraConnectionStatus.UNKNOWN;
 
-    public CanonConnection(@NonNull final Activity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull IPtpIpInterfaceProvider interfaceProvider, @NonNull PtpIpStatusChecker statusChecker, @NonNull String ipAddress, int sequenceType)
+    public CanonConnection(@NonNull final AppCompatActivity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull IPtpIpInterfaceProvider interfaceProvider, @NonNull PtpIpStatusChecker statusChecker, int sequenceType)
     {
         Log.v(TAG, "CanonConnection()");
         this.context = context;
         this.statusReceiver = statusReceiver;
         this.interfaceProvider = interfaceProvider;
         this.statusChecker = statusChecker;
-        this.ipAddress = ipAddress;
         this.sequenceType = sequenceType;
         connectionReceiver = new BroadcastReceiver()
         {
@@ -62,10 +59,9 @@ public class CanonConnection implements ICameraConnection
      */
     private void onReceiveBroadcastOfConnection(Context context, Intent intent)
     {
-        interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_check_wifi) + " : " + ipAddress, false, false, 0);
-        statusReceiver.onStatusNotify(context.getString(R.string.connect_check_wifi) + " " + ipAddress);
-
-        Log.v(TAG, context.getString(R.string.connect_check_wifi) + " : " + ipAddress);
+        interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_check_wifi) + " : CanonConnection", false, false, 0);
+        statusReceiver.onStatusNotify(context.getString(R.string.connect_check_wifi) + " CanonConnection");
+        Log.v(TAG, context.getString(R.string.connect_check_wifi) + " : CanonConnection");
 
         String action = intent.getAction();
         if (action == null)
@@ -148,45 +144,30 @@ public class CanonConnection implements ICameraConnection
         final AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.dialog_title_connect_failed_canon))
                 .setMessage(message)
-                .setPositiveButton(context.getString(R.string.dialog_title_button_retry), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
+                .setPositiveButton(context.getString(R.string.dialog_title_button_retry), (dialog, which) -> {
+                    disconnect(false);
+                    connect();
+                })
+                .setNeutralButton(R.string.dialog_title_button_network_settings, (dialog, which) -> {
+                    try
                     {
-                        disconnect(false);
+                        // Wifi 設定画面を表示する
+                        context.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                    }
+                    catch (android.content.ActivityNotFoundException ex)
+                    {
+                        // Activity が存在しなかった...設定画面が起動できなかった
+                        Log.v(TAG, "android.content.ActivityNotFoundException...");
+
+                        // この場合は、再試行と等価な動きとする
                         connect();
                     }
-                })
-                .setNeutralButton(R.string.dialog_title_button_network_settings, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
+                    catch (Exception e)
                     {
-                        try
-                        {
-                            // Wifi 設定画面を表示する
-                            context.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-                        }
-                        catch (android.content.ActivityNotFoundException ex)
-                        {
-                            // Activity が存在しなかった...設定画面が起動できなかった
-                            Log.v(TAG, "android.content.ActivityNotFoundException...");
-
-                            // この場合は、再試行と等価な動きとする
-                            connect();
-                        }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
-                        }
+                        e.printStackTrace();
                     }
                 });
-        context.runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                builder.show();
-            }
-        });
+        context.runOnUiThread(builder::show);
     }
 
     @Override
@@ -231,12 +212,12 @@ public class CanonConnection implements ICameraConnection
 /*
             if (sequenceType == 1)
             {
-                cameraExecutor.execute(new CanonCameraConnectSequenceForPlaybackType1(context, statusReceiver, this, interfaceProvider, statusChecker));
+                cameraExecutor.execute(new CanonCameraConnectSequenceForPlaybackType1(context, statusReceiver, this, interfaceProvider, statusChecker, ipAddress, portNumber, false));
             }
             else
 */
             {
-                cameraExecutor.execute(new CanonCameraConnectSequenceForPlayback(context, statusReceiver, this, interfaceProvider, statusChecker));
+                cameraExecutor.execute(new CanonCameraConnectSequenceForPlayback(context, statusReceiver, this, interfaceProvider, statusChecker, false));
             }
         }
         catch (Exception e)

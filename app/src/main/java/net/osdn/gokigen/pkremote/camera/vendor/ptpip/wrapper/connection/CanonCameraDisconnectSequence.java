@@ -1,9 +1,9 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection;
 
-import android.app.Activity;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.IPtpIpInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommunication;
@@ -12,12 +12,12 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommu
 class CanonCameraDisconnectSequence implements Runnable
 {
     private final String TAG = this.toString();
-    private final Activity activity;
+    private final AppCompatActivity activity;
     private final IPtpIpCommunication command;
     private final IPtpIpCommunication async;
     private final IPtpIpCommunication liveview;
 
-    CanonCameraDisconnectSequence(Activity activity, @NonNull IPtpIpInterfaceProvider interfaceProvider)
+    CanonCameraDisconnectSequence(AppCompatActivity activity, @NonNull IPtpIpInterfaceProvider interfaceProvider)
     {
         this.activity = activity;
         this.command = interfaceProvider.getCommandCommunication();

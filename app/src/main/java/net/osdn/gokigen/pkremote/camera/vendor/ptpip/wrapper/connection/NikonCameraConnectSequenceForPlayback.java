@@ -1,10 +1,10 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection;
 
-import android.app.Activity;
 import android.graphics.Color;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
@@ -21,15 +21,15 @@ public class NikonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
 {
     private final String TAG = this.toString();
 
-    private final Activity context;
+    private final AppCompatActivity context;
     private final ICameraConnection cameraConnection;
     private final ICameraStatusReceiver cameraStatusReceiver;
     private final INikonInterfaceProvider interfaceProvider;
     private final IPtpIpCommandPublisher commandIssuer;
     private final NikonStatusChecker statusChecker;
-    private boolean isDumpLog = false;
+    private final boolean isDumpLog = false;
 
-    NikonCameraConnectSequenceForPlayback(@NonNull Activity context, @NonNull ICameraStatusReceiver statusReceiver, @NonNull final ICameraConnection cameraConnection, @NonNull INikonInterfaceProvider interfaceProvider, @NonNull NikonStatusChecker statusChecker)
+    NikonCameraConnectSequenceForPlayback(@NonNull AppCompatActivity context, @NonNull ICameraStatusReceiver statusReceiver, @NonNull final ICameraConnection cameraConnection, @NonNull INikonInterfaceProvider interfaceProvider, @NonNull NikonStatusChecker statusChecker)
     {
         Log.v(TAG, " NikonCameraConnectSequenceForPlayback");
         this.context = context;
@@ -49,7 +49,7 @@ public class NikonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
             IPtpIpCommandPublisher issuer = interfaceProvider.getCommandPublisher();
             if (!issuer.isConnected())
             {
-                if (!interfaceProvider.getCommandCommunication().connect())
+                if (!interfaceProvider.getCommandCommunication().connect(interfaceProvider.getIpAddress(), interfaceProvider.getControlPortNumber()))
                 {
                     // 接続失敗...
                     interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.dialog_title_connect_failed_nikon), false, true, Color.RED);
@@ -96,51 +96,38 @@ public class NikonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
     @Override
     public void receivedMessage(int id, byte[] rx_body)
     {
-        switch (id)
-        {
-            case SEQ_REGISTRATION:
-                if (checkRegistrationMessage(rx_body))
-                {
+        switch (id) {
+            case SEQ_REGISTRATION -> {
+                if (checkRegistrationMessage(rx_body)) {
                     sendInitEventRequest(rx_body);
-                }
-                else
-                {
+                } else {
                     onConnectError(context.getString(R.string.connect_error_message));
                 }
-                break;
-
-            case SEQ_EVENT_INITIALIZE:
-                if (checkEventInitialize(rx_body))
-                {
+            }
+            case SEQ_EVENT_INITIALIZE -> {
+                if (checkEventInitialize(rx_body)) {
                     interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting1), false, false, 0);
                     commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_OPEN_SESSION, 50, isDumpLog, 0, 0x1002, 4, 0x41, 0, 0, 0));  // OpenSession
-                }
-                else
-                {
+                } else {
                     onConnectError(context.getString(R.string.connect_error_message));
                 }
-                break;
-
-            case SEQ_OPEN_SESSION:
+            }
+            case SEQ_OPEN_SESSION -> {
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting2), false, false, 0);
                 commandIssuer.enqueueCommand(new PtpIpCommandGeneric(this, SEQ_INIT_SESSION, 50, isDumpLog, 0, 0x1001, 0, 0, 0, 0, 0));  // GetDeviceInfo
-                break;
-
-            case SEQ_INIT_SESSION:
-            case SEQ_CHANGE_REMOTE:
-            case SEQ_SET_EVENT_MODE:
+            }
+            case SEQ_INIT_SESSION, SEQ_CHANGE_REMOTE, SEQ_SET_EVENT_MODE -> {
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting3), false, false, 0);
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting4), false, false, 0);
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.canon_connect_connecting5), false, false, 0);
                 interfaceProvider.getInformationReceiver().updateMessage(context.getString(R.string.connect_connect_finished), false, false, 0);
                 connectFinished();
                 Log.v(TAG, "CHANGED PLAYBACK MODE : DONE.");
-                break;
-
-            default:
+            }
+            default -> {
                 Log.v(TAG, "RECEIVED UNKNOWN ID : " + id);
                 onConnectError(context.getString(R.string.connect_receive_unknown_message));
-                break;
+            }
         }
     }
 
@@ -212,16 +199,11 @@ public class NikonCameraConnectSequenceForPlayback implements Runnable, IPtpIpCo
     {
         try
         {
-            final Thread thread = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    // カメラとの接続確立を通知する
-                    cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_connected));
-                    cameraStatusReceiver.onCameraConnected();
-                    Log.v(TAG, " onConnectNotify()");
-                }
+            final Thread thread = new Thread(() -> {
+                // カメラとの接続確立を通知する
+                cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_connected));
+                cameraStatusReceiver.onCameraConnected();
+                Log.v(TAG, " onConnectNotify()");
             });
             thread.start();
         }

@@ -10,7 +10,7 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.*
 
-class PtpIpCommandPublisher(private val ipAddress : String, private val portNumber : Int, private val tcpNoDelay : Boolean, private val waitForever: Boolean) : IPtpIpCommandPublisher, IPtpIpCommunication
+class PtpIpCommandPublisher(private val tcpNoDelay : Boolean, private val waitForever: Boolean) : IPtpIpCommandPublisher, IPtpIpCommunication
 {
     private var isConnected = false
     private var isStart = false
@@ -36,7 +36,7 @@ class PtpIpCommandPublisher(private val ipAddress : String, private val portNumb
         return (isConnected)
     }
 
-    override fun connect(): Boolean
+    override fun connect(ipAddress: String, portNumber: Int): Boolean
     {
         try
         {
@@ -67,6 +67,7 @@ class PtpIpCommandPublisher(private val ipAddress : String, private val portNumb
                 Log.v(TAG, " SOCKET (SEND:${socket?.sendBufferSize}, RECV:${socket?.receiveBufferSize}) oob:${socket?.oobInline} SO_TIMEOUT:${socket?.soTimeout}ms trafficClass:${socket?.trafficClass}")
             }
             socket?.connect(InetSocketAddress(ipAddress, portNumber), 0)
+            Log.v(TAG, "  connect -> IP : $ipAddress port : $portNumber")
             isConnected = true
         }
         catch (e: Exception)
@@ -74,6 +75,7 @@ class PtpIpCommandPublisher(private val ipAddress : String, private val portNumb
             e.printStackTrace()
             isConnected = false
             socket = null
+            Log.v(TAG, "<<<<< IP : $ipAddress port : $portNumber >>>>>")
         }
         return (isConnected)
     }
@@ -137,7 +139,6 @@ class PtpIpCommandPublisher(private val ipAddress : String, private val portNumb
             }
             catch (e: Exception)
             {
-                Log.v(TAG, "<<<<< IP : $ipAddress port : $portNumber >>>>>")
                 e.printStackTrace()
             }
         }
@@ -308,7 +309,7 @@ class PtpIpCommandPublisher(private val ipAddress : String, private val portNumb
      * カメラにコマンドを送信する（メイン部分）
      *
      */
-    private fun sendToCamera(isDumpReceiveLog: Boolean, byte_array: ByteArray, useSequenceNumber: Boolean, embeddedSequenceIndex: Int)
+    private fun sendToCamera(isDumpReceiveLog: Boolean, byteArray: ByteArray, useSequenceNumber: Boolean, embeddedSequenceIndex: Int)
     {
         try
         {
@@ -319,12 +320,12 @@ class PtpIpCommandPublisher(private val ipAddress : String, private val portNumb
             }
 
             // メッセージボディを加工： 最初に４バイトのレングス長をつける
-            val sendData = ByteArray(byte_array.size + 4)
-            sendData[0] = (byte_array.size + 4).toByte()
+            val sendData = ByteArray(byteArray.size + 4)
+            sendData[0] = (byteArray.size + 4).toByte()
             sendData[1] = 0x00
             sendData[2] = 0x00
             sendData[3] = 0x00
-            System.arraycopy(byte_array, 0, sendData, 4, byte_array.size)
+            System.arraycopy(byteArray, 0, sendData, 4, byteArray.size)
             if (useSequenceNumber)
             {
                 // Sequence Number を反映させる
@@ -535,7 +536,9 @@ class PtpIpCommandPublisher(private val ipAddress : String, private val portNumb
                 {
                     if (receivedLength > 0)
                     {
-                        SimpleLogDumper.dump_bytes("WRONG DATA : ", byteArray.copyOfRange(0, Math.min(receivedLength, 64)))
+                        SimpleLogDumper.dump_bytes("WRONG DATA : ", byteArray.copyOfRange(0,
+                            receivedLength.coerceAtMost(64)
+                        ))
                     }
                     Log.v(TAG, " WRONG LENGTH. : $targetLength READ : $receivedLength bytes.")
                 }
@@ -636,23 +639,23 @@ class PtpIpCommandPublisher(private val ipAddress : String, private val portNumb
         return (false)
     }
 
-    private fun parseDataLength(byte_array: ByteArray, read_bytes: Int): Int
+    private fun parseDataLength(byteArray: ByteArray, readBytes: Int): Int
     {
         var offset = 0
-        var lenlen = 0
+        var dateLength = 0
         try
         {
-            if (read_bytes > 20)
+            if (readBytes > 20)
             {
-                if (byte_array[offset + 4].toUByte().toInt() == 0x07)
+                if (byteArray[offset + 4].toUByte().toInt() == 0x07)
                 {
                     // 前の応答が入っていると考える... レングスバイト分読み飛ばす
-                    offset = byte_array[offset].toUByte().toInt()
+                    offset = byteArray[offset].toUByte().toInt()
                 }
-                if (byte_array[offset + 4].toUByte().toInt() == 0x09)
+                if (byteArray[offset + 4].toUByte().toInt() == 0x09)
                 {
                     // データバイト... (Start Data Packet で データレングスを特定する
-                    lenlen = (byte_array[offset + 15].toUByte().toInt() and 0xff shl 24) + (byte_array[offset + 14].toUByte().toInt() and 0xff shl 16) + (byte_array[offset + 13].toUByte().toInt() and 0xff shl 8) + (byte_array[offset + 12].toUByte().toInt() and 0xff)
+                    dateLength = (byteArray[offset + 15].toUByte().toInt() and 0xff shl 24) + (byteArray[offset + 14].toUByte().toInt() and 0xff shl 16) + (byteArray[offset + 13].toUByte().toInt() and 0xff shl 8) + (byteArray[offset + 12].toUByte().toInt() and 0xff)
                 }
             }
         }
@@ -660,7 +663,7 @@ class PtpIpCommandPublisher(private val ipAddress : String, private val portNumb
         {
             e.printStackTrace()
         }
-        return (lenlen)
+        return (dateLength)
     }
 
     private fun cutHeader(receivedBuffer: ByteArrayOutputStream): ByteArrayOutputStream
@@ -669,7 +672,7 @@ class PtpIpCommandPublisher(private val ipAddress : String, private val portNumb
         {
             val byteArray = receivedBuffer.toByteArray()
             val limit = byteArray.size
-            var lenlen = 0
+            var dataLength = 0
             val len = (byteArray[3].toUByte().toInt() and 0xff shl 24) + (byteArray[2].toUByte().toInt() and 0xff shl 16) + (byteArray[1].toUByte().toInt() and 0xff shl 8) + (byteArray[0].toUByte().toInt() and 0xff)
             val packetType = byteArray[4].toUByte().toInt() and 0xff
             if ((limit == len)||(limit < 16384))
@@ -680,10 +683,10 @@ class PtpIpCommandPublisher(private val ipAddress : String, private val portNumb
 
             if (packetType == 0x09)
             {
-                lenlen = (byteArray[15].toUByte().toInt() and 0xff shl 24) + (byteArray[14].toUByte().toInt() and 0xff shl 16) + (byteArray[13].toUByte().toInt() and 0xff shl 8) + (byteArray[12].toUByte().toInt() and 0xff)
+                dataLength = (byteArray[15].toUByte().toInt() and 0xff shl 24) + (byteArray[14].toUByte().toInt() and 0xff shl 16) + (byteArray[13].toUByte().toInt() and 0xff shl 8) + (byteArray[12].toUByte().toInt() and 0xff)
             }
 
-            if (lenlen == 0)
+            if (dataLength == 0)
             {
                 // データとしては変なので、なにもしない
                 return receivedBuffer
@@ -692,11 +695,11 @@ class PtpIpCommandPublisher(private val ipAddress : String, private val portNumb
             var position = 20 // ヘッダ込の先頭
             while (position < limit)
             {
-                lenlen = (byteArray[position + 3].toUByte().toInt() and 0xff shl 24) + (byteArray[position + 2].toUByte().toInt() and 0xff shl 16) + (byteArray[position + 1].toUByte().toInt() and 0xff shl 8) + (byteArray[position].toUByte().toInt() and 0xff)
+                dataLength = (byteArray[position + 3].toUByte().toInt() and 0xff shl 24) + (byteArray[position + 2].toUByte().toInt() and 0xff shl 16) + (byteArray[position + 1].toUByte().toInt() and 0xff shl 8) + (byteArray[position].toUByte().toInt() and 0xff)
 
-                val copyByte = Math.min(limit - (position + 12), lenlen - 12)
+                val copyByte = (limit - (position + 12)).coerceAtMost(dataLength - 12)
                 outputStream.write(byteArray, position + 12, copyByte)
-                position += lenlen
+                position += dataLength
             }
             return (outputStream)
         }

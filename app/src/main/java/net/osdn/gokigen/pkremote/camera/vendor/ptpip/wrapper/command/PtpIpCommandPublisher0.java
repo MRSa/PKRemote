@@ -25,8 +25,8 @@ public class PtpIpCommandPublisher0 implements IPtpIpCommandPublisher, IPtpIpCom
     private static final int COMMAND_SEND_RECEIVE_DURATION_MAX = 1000;
     private static final int COMMAND_POLL_QUEUE_MS = 5;
 
-    private final String ipAddress;
-    private final int portNumber;
+    //private final String ipAddress;
+    //private final int portNumber;
 
     private boolean isStart = false;
     private boolean isHold = false;
@@ -38,10 +38,8 @@ public class PtpIpCommandPublisher0 implements IPtpIpCommandPublisher, IPtpIpCom
     private final Queue<IPtpIpCommand> commandQueue;
     private final Queue<IPtpIpCommand> holdCommandQueue;
 
-    public PtpIpCommandPublisher0(@NonNull String ip, int portNumber)
+    public PtpIpCommandPublisher0()
     {
-        this.ipAddress = ip;
-        this.portNumber = portNumber;
         this.commandQueue = new ArrayDeque<>();
         this.holdCommandQueue = new ArrayDeque<>();
         commandQueue.clear();
@@ -55,10 +53,11 @@ public class PtpIpCommandPublisher0 implements IPtpIpCommandPublisher, IPtpIpCom
     }
 
     @Override
-    public boolean connect()
+    public boolean connect(@NonNull String ipAddress, int portNumber)
     {
         try
         {
+            Log.v(TAG, "PtpIpCommandPublisher0::connect() " + ipAddress + " " + portNumber);
             socket = new Socket(ipAddress, portNumber);
             return (true);
         }
@@ -128,36 +127,30 @@ public class PtpIpCommandPublisher0 implements IPtpIpCommandPublisher, IPtpIpCom
         }
         isStart = true;
 
-        Thread thread = new Thread(new Runnable()
-        {
-            @Override
-            public void run()
+        Thread thread = new Thread(() -> {
+            try
             {
-                try
+                dos = new DataOutputStream(socket.getOutputStream());
+                while (isStart)
                 {
-                    dos = new DataOutputStream(socket.getOutputStream());
-                    while (isStart)
+                    try
                     {
-                        try
+                        IPtpIpCommand command = commandQueue.poll();
+                        if (command != null)
                         {
-                            IPtpIpCommand command = commandQueue.poll();
-                            if (command != null)
-                            {
-                                issueCommand(command);
-                            }
-                            Thread.sleep(COMMAND_POLL_QUEUE_MS);
+                            issueCommand(command);
                         }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
-                        }
+                        Thread.sleep(COMMAND_POLL_QUEUE_MS);
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
                     }
                 }
-                catch (Exception e)
-                {
-                    Log.v(TAG, "<<<<< IP : " + ipAddress + " port : " + portNumber + " >>>>>");
-                    e.printStackTrace();
-                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
             }
         });
         try
@@ -607,7 +600,7 @@ public class PtpIpCommandPublisher0 implements IPtpIpCommandPublisher, IPtpIpCom
                 {
                     Log.v(TAG, " <><><> PACKET TYPE : " + packetType + " LENGTH : " + lenlen);
                 }
-                int copyByte = ((lenlen - 12) > (limit - (position + 12))) ? (limit - (position + 12)) : (lenlen - 12);
+                int copyByte = Math.min((lenlen - 12), (limit - (position + 12)));
                 outputStream.write(byte_array, (position + 12), copyByte);
                 position = position + lenlen;
             }

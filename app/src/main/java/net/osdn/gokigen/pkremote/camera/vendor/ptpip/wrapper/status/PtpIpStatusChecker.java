@@ -1,16 +1,16 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status;
 
-import android.app.Activity;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ICameraStatusUpdateNotify;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher;
+import net.osdn.gokigen.pkremote.camera.vendor.ptpip.IPtpIpInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommand;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.CanonInitEventRequest;
 
@@ -30,27 +30,23 @@ public class PtpIpStatusChecker implements IPtpIpCommandCallback, ICameraStatusW
 
     private static final int BUFFER_SIZE = 1024 * 1024 + 8;
     private static final int STATUS_MESSAGE_HEADER_SIZE = 14;
-    private int sleepMs;
-    private final IPtpIpCommandPublisher issuer;
+    private final IPtpIpInterfaceProvider interfaceProvider;
     private ICameraStatusUpdateNotify notifier = null;
-    private PtpIpStatusHolder statusHolder;
+    private final PtpIpStatusHolder statusHolder;
     private boolean whileFetching = false;
-    private boolean logcat = false;
-    private final String ipAddress;
-    private final int portNumber;
+    private final boolean logcat;
 
     private Socket socket = null;
     private DataOutputStream dos = null;
     private BufferedReader bufferedReader = null;
     private int eventConnectionNumber = 0;
 
-    public PtpIpStatusChecker(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher issuer, @NonNull String ip, int portNumber)
+    public PtpIpStatusChecker(@NonNull AppCompatActivity activity, @NonNull IPtpIpInterfaceProvider interfaceProvider, boolean logcat)
     {
-        this.issuer = issuer;
+        this.interfaceProvider = interfaceProvider;
         this.statusHolder = new PtpIpStatusHolder();
-        this.ipAddress = ip;
-        this.portNumber = portNumber;
-        Log.v(TAG, "POLLING WAIT : " + sleepMs);
+        this.logcat = logcat;
+        Log.v(TAG, "PtpIpStatusChecker() ");
     }
 
     @Override
@@ -164,19 +160,21 @@ public class PtpIpStatusChecker implements IPtpIpCommandCallback, ICameraStatusW
         }
         try
         {
-            final IPtpIpCommandCallback callback = this;
             this.notifier = notifier;
             whileFetching = true;
 
             // セッションをオープンする
-            boolean isConnect = connect();
+            String ip = interfaceProvider.getIpAddress();
+            int port = interfaceProvider.getEventPortNumber();
+            boolean isConnect = connect(ip, port);
             if (!isConnect)
             {
-                Log.v(TAG, "  CONNECT FAIL...(EVENT) : " + ipAddress + "  " + portNumber);
+                Log.v(TAG, "  CONNECT FAIL...(EVENT) : " + ip + "  " + port);
             }
             issueCommand(new CanonInitEventRequest(this, eventConnectionNumber));
 
 /*
+            final IPtpIpCommandCallback callback = this;
             Thread thread = new Thread(new Runnable()
             {
                 @Override
@@ -213,7 +211,7 @@ public class PtpIpStatusChecker implements IPtpIpCommandCallback, ICameraStatusW
     @Override
     public void stopStatusWatch()
     {
-        Log.v(TAG, "stoptStatusWatch()");
+        Log.v(TAG, "stopStatusWatch()");
         whileFetching = false;
         this.notifier = null;
     }
@@ -226,11 +224,11 @@ public class PtpIpStatusChecker implements IPtpIpCommandCallback, ICameraStatusW
         }
     }
 
-    private boolean connect()
+    private boolean connect(String ip, int port)
     {
         try
         {
-            socket = new Socket(ipAddress, portNumber);
+            socket = new Socket(ip, port);
             return (true);
         }
         catch (Exception e)

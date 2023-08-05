@@ -1,10 +1,16 @@
 package net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.LinkProperties;
+import android.net.Network;
+import android.net.RouteInfo;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.IInformationReceiver;
@@ -42,9 +48,10 @@ import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.PtpIpComman
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection.NikonConnection;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.liveview.PtpIpLiveViewControl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.status.IPtpIpRunModeHolder;
+import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
-import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS;
-import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS_DEFAULT_VALUE;
+import java.net.InetAddress;
+import java.util.List;
 
 public class NikonInterfaceProvider implements INikonInterfaceProvider, IDisplayInjector
 {
@@ -54,49 +61,86 @@ public class NikonInterfaceProvider implements INikonInterfaceProvider, IDisplay
     private static final int ASYNC_RESPONSE_PORT = 15741;  // ??
     private static final int CONTROL_PORT = 15740;
     private static final int EVENT_PORT = 15740;
-    private static final String DEFAULT_CAMERA_IP_ADDR = "192.168.1.1";
 
-    private final Activity activity;
-    private final PtpIpRunMode runmode;
+    private final AppCompatActivity activity;
+    private final PtpIpRunMode runMode;
     private final PtpIpHardwareStatus hardwareStatus;
-    private PtpIpButtonControl ptpIpButtonControl;
-    private NikonConnection nikonConnection;
-    private PtpIpCommandPublisher0 commandPublisher;
-    private PtpIpLiveViewControl liveViewControl;
-    private PtpIpAsyncResponseReceiver asyncReceiver;
-    private PtpIpZoomControl zoomControl;
+    private final PtpIpButtonControl ptpIpButtonControl;
+    private final NikonConnection nikonConnection;
+    private final PtpIpCommandPublisher0 commandPublisher;
+    private final PtpIpLiveViewControl liveViewControl;
+    private final PtpIpAsyncResponseReceiver asyncReceiver;
+    private final PtpIpZoomControl zoomControl;
     //private PtpIpCaptureControl captureControl;
     //private PtpIpFocusingControl focusingControl;
-    private NikonStatusChecker statusChecker;
-    private ICameraStatusUpdateNotify statusListener;
-    private NikonPlaybackControl playbackControl;
-    private IInformationReceiver informationReceiver;
+    private final NikonStatusChecker statusChecker;
+    private final ICameraStatusUpdateNotify statusListener;
+    private final NikonPlaybackControl playbackControl;
+    private final IInformationReceiver informationReceiver;
 
-    public NikonInterfaceProvider(@NonNull Activity context, @NonNull ICameraStatusReceiver provider, @NonNull ICameraStatusUpdateNotify statusListener, @NonNull IInformationReceiver informationReceiver)
+    public NikonInterfaceProvider(@NonNull AppCompatActivity context, @NonNull ICameraStatusReceiver provider, @NonNull ICameraStatusUpdateNotify statusListener, @NonNull IInformationReceiver informationReceiver)
     {
         this.activity = context;
-        String ipAddress = DEFAULT_CAMERA_IP_ADDR;
+        commandPublisher = new PtpIpCommandPublisher0();
+        liveViewControl = new PtpIpLiveViewControl(context, false);
+        asyncReceiver = new PtpIpAsyncResponseReceiver();
+        statusChecker = new NikonStatusChecker(activity, this);
+        nikonConnection = new NikonConnection(context, provider, this, statusChecker);
+        zoomControl = new PtpIpZoomControl();
+        this.statusListener = statusListener;
+        this.runMode = new PtpIpRunMode();
+        this.hardwareStatus = new PtpIpHardwareStatus();
+        this.ptpIpButtonControl = new PtpIpButtonControl();
+        this.playbackControl = new NikonPlaybackControl(activity, this);
+        this.informationReceiver = informationReceiver;
+    }
+
+    private String getHostAddress(@NonNull AppCompatActivity context)
+    {
+        String ipAddress = IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS;
         try
         {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-            ipAddress = preferences.getString(NIKON_CAMERA_IP_ADDRESS, NIKON_CAMERA_IP_ADDRESS_DEFAULT_VALUE);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            boolean autoDetactHostIp = preferences.getBoolean(IPreferencePropertyAccessor.NIKON_AUTO_DETECT_HOST_IP, true);
+            ipAddress = preferences.getString(IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS, IPreferencePropertyAccessor.NIKON_CAMERA_IP_ADDRESS);
+            if ((autoDetactHostIp)&&(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M))
+            {
+                ConnectivityManager connectivityManager = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                Network activeNetwork = connectivityManager.getActiveNetwork();
+                if (activeNetwork == null)
+                {
+                    return (ipAddress);
+                }
+                LinkProperties linkProperties = connectivityManager.getLinkProperties(activeNetwork);
+                if (linkProperties == null)
+                {
+                    return (ipAddress);
+                }
+                List<RouteInfo> routes = linkProperties.getRoutes();
+                for (RouteInfo route: routes)
+                {
+                    try
+                    {
+                        InetAddress gateway = route.getGateway();
+                        if ((route.isDefaultRoute())&&(gateway != null))
+                        {
+                            ipAddress = gateway.toString().replace("/","");
+                            Log.v(TAG, " --------- default Gateway : ipAddress  --------- ");
+                            break;
+                        }
+                    }
+                    catch (Exception ee)
+                    {
+                        ee.printStackTrace();
+                    }
+                }
+            }
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
-        commandPublisher = new PtpIpCommandPublisher0(ipAddress, CONTROL_PORT);
-        liveViewControl = new PtpIpLiveViewControl(context, ipAddress, STREAM_PORT);
-        asyncReceiver = new PtpIpAsyncResponseReceiver(ipAddress, ASYNC_RESPONSE_PORT);
-        statusChecker = new NikonStatusChecker(activity, commandPublisher, ipAddress, EVENT_PORT);
-        nikonConnection = new NikonConnection(context, provider, this, statusChecker);
-        zoomControl = new PtpIpZoomControl();
-        this.statusListener = statusListener;
-        this.runmode = new PtpIpRunMode();
-        this.hardwareStatus = new PtpIpHardwareStatus();
-        this.ptpIpButtonControl = new PtpIpButtonControl();
-        this.playbackControl = new NikonPlaybackControl(activity, this);
-        this.informationReceiver = informationReceiver;
+        return (ipAddress);
     }
 
     @Override
@@ -158,7 +202,7 @@ public class NikonInterfaceProvider implements INikonInterfaceProvider, IDisplay
     @Override
     public IPtpIpRunModeHolder getRunModeHolder()
     {
-        return (runmode);
+        return (runMode);
     }
 
     @Override
@@ -229,7 +273,7 @@ public class NikonInterfaceProvider implements INikonInterfaceProvider, IDisplay
     @Override
     public ICameraRunMode getCameraRunMode()
     {
-        return (runmode);
+        return (runMode);
     }
 
     @Override
@@ -243,6 +287,24 @@ public class NikonInterfaceProvider implements INikonInterfaceProvider, IDisplay
     public void setAsyncEventReceiver(@NonNull IPtpIpCommandCallback receiver)
     {
         asyncReceiver.setEventSubscriber(receiver);
+    }
+
+    @Override
+    public String getIpAddress()
+    {
+        return getHostAddress(activity);
+    }
+
+    @Override
+    public int getControlPortNumber()
+    {
+        return (CONTROL_PORT);
+    }
+
+    @Override
+    public int getEventPortNumber()
+    {
+        return (EVENT_PORT);
     }
 
 }

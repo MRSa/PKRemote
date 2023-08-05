@@ -1,16 +1,17 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.liveview;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ILiveViewControl;
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ILiveViewListener;
 import net.osdn.gokigen.pkremote.camera.liveview.CameraLiveViewListenerImpl;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommunication;
+import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 
 import java.io.InputStream;
 import java.net.Socket;
@@ -22,20 +23,23 @@ import static net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor.F
 public class PtpIpLiveViewControl implements ILiveViewControl, IPtpIpCommunication
 {
     private final String TAG = toString();
-    private final String ipAddress;
-    private final int portNumber;
+    private static final int STREAM_PORT_DEFAULT = 15742;   // ??
+
+    private String ipAddress = IPreferencePropertyAccessor.CANON_HOST_IP_DEFAULT_VALUE;
+    private int portNumber = STREAM_PORT_DEFAULT;
     private final CameraLiveViewListenerImpl liveViewListener;
     private int waitMs = 0;
     private static final int DATA_HEADER_OFFSET = 18;
     private static final int BUFFER_SIZE = 2048 * 1280;
     private static final int ERROR_LIMIT = 30;
     private boolean isStart = false;
-    private boolean logcat = false;
+    private final boolean logcat;
 
-    public PtpIpLiveViewControl(@NonNull Activity activity, String ip, int portNumber)
+    public PtpIpLiveViewControl(@NonNull AppCompatActivity activity, boolean logcat)
     {
-        this.ipAddress = ip;
-        this.portNumber = portNumber;
+        //this.ipAddress = ip;
+        //this.portNumber = portNumber;
+        this.logcat = logcat;
         liveViewListener = new CameraLiveViewListenerImpl();
 
         try
@@ -66,21 +70,16 @@ public class PtpIpLiveViewControl implements ILiveViewControl, IPtpIpCommunicati
             return;
         }
         isStart = true;
-        Thread thread = new Thread(new Runnable()
-        {
-            @Override
-            public void run()
+        Thread thread = new Thread(() -> {
+            try
             {
-                try
-                {
-                    Socket socket = new Socket(ipAddress, portNumber);
-                    startReceive(socket);
-                }
-                catch (Exception e)
-                {
-                    Log.v(TAG, " IP : " + ipAddress + " port : " + portNumber);
-                    e.printStackTrace();
-                }
+                Socket socket = new Socket(ipAddress, portNumber);
+                startReceive(socket);
+            }
+            catch (Exception e)
+            {
+                Log.v(TAG, " IP : " + ipAddress + " port : " + portNumber);
+                e.printStackTrace();
             }
         });
         try
@@ -221,8 +220,10 @@ public class PtpIpLiveViewControl implements ILiveViewControl, IPtpIpCommunicati
     }
 
     @Override
-    public boolean connect()
+    public boolean connect(@NonNull String ipAddress, int portNumber)
     {
+        this.ipAddress = ipAddress;
+        this.portNumber = portNumber;
         return (true);
     }
 
@@ -245,12 +246,11 @@ public class PtpIpLiveViewControl implements ILiveViewControl, IPtpIpCommunicati
         }
 
         int index = 0;
-        StringBuffer message;
         if (dumpBytes <= 0)
         {
             dumpBytes = 24;
         }
-        message = new StringBuffer();
+        StringBuilder message = new StringBuilder();
         for (int point = 0; point < dumpBytes; point++)
         {
             byte item = data[point];
@@ -260,7 +260,7 @@ public class PtpIpLiveViewControl implements ILiveViewControl, IPtpIpCommunicati
             {
                 Log.v(TAG, header + " " + message);
                 index = 0;
-                message = new StringBuffer();
+                message = new StringBuilder();
             }
         }
         if (index != 0)

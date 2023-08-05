@@ -1,9 +1,7 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.connection;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -14,6 +12,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import net.osdn.gokigen.pkremote.R;
 import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
@@ -27,7 +26,7 @@ import java.util.concurrent.Executors;
 public class NikonConnection implements ICameraConnection
 {
     private final String TAG = toString();
-    private final Activity context;
+    private final AppCompatActivity context;
     private final ICameraStatusReceiver statusReceiver;
     private final INikonInterfaceProvider interfaceProvider;
     private final BroadcastReceiver connectionReceiver;
@@ -38,7 +37,7 @@ public class NikonConnection implements ICameraConnection
     private final NikonCameraConnectSequenceForPlayback connectSequence;
     private final NikonCameraDisconnectSequence disconnectSequence;
 
-    public NikonConnection(@NonNull final Activity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull INikonInterfaceProvider interfaceProvider, @NonNull NikonStatusChecker statusChecker)
+    public NikonConnection(@NonNull final AppCompatActivity context, @NonNull final ICameraStatusReceiver statusReceiver, @NonNull INikonInterfaceProvider interfaceProvider, @NonNull NikonStatusChecker statusChecker)
     {
         Log.v(TAG, "NikonConnection()");
         this.context = context;
@@ -148,45 +147,30 @@ public class NikonConnection implements ICameraConnection
         final AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.dialog_title_connect_failed_nikon))
                 .setMessage(message)
-                .setPositiveButton(context.getString(R.string.dialog_title_button_retry), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
+                .setPositiveButton(context.getString(R.string.dialog_title_button_retry), (dialog, which) -> {
+                    disconnect(false);
+                    connect();
+                })
+                .setNeutralButton(R.string.dialog_title_button_network_settings, (dialog, which) -> {
+                    try
                     {
-                        disconnect(false);
+                        // Wifi 設定画面を表示する
+                        context.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                    }
+                    catch (android.content.ActivityNotFoundException ex)
+                    {
+                        // Activity が存在しなかった...設定画面が起動できなかった
+                        Log.v(TAG, "android.content.ActivityNotFoundException...");
+
+                        // この場合は、再試行と等価な動きとする
                         connect();
                     }
-                })
-                .setNeutralButton(R.string.dialog_title_button_network_settings, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
+                    catch (Exception e)
                     {
-                        try
-                        {
-                            // Wifi 設定画面を表示する
-                            context.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-                        }
-                        catch (android.content.ActivityNotFoundException ex)
-                        {
-                            // Activity が存在しなかった...設定画面が起動できなかった
-                            Log.v(TAG, "android.content.ActivityNotFoundException...");
-
-                            // この場合は、再試行と等価な動きとする
-                            connect();
-                        }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
-                        }
+                        e.printStackTrace();
                     }
                 });
-        context.runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                builder.show();
-            }
-        });
+        context.runOnUiThread(builder::show);
     }
 
     @Override
@@ -208,7 +192,7 @@ public class NikonConnection implements ICameraConnection
      */
     private void disconnectFromCamera(final boolean powerOff)
     {
-        Log.v(TAG, " disconnectFromCamera()");
+        Log.v(TAG, " disconnectFromCamera()" + powerOff);
         try
         {
             cameraExecutor.execute(disconnectSequence);

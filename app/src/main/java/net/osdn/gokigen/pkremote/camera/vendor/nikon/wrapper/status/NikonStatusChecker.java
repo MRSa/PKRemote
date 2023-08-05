@@ -1,19 +1,18 @@
 package net.osdn.gokigen.pkremote.camera.vendor.nikon.wrapper.status;
 
-import android.app.Activity;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ICameraStatusUpdateNotify;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus;
 import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher;
+import net.osdn.gokigen.pkremote.camera.vendor.nikon.INikonInterfaceProvider;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommand;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandCallback;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpCommandPublisher;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.IPtpIpMessages;
 import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.NikonInitEventRequest;
-import net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.command.messages.specific.StatusRequestMessage;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -31,27 +30,24 @@ public class NikonStatusChecker implements IPtpIpCommandCallback, ICameraStatusW
 
     private static final int BUFFER_SIZE = 1024 * 1024 + 8;
     private static final int STATUS_MESSAGE_HEADER_SIZE = 14;
-    private int sleepMs;
-    private final IPtpIpCommandPublisher issuer;
+    private final INikonInterfaceProvider interfaceProvider;
     private ICameraStatusUpdateNotify notifier = null;
-    private NikonStatusHolder statusHolder;
+    private final NikonStatusHolder statusHolder;
     private boolean whileFetching = false;
-    private boolean logcat = false;
-    private final String ipAddress;
-    private final int portNumber;
+    private final boolean logcat = false;
+    //private final String ipAddress;
+    //private final int portNumber;
 
     private Socket socket = null;
     private DataOutputStream dos = null;
     private BufferedReader bufferedReader = null;
     private int eventConnectionNumber = 0;
 
-    public NikonStatusChecker(@NonNull Activity activity, @NonNull IPtpIpCommandPublisher issuer, @NonNull String ip, int portNumber)
+    public NikonStatusChecker(@NonNull AppCompatActivity activity, @NonNull INikonInterfaceProvider interfaceProvider)
     {
-        this.issuer = issuer;
+        this.interfaceProvider = interfaceProvider;
         this.statusHolder = new NikonStatusHolder();
-        this.ipAddress = ip;
-        this.portNumber = portNumber;
-        Log.v(TAG, "POLLING WAIT : " + sleepMs);
+        Log.v(TAG, "NikonStatusChecker() ");
     }
 
     @Override
@@ -165,18 +161,21 @@ public class NikonStatusChecker implements IPtpIpCommandCallback, ICameraStatusW
         }
         try
         {
-            final IPtpIpCommandCallback callback = this;
             this.notifier = notifier;
             whileFetching = true;
 
+            String ipAddress = interfaceProvider.getIpAddress();
+            int portNumber = interfaceProvider.getEventPortNumber();
+
             // セッションをオープンする
-            boolean isConnect = connect();
+            boolean isConnect = connect(ipAddress, portNumber);
             if (!isConnect)
             {
                 Log.v(TAG, "  CONNECT FAIL...(EVENT) : " + ipAddress + "  " + portNumber);
             }
             issueCommand(new NikonInitEventRequest(this, eventConnectionNumber));
 /*
+            final IPtpIpCommandCallback callback = this;
             Thread thread = new Thread(new Runnable()
             {
                 @Override
@@ -213,7 +212,7 @@ public class NikonStatusChecker implements IPtpIpCommandCallback, ICameraStatusW
     @Override
     public void stopStatusWatch()
     {
-        Log.v(TAG, "stoptStatusWatch()");
+        Log.v(TAG, "stopStatusWatch()");
         whileFetching = false;
         this.notifier = null;
     }
@@ -226,7 +225,7 @@ public class NikonStatusChecker implements IPtpIpCommandCallback, ICameraStatusW
         }
     }
 
-    private boolean connect()
+    private boolean connect(@NonNull String ipAddress, int portNumber)
     {
         try
         {

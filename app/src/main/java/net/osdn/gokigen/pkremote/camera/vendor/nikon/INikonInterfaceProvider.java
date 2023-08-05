@@ -54,4 +54,8 @@ public interface INikonInterfaceProvider
     IInformationReceiver getInformationReceiver();
 
     void setAsyncEventReceiver(@NonNull IPtpIpCommandCallback receiver);
+
+    String getIpAddress();
+    int getControlPortNumber();
+    int getEventPortNumber();
 }

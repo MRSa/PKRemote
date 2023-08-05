@@ -11,6 +11,7 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.IInformationReceiver;
@@ -60,13 +61,12 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
     private static final int EVENT_PORT = 15740;
 
     //private static final String CAMERA_IP = "192.168.0.1";
-    //private final Activity activity;
+    private final Activity activity;
 
-    private final PtpIpRunMode runmode;
+    private final PtpIpRunMode runMode;
     private final PtpIpHardwareStatus hardwareStatus;
     private final PtpIpButtonControl ptpIpButtonControl;
     private final CanonConnection canonConnection;
-    //private final PtpIpCommandPublisher0 commandPublisher;
     private final PtpIpCommandPublisher commandPublisher;
     private final PtpIpLiveViewControl liveViewControl;
     private final PtpIpAsyncResponseReceiver asyncReceiver;
@@ -78,14 +78,13 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
     private final CanonPlaybackControl playbackControl;
     private final IInformationReceiver informationReceiver;
 
-    public PtpIpInterfaceProvider(@NonNull Activity context, @NonNull ICameraStatusReceiver provider, @NonNull ICameraStatusUpdateNotify statusListener, @NonNull IInformationReceiver informationReceiver)
+    public PtpIpInterfaceProvider(@NonNull AppCompatActivity context, @NonNull ICameraStatusReceiver provider, @NonNull ICameraStatusUpdateNotify statusListener, @NonNull IInformationReceiver informationReceiver)
     {
-        //this.activity = context;
-        String ipAddress; // "192.168.0.1";
+        this.activity = context;
+        //String ipAddress = getHostAddress(context);
         int sequenceType = 0;
         try
         {
-            ipAddress = getHostAddress(context);
             try
             {
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -100,18 +99,15 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
         catch (Exception e)
         {
             e.printStackTrace();
-            ipAddress = "192.168.0.1";
         }
-
-        commandPublisher = new PtpIpCommandPublisher(ipAddress, CONTROL_PORT, false, false);
-        //commandPublisher = new PtpIpCommandPublisher0(ipAddress, CONTROL_PORT);
-        liveViewControl = new PtpIpLiveViewControl(context, ipAddress, STREAM_PORT);
-        asyncReceiver = new PtpIpAsyncResponseReceiver(ipAddress, ASYNC_RESPONSE_PORT);
-        statusChecker = new PtpIpStatusChecker(context, commandPublisher, ipAddress, EVENT_PORT);
-        canonConnection = new CanonConnection(context, provider, this, statusChecker, ipAddress, sequenceType);
+        commandPublisher = new PtpIpCommandPublisher(false, false);
+        liveViewControl = new PtpIpLiveViewControl(context, false);
+        asyncReceiver = new PtpIpAsyncResponseReceiver();
+        statusChecker = new PtpIpStatusChecker(context, this, false);
+        canonConnection = new CanonConnection(context, provider, this, statusChecker, sequenceType);
         zoomControl = new PtpIpZoomControl();
         this.statusListener = statusListener;
-        this.runmode = new PtpIpRunMode();
+        this.runMode = new PtpIpRunMode();
         this.hardwareStatus = new PtpIpHardwareStatus();
         this.ptpIpButtonControl = new PtpIpButtonControl();
         this.playbackControl = new CanonPlaybackControl(context, this);
@@ -120,13 +116,13 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
 
     private String getHostAddress(@NonNull Activity context)
     {
-        String ipAddress = "192.168.0.1";
+        String ipAddress = IPreferencePropertyAccessor.CANON_HOST_IP_DEFAULT_VALUE;
         try
         {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            boolean autoDetactHostIp = preferences.getBoolean(IPreferencePropertyAccessor.CANON_AUTO_DETECT_HOST_IP, true);
+            boolean autoDetectHostIp = preferences.getBoolean(IPreferencePropertyAccessor.CANON_AUTO_DETECT_HOST_IP, true);
             ipAddress = preferences.getString(IPreferencePropertyAccessor.CANON_HOST_IP, IPreferencePropertyAccessor.CANON_HOST_IP_DEFAULT_VALUE);
-            if ((autoDetactHostIp)&&(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M))
+            if ((autoDetectHostIp)&&(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M))
             {
                 ConnectivityManager connectivityManager = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
                 Network activeNetwork = connectivityManager.getActiveNetwork();
@@ -171,8 +167,6 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
     public void injectDisplay(IAutoFocusFrameDisplay frameDisplayer, IIndicatorControl indicator, IFocusingModeNotify focusingModeNotify)
     {
         Log.v(TAG, "injectDisplay()");
-        //captureControl = new FujiXCaptureControl(commandPublisher, frameDisplayer);
-        //focusingControl = new FujiXFocusingControl(activity, commandPublisher, frameDisplayer, indicator);
     }
 
     @Override
@@ -226,7 +220,7 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
     @Override
     public IPtpIpRunModeHolder getRunModeHolder()
     {
-        return (runmode);
+        return (runMode);
     }
 
     @Override
@@ -297,7 +291,7 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
     @Override
     public ICameraRunMode getCameraRunMode()
     {
-        return (runmode);
+        return (runMode);
     }
 
     @Override
@@ -313,4 +307,21 @@ public class PtpIpInterfaceProvider implements IPtpIpInterfaceProvider, IDisplay
         asyncReceiver.setEventSubscriber(receiver);
     }
 
+    @Override
+    public String getIpAddress()
+    {
+        return (getHostAddress(activity));
+    }
+
+    @Override
+    public int getControlPortNumber()
+    {
+        return (CONTROL_PORT);
+    }
+
+    @Override
+    public int getEventPortNumber()
+    {
+        return (EVENT_PORT);
+    }
 }

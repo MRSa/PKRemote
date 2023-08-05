@@ -1,10 +1,10 @@
 package net.osdn.gokigen.pkremote.camera.vendor.ptpip.wrapper.playback;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import net.osdn.gokigen.pkremote.IInformationReceiver;
@@ -29,7 +29,7 @@ import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor;
 public class CanonPlaybackControl implements IPlaybackControl
 {
     private final String TAG = toString();
-    private final Activity activity;
+    private final AppCompatActivity activity;
     private final PtpIpInterfaceProvider provider;
     private final CanonFullImageReceiver fullImageReceiver;
     private final ICanonImageReceiver smallImageReciever;
@@ -38,7 +38,7 @@ public class CanonPlaybackControl implements IPlaybackControl
     private final CanonImageObjectReceiver canonImageObjectReceiver;
     private int smallImageSequence = 0;
 
-    public CanonPlaybackControl(Activity activity, PtpIpInterfaceProvider provider)
+    public CanonPlaybackControl(AppCompatActivity activity, PtpIpInterfaceProvider provider)
     {
         int delayMs = 20;
         try
@@ -234,12 +234,7 @@ public class CanonPlaybackControl implements IPlaybackControl
         }
         try
         {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    canonImageObjectReceiver.getCameraContents(callback);
-                }
-            });
+            Thread thread = new Thread(() -> canonImageObjectReceiver.getCameraContents(callback));
             thread.start();
         }
         catch (Exception e)

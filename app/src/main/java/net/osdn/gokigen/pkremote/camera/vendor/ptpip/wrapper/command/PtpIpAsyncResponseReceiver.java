@@ -10,18 +10,16 @@ import java.net.Socket;
 public class PtpIpAsyncResponseReceiver implements IPtpIpCommunication
 {
     private final String TAG = toString();
-    private final String ipAddress;
-    private final int portNumber;
+    private static final int ASYNC_RESPONSE_PORT = 15741;  // ??
     private static final int BUFFER_SIZE = 1280 + 8;
     private static final int WAIT_MS = 250;   // 250ms
     private static final int ERROR_LIMIT = 30;
     private IPtpIpCommandCallback receiver = null;
     private boolean isStart = false;
 
-    public PtpIpAsyncResponseReceiver(@NonNull String ip, int portNumber)
+    public PtpIpAsyncResponseReceiver()
     {
-        this.ipAddress = ip;
-        this.portNumber = portNumber;
+        //
     }
 
     public void setEventSubscriber(@NonNull IPtpIpCommandCallback receiver)
@@ -30,9 +28,9 @@ public class PtpIpAsyncResponseReceiver implements IPtpIpCommunication
     }
 
     @Override
-    public boolean connect()
+    public boolean connect(@NonNull String ipAddress, int portNumber)
     {
-        start();
+        start(ipAddress, portNumber);
         return (true);
     }
 
@@ -42,7 +40,7 @@ public class PtpIpAsyncResponseReceiver implements IPtpIpCommunication
         isStart = false;
     }
 
-    public void start()
+    public void start(@NonNull String ipAddress, int portNumber)
     {
         if (isStart)
         {
@@ -50,21 +48,16 @@ public class PtpIpAsyncResponseReceiver implements IPtpIpCommunication
             return;
         }
         isStart = true;
-        Thread thread = new Thread(new Runnable()
-        {
-            @Override
-            public void run()
+        Thread thread = new Thread(() -> {
+            try
             {
-                try
-                {
-                    Socket socket = new Socket(ipAddress, portNumber);
-                    startReceive(socket);
-                }
-                catch (Exception e)
-                {
-                    Log.v(TAG, " IP : " + ipAddress + " port : " + portNumber);
-                    e.printStackTrace();
-                }
+                Socket socket = new Socket(ipAddress, portNumber);
+                startReceive(socket);
+            }
+            catch (Exception e)
+            {
+                Log.v(TAG, " IP : " + ipAddress + " port : " + portNumber);
+                e.printStackTrace();
             }
         });
         try
