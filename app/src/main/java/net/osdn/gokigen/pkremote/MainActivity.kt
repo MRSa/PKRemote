@@ -1,6 +1,7 @@
 package net.osdn.gokigen.pkremote
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
@@ -78,9 +79,11 @@ class MainActivity : AppCompatActivity(),
      *
      *
      */
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun onBackPressed()
     {
         //Log.v(TAG, "onBackPressed()");
+        @Suppress("DEPRECATION")
         super.onBackPressed()
         runOnUiThread { sceneUpdater?.updateBottomNavigationMenu() }
     }
@@ -92,7 +95,7 @@ class MainActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?)
     {
         ///////// SHOW SPLASH SCREEN /////////
-        //installSplashScreen()
+        //installSplashScreen()  // minSdkVersionが 14 なので使えない...
         Log.v(TAG, " ----- onCreate() -----")
 
         super.onCreate(savedInstanceState)
@@ -141,14 +144,15 @@ class MainActivity : AppCompatActivity(),
     private fun allPermissionsGranted() : Boolean
     {
         var result = true
-        for (param in REQUIRED_PERMISSIONS) {
+        for (param in REQUIRED_PERMISSIONS)
+        {
             if (ContextCompat.checkSelfPermission(
                     baseContext,
                     param
                 ) != PackageManager.PERMISSION_GRANTED
             )
             {
-                // Permission Denied
+                // Permission Denied...
                 if ((param == Manifest.permission.READ_EXTERNAL_STORAGE)&&(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN))
                 {
                     // この場合は権限付与の判断を除外 (デバイスが JELLY_BEAN よりも古く、READ_EXTERNAL_STORAGE がない場合）
@@ -157,8 +161,19 @@ class MainActivity : AppCompatActivity(),
                 {
                     //　この場合は権限付与の判断を除外 (デバイスが (10) よりも古く、ACCESS_MEDIA_LOCATION がない場合）
                 }
+                else if ((param == Manifest.permission.READ_EXTERNAL_STORAGE)&&(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU))
+                {
+                    // この場合は、権限付与の判断を除外 (SDK: 34以上はエラーになる...)
+
+                }
+                else if ((param == Manifest.permission.WRITE_EXTERNAL_STORAGE)&&(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU))
+                {
+                    // この場合は、権限付与の判断を除外 (SDK: 34以上はエラーになる...)
+
+                }
                 else
                 {
+                    Log.v(TAG, " Permission: $param : ${Build.VERSION.SDK_INT}")
                     result = false
                 }
             }
@@ -483,6 +498,7 @@ class MainActivity : AppCompatActivity(),
         //const val REQUEST_CODE_MEDIA_EDIT = 12
         //const val REQUEST_CODE_OPEN_DOCUMENT_TREE = 20
 
+        @SuppressLint("InlinedApi")
         private val REQUIRED_PERMISSIONS = arrayOf(
             Manifest.permission.INTERNET,
             Manifest.permission.VIBRATE,
