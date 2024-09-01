@@ -1,7 +1,7 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper
 
-public interface IPanasonicApiService
+interface IPanasonicApiService
 {
-    String getName();
-    String getActionUrl();
+    val name: String?
+    val actionUrl: String?
 }

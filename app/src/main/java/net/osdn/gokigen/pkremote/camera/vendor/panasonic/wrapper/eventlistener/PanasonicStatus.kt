@@ -1,112 +1,57 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.eventlistener;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.eventlistener
 
-import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ICameraStatusUpdateNotify;
-import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus;
-import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher;
+import net.osdn.gokigen.pkremote.camera.interfaces.liveview.ICameraStatusUpdateNotify
+import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatus
+import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusWatcher
 
-import java.util.List;
-
-public class PanasonicStatus implements ICameraStatusUpdateNotify, ICameraStatusWatcher, ICameraStatus
-{
-    public PanasonicStatus()
-    {
-        //
+class PanasonicStatus : ICameraStatusUpdateNotify, ICameraStatusWatcher, ICameraStatus {
+    override fun updatedTakeMode(mode: String) {
     }
 
-
-    @Override
-    public void updatedTakeMode(String mode)
-    {
-
+    override fun updatedShutterSpeed(tv: String) {
     }
 
-    @Override
-    public void updatedShutterSpeed(String tv)
-    {
-
+    override fun updatedAperture(av: String) {
     }
 
-    @Override
-    public void updatedAperture(String av)
-    {
-
+    override fun updatedExposureCompensation(xv: String) {
     }
 
-    @Override
-    public void updatedExposureCompensation(String xv)
-    {
-
+    override fun updatedMeteringMode(meteringMode: String) {
     }
 
-    @Override
-    public void updatedMeteringMode(String meteringMode)
-    {
-
+    override fun updatedWBMode(wbMode: String) {
     }
 
-    @Override
-    public void updatedWBMode(String wbMode)
-    {
-
+    override fun updateRemainBattery(percentage: Int) {
     }
 
-    @Override
-    public void updateRemainBattery(int percentage)
-    {
-
+    override fun updateFocusedStatus(focused: Boolean, focusLocked: Boolean) {
     }
 
-    @Override
-    public void updateFocusedStatus(boolean focused, boolean focusLocked)
-    {
-
+    override fun updateIsoSensitivity(sv: String) {
     }
 
-    @Override
-    public void updateIsoSensitivity(String sv)
-    {
-
+    override fun updateWarning(warning: String) {
     }
 
-    @Override
-    public void updateWarning(String warning)
-    {
-
+    override fun updateStorageStatus(status: String) {
     }
 
-    @Override
-    public void updateStorageStatus(String status)
-    {
-
+    override fun getStatusList(key: String): List<String>? {
+        return null
     }
 
-    @Override
-    public List<String> getStatusList(String key)
-    {
-        return null;
+    override fun getStatus(key: String): String? {
+        return null
     }
 
-    @Override
-    public String getStatus(String key)
-    {
-        return null;
+    override fun setStatus(key: String, value: String) {
     }
 
-    @Override
-    public void setStatus(String key, String value)
-    {
-
+    override fun startStatusWatch(notifier: ICameraStatusUpdateNotify) {
     }
 
-    @Override
-    public void startStatusWatch(ICameraStatusUpdateNotify notifier)
-    {
-
-    }
-
-    @Override
-    public void stopStatusWatch()
-    {
-
+    override fun stopStatusWatch() {
     }
 }

@@ -1,18 +1,18 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper
 
-import java.util.List;
+interface IPanasonicCamera {
+    fun hasApiService(serviceName: String?): Boolean
+    fun getApiServices(): List<IPanasonicApiService?>?
 
-public interface IPanasonicCamera
-{
-    boolean hasApiService(String serviceName);
-    List<IPanasonicApiService> getApiServices();
+    fun getFriendlyName(): String?
+    fun getModelName(): String?
 
-    String getFriendlyName();
-    String getModelName();
-    String getddUrl();
-    String getCmdUrl();
-    String getObjUrl();
-    String getPictureUrl();
+    fun getDdUrl(): String?
+    fun getCmdUrl(): String?
+    fun getObjUrl(): String?
+    fun getPictureUrl(): String?
 
-    String getClientDeviceUuId();
+    fun getClientDeviceUuId(): String
+
+    fun getCommunicationSessionId() : String?
 }

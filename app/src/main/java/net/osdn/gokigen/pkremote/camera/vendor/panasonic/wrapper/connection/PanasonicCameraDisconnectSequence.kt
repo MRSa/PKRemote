@@ -1,19 +1,16 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.connection;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.connection
 
+import android.util.Log
 
-public class PanasonicCameraDisconnectSequence implements Runnable
+class PanasonicCameraDisconnectSequence(private val isOff: Boolean = false) : Runnable
 {
-    //private final String TAG = this.toString();
-    //private final boolean powerOff;
-
-    PanasonicCameraDisconnectSequence(boolean isOff)
+    override fun run()
     {
-        //this.powerOff = isOff;
+        // ----- カメラをPowerOffして接続を切る
+        Log.v(TAG, "PanasonicCameraDisconnectSequence : $isOff")
     }
-
-    @Override
-    public void run()
+    companion object
     {
-        // カメラをPowerOffして接続を切る
+        private val TAG = PanasonicSsdpClient::class.java.simpleName
     }
 }

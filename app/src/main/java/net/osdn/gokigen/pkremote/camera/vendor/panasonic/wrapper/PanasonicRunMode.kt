@@ -1,64 +1,61 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper
 
-import android.util.Log;
+import android.util.Log
+import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode
+import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient
+import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.playback.PanasonicPlaybackControl
 
-import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraRunMode;
-import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
-import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.playback.PanasonicPlaybackControl;
-
-public class PanasonicRunMode implements ICameraRunMode
+class PanasonicRunMode internal constructor() : ICameraRunMode
 {
-    private final String TAG = toString();
-    private boolean isRecordingMode = false;
-    private IPanasonicCamera panasonicCamera = null;
-    private PanasonicPlaybackControl playbackControl = null;
-    private int timeoutMs = 50000;
+    private var isRecordingMode = false
+    private var panasonicCamera: IPanasonicCamera? = null
+    private var playbackControl: PanasonicPlaybackControl? = null
+    private var timeoutMs = TIMEOUT_MS
 
-    PanasonicRunMode()
+    fun setCamera(panasonicCamera: IPanasonicCamera?, playbackControl: PanasonicPlaybackControl?, timeoutMs: Int = TIMEOUT_MS)
     {
-        //
+        this.panasonicCamera = panasonicCamera
+        this.playbackControl = playbackControl
+        this.timeoutMs = timeoutMs
     }
 
-    void setCamera(IPanasonicCamera panasonicCamera, PanasonicPlaybackControl playbackControl, int timeoutMs)
-    {
-        this.panasonicCamera = panasonicCamera;
-        this.playbackControl = playbackControl;
-        this.timeoutMs = timeoutMs;
-    }
-
-    @Override
-    public void changeRunMode(boolean isRecording)
+    override fun changeRunMode(isRecording: Boolean)
     {
         try
         {
-            String request = (isRecording) ? "recmode" : "playmode";
-            String requestUrl = this.panasonicCamera.getCmdUrl() + "cam.cgi?mode=camcmd&value=" + request;
+            val request = if ((isRecording)) "recmode" else "playmode"
+            val requestUrl = panasonicCamera?.getCmdUrl() + "cam.cgi?mode=camcmd&value=" + request
 
             // 撮影モード(RecMode)に切り替え
-            String reply = SimpleHttpClient.httpGet(requestUrl, this.timeoutMs);
+            val reply = SimpleHttpClient.httpGet(requestUrl, this.timeoutMs)
             if (!reply.contains("ok"))
             {
-                Log.v(TAG, "CAMERA REPLIED ERROR : CHANGE RECMODE.");
+                Log.v(TAG, "CAMERA REPLIED ERROR : CHANGE RECMODE.")
             }
             else
             {
-                isRecordingMode = isRecording;
-                if ((!isRecordingMode)&&(playbackControl != null))
+                isRecordingMode = isRecording
+                if ((!isRecordingMode) && (playbackControl != null))
                 {
                     // 画像一覧の取得準備をする。。。
-                    playbackControl.preprocessPlaymode();
+                    playbackControl?.preprocessPlaymode()
                 }
             }
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
     }
 
-    @Override
-    public boolean isRecordingMode()
+    override fun isRecordingMode(): Boolean
     {
-        return (isRecordingMode);
+        return (isRecordingMode)
+    }
+
+    companion object
+    {
+        private const val TIMEOUT_MS = 50000
+        private val TAG = PanasonicRunMode::class.java.simpleName
     }
 }

@@ -1,279 +1,264 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.connection;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.connection
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.provider.Settings;
-import android.util.Log;
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
+import android.net.wifi.WifiManager
+import android.provider.Settings
+import android.util.Log
+import androidx.appcompat.app.AlertDialog
+import net.osdn.gokigen.pkremote.R
+import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection
+import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection.CameraConnectionStatus
+import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraChangeListener
+import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver
+import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCameraHolder
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-
-import net.osdn.gokigen.pkremote.R;
-import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
-import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraChangeListener;
-import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
-import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCameraHolder;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
-/**
- *
- *
- */
-public class PanasonicCameraConnection implements ICameraConnection
+class PanasonicCameraConnection(
+    private val context: Activity,
+    private val statusReceiver: ICameraStatusReceiver,
+    private val cameraHolder: IPanasonicCameraHolder,
+    private val listener: ICameraChangeListener
+) : ICameraConnection
 {
-    private final String TAG = toString();
-    private final Activity context;
-    private final ICameraStatusReceiver statusReceiver;
-    private final BroadcastReceiver connectionReceiver;
-    private final IPanasonicCameraHolder cameraHolder;
-    //private final ConnectivityManager connectivityManager;
-    private final Executor cameraExecutor = Executors.newFixedThreadPool(1);
-    private final ICameraChangeListener listener;
-    //private final Handler networkConnectionTimeoutHandler;
-    //private static final int MESSAGE_CONNECTIVITY_TIMEOUT = 1;
-    private ICameraConnection.CameraConnectionStatus connectionStatus = CameraConnectionStatus.UNKNOWN;
+    private val connectionReceiver: BroadcastReceiver
+    private val cameraExecutor: Executor = Executors.newFixedThreadPool(1)
+    private var connectionStatus = CameraConnectionStatus.UNKNOWN
 
-    public PanasonicCameraConnection(final Activity context, final ICameraStatusReceiver statusReceiver, @NonNull IPanasonicCameraHolder cameraHolder, final @NonNull ICameraChangeListener listener)
+    init
     {
-        Log.v(TAG, "PanasonicCameraConnection()");
-        this.context = context;
-        this.statusReceiver = statusReceiver;
-        this.cameraHolder = cameraHolder;
-        this.listener = listener;
-/*
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        networkConnectionTimeoutHandler = new Handler()
-        {
-            @Override
-            public void handleMessage(Message msg)
+        Log.v(TAG, "PanasonicCameraConnection()")
+        connectionReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent)
             {
-                switch (msg.what)
-                {
-                    case MESSAGE_CONNECTIVITY_TIMEOUT:
-                        Log.d(TAG, "Network connection timeout");
-                        alertConnectingFailed(context.getString(R.string.network_connection_timeout));
-                        connectionStatus = CameraConnectionStatus.DISCONNECTED;
-                        break;
-                }
+                onReceiveBroadcastOfConnection(context, intent)
             }
-        };
-*/
-        connectionReceiver = new BroadcastReceiver()
-        {
-            @Override
-            public void onReceive(Context context, Intent intent)
-            {
-                onReceiveBroadcastOfConnection(context, intent);
-            }
-        };
+        }
     }
 
-    private void onReceiveBroadcastOfConnection(Context context, Intent intent)
+    private fun onReceiveBroadcastOfConnection(context: Context, intent: Intent)
     {
-        statusReceiver.onStatusNotify(context.getString(R.string.connect_check_wifi));
-        Log.v(TAG,context.getString(R.string.connect_check_wifi));
-
-        String action = intent.getAction();
+        statusReceiver.onStatusNotify(context.getString(R.string.connect_check_wifi))
+        Log.v(TAG, context.getString(R.string.connect_check_wifi))
+        val action = intent.action
         if (action == null)
         {
-            //
-            Log.v(TAG, "intent.getAction() : null");
-            return;
+            Log.v(TAG, "intent.getAction() : null")
+            return
         }
 
         try
         {
-            if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION))
+            @Suppress("DEPRECATION")
+            if (action == ConnectivityManager.CONNECTIVITY_ACTION)
             {
-                Log.v(TAG, "onReceiveBroadcastOfConnection() : CONNECTIVITY_ACTION");
+                Log.v(TAG, "onReceiveBroadcastOfConnection() : CONNECTIVITY_ACTION")
 
-                WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-                if (wifiManager != null) {
-                    WifiInfo info = wifiManager.getConnectionInfo();
-                    if (wifiManager.isWifiEnabled() && info != null)
+                val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                val info = wifiManager.connectionInfo
+                if (wifiManager.isWifiEnabled && info != null)
+                {
+                    if (info.networkId != -1)
                     {
-                        if (info.getNetworkId() != -1)
-                        {
-                            Log.v(TAG, "Network ID is -1, there is no currently connected network.");
-                        }
-                        // 自動接続が指示されていた場合は、カメラとの接続処理を行う
-                        connectToCamera();
-                    } else {
-                        if (info == null)
-                        {
-                            Log.v(TAG, "NETWORK INFO IS NULL.");
-                        } else {
-                            Log.v(TAG, "isWifiEnabled : " + wifiManager.isWifiEnabled() + " NetworkId : " + info.getNetworkId());
-                        }
+                        Log.v(TAG, "Network ID is -1, there is no currently connected network.")
+                    }
+                    // 自動接続が指示されていた場合は、カメラとの接続処理を行う
+                    connectToCamera()
+                }
+                else
+                {
+                    if (info == null)
+                    {
+                        Log.v(TAG, "NETWORK INFO IS NULL.")
+                    }
+                    else
+                    {
+                        Log.v(TAG, "isWifiEnabled : " + wifiManager.isWifiEnabled + " NetworkId : " + info.networkId)
                     }
                 }
             }
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            Log.w(TAG, "onReceiveBroadcastOfConnection() EXCEPTION" + e.getMessage());
-            e.printStackTrace();
+            Log.w(TAG, "onReceiveBroadcastOfConnection() EXCEPTION" + e.message)
+            e.printStackTrace()
         }
     }
-
 
     /**
      * Wifi接続状態の監視
      * (接続の実処理は onReceiveBroadcastOfConnection() で実施)
      */
-    @Override
-    public void startWatchWifiStatus(Context context)
+    override fun startWatchWifiStatus(context: Context)
     {
-        Log.v(TAG, "startWatchWifiStatus()");
-        statusReceiver.onStatusNotify("prepare");
+        try
+        {
+            val filter = IntentFilter()
+            filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION)
+            @Suppress("DEPRECATION")
+            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
+            context.registerReceiver(connectionReceiver, filter)
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        context.registerReceiver(connectionReceiver, filter);
+        Log.v(TAG, "startWatchWifiStatus()")
+        statusReceiver.onStatusNotify("prepare")
     }
 
     /**
      * Wifi接続状態の監視終了
      */
-    @Override
-    public void stopWatchWifiStatus(Context context)
+    override fun stopWatchWifiStatus(context: Context)
     {
-        Log.v(TAG, "stopWatchWifiStatus()");
-        context.unregisterReceiver(connectionReceiver);
-        disconnect(false);
+        try
+        {
+            Log.v(TAG, "stopWatchWifiStatus()")
+            context.unregisterReceiver(connectionReceiver)
+            disconnect(false)
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
     }
 
     /**
      * 　 カメラとの接続を解除する
      *
-     *   @param powerOff 真ならカメラの電源オフを伴う
+     * @param powerOff 真ならカメラの電源オフを伴う
      */
-    @Override
-    public void disconnect(boolean powerOff)
+    override fun disconnect(powerOff: Boolean)
     {
-        Log.v(TAG, "disconnect()");
-        disconnectFromCamera(powerOff);
-        connectionStatus = CameraConnectionStatus.DISCONNECTED;
-        statusReceiver.onCameraDisconnected();
+        try
+        {
+            Log.v(TAG, "disconnect()")
+            disconnectFromCamera(powerOff)
+            connectionStatus = CameraConnectionStatus.DISCONNECTED
+            statusReceiver.onCameraDisconnected()
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
     }
 
     /**
      * カメラとの再接続を指示する
      */
-    @Override
-    public void connect()
+    override fun connect()
     {
-        Log.v(TAG, "connect()");
-        connectToCamera();
+        try
+        {
+            Log.v(TAG, "connect()")
+            connectToCamera()
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
     }
 
     /**
-     *   接続リトライのダイアログを出す
+     * 接続リトライのダイアログを出す
      *
      * @param message 表示用のメッセージ
      */
-    @Override
-    public void alertConnectingFailed(String message)
+    override fun alertConnectingFailed(message: String)
     {
-        Log.v(TAG, "alertConnectingFailed() : " + message);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.dialog_title_connect_failed_panasonic))
-                .setMessage(message)
-                .setPositiveButton(context.getString(R.string.dialog_title_button_retry), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        connect();
-                    }
-                })
-                .setNeutralButton(R.string.dialog_title_button_network_settings, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+        try
+        {
+            Log.v(TAG, "alertConnectingFailed() : $message")
+
+            context.runOnUiThread {
+                AlertDialog.Builder(context)
+                    .setTitle(context.getString(R.string.dialog_title_connect_failed_panasonic))
+                    .setMessage(message)
+                    .setPositiveButton(context.getString(R.string.dialog_title_button_retry)) { _, _ -> connect() }
+                    .setNeutralButton(R.string.dialog_title_button_network_settings) { _, _ ->
                         try
                         {
                             // Wifi 設定画面を表示する
-                            context.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                            context.startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
                         }
-                        catch (android.content.ActivityNotFoundException ex)
+                        catch (ex: ActivityNotFoundException)
                         {
                             // Activity が存在しなかった...設定画面が起動できなかった
-                            Log.v(TAG, "android.content.ActivityNotFoundException...");
+                            Log.v(TAG, "android.content.ActivityNotFoundException...")
 
                             // この場合は、再試行と等価な動きとする
-                            connect();
+                            connect()
                         }
-                        catch (Exception e)
+                        catch (e: Exception)
                         {
-                            e.printStackTrace();
+                            e.printStackTrace()
                         }
                     }
-                });
-        context.runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                builder.show();
+                    .show()
             }
-        });
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
     }
 
-    @Override
-    public CameraConnectionStatus getConnectionStatus()
+    override fun getConnectionStatus(): CameraConnectionStatus
     {
-        Log.v(TAG, "getConnectionStatus()");
-        return (connectionStatus);
+        Log.v(TAG, "getConnectionStatus()")
+        return (connectionStatus)
     }
 
-    @Override
-    public void forceUpdateConnectionStatus(CameraConnectionStatus status)
+    override fun forceUpdateConnectionStatus(status: CameraConnectionStatus)
     {
-        Log.v(TAG, "forceUpdateConnectionStatus()");
-        connectionStatus = status;
+        Log.v(TAG, "forceUpdateConnectionStatus()")
+        connectionStatus = status
     }
 
     /**
      * カメラとの切断処理
      */
-    private void disconnectFromCamera(final boolean powerOff)
+    private fun disconnectFromCamera(powerOff: Boolean)
     {
-        Log.v(TAG, "disconnectFromCamera()");
         try
         {
-            cameraExecutor.execute(new PanasonicCameraDisconnectSequence(powerOff));
+            Log.v(TAG, "disconnectFromCamera()")
+            cameraExecutor.execute(PanasonicCameraDisconnectSequence(powerOff))
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
     }
 
     /**
      * カメラとの接続処理
      */
-    private void connectToCamera()
+    private fun connectToCamera()
     {
-        Log.v(TAG, "connectToCamera()");
-        connectionStatus = CameraConnectionStatus.CONNECTING;
+        Log.v(TAG, "connectToCamera()")
+        connectionStatus = CameraConnectionStatus.CONNECTING
         try
         {
-            cameraExecutor.execute(new PanasonicCameraConnectSequence(context,statusReceiver, this, cameraHolder, listener));
+            cameraExecutor.execute(PanasonicCameraConnectSequence(context, statusReceiver, this, cameraHolder, listener))
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            Log.v(TAG, "connectToCamera() EXCEPTION : " + e.getMessage());
-            e.printStackTrace();
+            Log.v(TAG, "connectToCamera() EXCEPTION : " + e.message)
+            e.printStackTrace()
         }
+    }
+
+    companion object
+    {
+        private val TAG = PanasonicCameraConnection::class.java.simpleName
     }
 }

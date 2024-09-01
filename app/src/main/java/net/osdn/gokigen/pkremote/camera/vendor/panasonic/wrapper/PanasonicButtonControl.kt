@@ -1,13 +1,9 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper
 
-import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl;
+import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraButtonControl
 
-public class PanasonicButtonControl implements ICameraButtonControl
-{
-
-    @Override
-    public boolean pushedButton(String code, boolean isLongPress)
-    {
-        return (false);
+class PanasonicButtonControl : ICameraButtonControl {
+    override fun pushedButton(code: String, isLongPress: Boolean): Boolean {
+        return (false)
     }
 }

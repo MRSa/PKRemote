@@ -1,147 +1,114 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.connection;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.connection
 
-import android.app.Activity;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import net.osdn.gokigen.pkremote.R;
-import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection;
-import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraChangeListener;
-import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver;
-import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera;
-import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCameraHolder;
+import android.app.Activity
+import android.util.Log
+import net.osdn.gokigen.pkremote.R
+import net.osdn.gokigen.pkremote.camera.interfaces.control.ICameraConnection
+import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraChangeListener
+import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraStatusReceiver
+import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera
+import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCameraHolder
 
 /**
- *   Panasonicカメラとの接続処理
- *
+ * Panasonicカメラとの接続処理
  */
-public class PanasonicCameraConnectSequence implements Runnable, PanasonicSsdpClient.ISearchResultCallback
+class PanasonicCameraConnectSequence internal constructor(
+    private val context: Activity,
+    private val cameraStatusReceiver: ICameraStatusReceiver,
+    private val cameraConnection: ICameraConnection,
+    private val cameraHolder: IPanasonicCameraHolder,
+    private val listener: ICameraChangeListener
+) : Runnable, PanasonicSsdpClient.ISearchResultCallback
 {
-    private final String TAG = this.toString();
-    private final Activity context;
-    private final ICameraConnection cameraConnection;
-    private final IPanasonicCameraHolder cameraHolder;
-    private final ICameraStatusReceiver cameraStatusReceiver;
-    private final ICameraChangeListener listener;
-    private final PanasonicSsdpClient client;
+    private val client: PanasonicSsdpClient
 
-    PanasonicCameraConnectSequence(Activity context, ICameraStatusReceiver statusReceiver, final ICameraConnection cameraConnection, final @NonNull IPanasonicCameraHolder cameraHolder, final @NonNull ICameraChangeListener listener)
+    init
     {
-        Log.v(TAG, "PanasonicCameraConnectSequence");
-        this.context = context;
-        this.cameraConnection = cameraConnection;
-        this.cameraStatusReceiver = statusReceiver;
-        this.cameraHolder = cameraHolder;
-        this.listener = listener;
-        client = new PanasonicSsdpClient(context, this, statusReceiver, 1);
+        Log.v(TAG, "PanasonicCameraConnectSequence")
+        client = PanasonicSsdpClient(context, this, cameraStatusReceiver, 1)
     }
 
-    @Override
-    public void run()
+    override fun run()
     {
-        Log.v(TAG, "search()");
+        Log.v(TAG, "search()")
         try
         {
-            cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_start));
-            client.search();
+            cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_start))
+            client.search()
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
     }
 
-    @Override
-    public void onDeviceFound(IPanasonicCamera cameraDevice)
+    override fun onDeviceFound(cameraDevice: IPanasonicCamera?)
     {
         try
         {
-            Log.v(TAG, "onDeviceFound() : " + cameraDevice.getFriendlyName());
-            cameraStatusReceiver.onStatusNotify(context.getString(R.string.camera_detected) + " " + cameraDevice.getFriendlyName());
-            cameraHolder.detectedCamera(cameraDevice);
+            Log.v(TAG, "onDeviceFound() : ${cameraDevice?.getFriendlyName()}")
+            cameraStatusReceiver.onStatusNotify(context.getString(R.string.camera_detected) + " ${cameraDevice?.getFriendlyName()}")
+            cameraHolder.detectedCamera(cameraDevice)
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
     }
 
-    @Override
-    public void onFinished()
+    override fun onFinished()
     {
-        Log.v(TAG, "PanasonicCameraConnectSequence.onFinished()");
+        Log.v(TAG, "PanasonicCameraConnectSequence.onFinished()")
         try
         {
-            Thread thread = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
+            val thread = Thread {
+                try
                 {
-                    try
-                    {
-                        cameraHolder.prepare();
-                        //cameraHolder.startRecMode();
-                        cameraHolder.startPlayMode();
-                        cameraHolder.startEventWatch(listener);
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                    Log.v(TAG, "CameraConnectSequence:: connected.");
-                    onConnectNotify();
+                    cameraHolder.prepare()
+                    //cameraHolder.startRecMode()
+                    cameraHolder.startPlayMode()
+                    cameraHolder.startEventWatch(listener)
                 }
-            });
-            thread.start();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    private void onConnectNotify()
-    {
-        try
-        {
-            final Thread thread = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
+                catch (e: Exception)
                 {
-                    // カメラとの接続確立を通知する
-                    cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_connected));
-                    cameraStatusReceiver.onCameraConnected();
-                    Log.v(TAG, "onConnectNotify()");
+                    e.printStackTrace()
                 }
-            });
-            thread.start();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-/*
-    private void waitForAMoment(long mills)
-    {
-        if (mills > 0)
-        {
-            try {
-                Log.v(TAG, " WAIT " + mills + "ms");
-                Thread.sleep(mills);
-            } catch (Exception e) {
-                e.printStackTrace();
+                Log.v(TAG, "CameraConnectSequence:: connected.")
+                onConnectNotify()
             }
+            thread.start()
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
         }
     }
-*/
 
-    @Override
-    public void onErrorFinished(String reason)
+    private fun onConnectNotify()
     {
-        cameraConnection.alertConnectingFailed(reason);
+        try
+        {
+            val thread = Thread {
+                // カメラとの接続確立を通知する
+                cameraStatusReceiver.onStatusNotify(context.getString(R.string.connect_connected))
+                cameraStatusReceiver.onCameraConnected()
+                Log.v(TAG, "onConnectNotify()")
+            }
+            thread.start()
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
+    }
+
+    override fun onErrorFinished(reason: String?)
+    {
+        cameraConnection.alertConnectingFailed(reason)
+    }
+
+    companion object
+    {
+        private val TAG = PanasonicCameraConnectSequence::class.java.simpleName
     }
 }

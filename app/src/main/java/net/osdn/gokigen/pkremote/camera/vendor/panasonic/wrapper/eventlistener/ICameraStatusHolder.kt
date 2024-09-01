@@ -1,14 +1,11 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.eventlistener;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.eventlistener
 
-import java.util.List;
-
-public interface ICameraStatusHolder
+interface ICameraStatusHolder
 {
-    String getCameraStatus();
-    boolean getLiveviewStatus();
-    String getShootMode();
-    List<String> getAvailableShootModes();
-    int getZoomPosition();
-    String getStorageId();
-
+    fun getCameraStatus(): String?
+    fun getLiveviewStatus(): Boolean
+    fun getShootMode(): String?
+    fun getAvailableShootModes(): List<String?>?
+    fun getZoomPosition(): Int
+    fun getStorageId(): String?
 }

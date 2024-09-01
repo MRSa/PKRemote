@@ -1,146 +1,118 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.eventlistener;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.eventlistener
 
-import android.content.Context;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import net.osdn.gokigen.pkremote.ICardSlotSelector;
-import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraChangeListener;
-import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
-import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera;
+import android.content.Context
+import android.util.Log
+import net.osdn.gokigen.pkremote.ICardSlotSelector
+import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraChangeListener
+import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient
+import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera
 
 /**
  *
  *
  */
-public class CameraEventObserver implements ICameraEventObserver
-{
-    private static final String TAG = CameraEventObserver.class.getSimpleName();
-    private static final int TIMEOUT_MS = 3000;
-    private final CameraStatusHolder statusHolder;
-    private boolean isEventMonitoring;
-    private boolean isActive;
+class CameraEventObserver private constructor(
+    context: Context,
+    private val remote: IPanasonicCamera,
+    cardSlotSelector: ICardSlotSelector
+) :
+    ICameraEventObserver {
+    private val statusHolder =
+        CameraStatusHolder(context, remote, cardSlotSelector)
+    private var isEventMonitoring: Boolean
+    private var isActive: Boolean
 
-    private final IPanasonicCamera remote;
-
-    public static ICameraEventObserver newInstance(@NonNull Context context, @NonNull IPanasonicCamera apiClient, @NonNull ICardSlotSelector cardSlotSelector)
-    {
-        return (new CameraEventObserver(context, apiClient, cardSlotSelector));
+    init {
+        isEventMonitoring = false
+        isActive = false
     }
 
-    private CameraEventObserver(@NonNull Context context, @NonNull IPanasonicCamera apiClient, @NonNull ICardSlotSelector cardSlotSelector)
-    {
-        super();
-        remote = apiClient;
-        statusHolder = new CameraStatusHolder(context, apiClient, cardSlotSelector);
-        isEventMonitoring = false;
-        isActive = false;
-    }
-
-    @Override
-    public boolean start()
-    {
-        if (!isActive)
-        {
-            Log.w(TAG, "start() observer is not active.");
-            return (false);
+    override fun start(): Boolean {
+        if (!isActive) {
+            Log.w(TAG, "start() observer is not active.")
+            return (false)
         }
-        if (isEventMonitoring)
-        {
-            Log.w(TAG, "start() already starting.");
-            return (false);
+        if (isEventMonitoring) {
+            Log.w(TAG, "start() already starting.")
+            return (false)
         }
-        isEventMonitoring = true;
+        isEventMonitoring = true
 
-        try
-        {
-            Thread thread = new Thread()
-            {
-                @Override
-                public void run()
-                {
-                    Log.d(TAG, "start() exec.");
-                    while (isEventMonitoring)
-                    {
-                        try
-                        {
+        try {
+            val thread: Thread = object : Thread(
+            ) {
+                override fun run() {
+                    Log.d(TAG, "start() exec.")
+                    while (isEventMonitoring) {
+                        try {
                             // parse reply message
-                            statusHolder.parse(SimpleHttpClient.httpGet(remote.getCmdUrl() + "cam.cgi?mode=getstate", TIMEOUT_MS));
+                            statusHolder.parse(
+                                SimpleHttpClient.httpGet(
+                                    remote.getCmdUrl() + "cam.cgi?mode=getstate",
+                                    TIMEOUT_MS
+                                )
+                            )
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
-                        }
-                        try
-                        {
-                            Thread.sleep(1000);
-                        }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
+                        try {
+                            sleep(1000)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
                     }
-                    isEventMonitoring = false;
+                    isEventMonitoring = false
                 }
-            };
-            thread.start();
+            }
+            thread.start()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return (true);
+        return (true)
     }
 
-    @Override
-    public void stop()
-    {
-        isEventMonitoring = false;
+    override fun stop() {
+        isEventMonitoring = false
     }
 
-    @Override
-    public void release()
-    {
-        isEventMonitoring = false;
-        isActive = false;
+    override fun release() {
+        isEventMonitoring = false
+        isActive = false
     }
 
-    @Override
-    public void setEventListener(@NonNull ICameraChangeListener listener)
-    {
-        try
-        {
-            statusHolder.setEventChangeListener(listener);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
+    override fun setEventListener(listener: ICameraChangeListener) {
+        try {
+            statusHolder.setEventChangeListener(listener)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
-    @Override
-    public void clearEventListener()
-    {
-        try
-        {
-            statusHolder.clearEventChangeListener();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
+    override fun clearEventListener() {
+        try {
+            statusHolder.clearEventChangeListener()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
-    @Override
-    public ICameraStatusHolder getCameraStatusHolder()
-    {
-        return (statusHolder);
+    override fun getCameraStatusHolder(): ICameraStatusHolder {
+        return (statusHolder)
     }
 
-    @Override
-    public void activate()
-    {
-        isActive = true;
+    override fun activate() {
+        isActive = true
+    }
+
+    companion object {
+        private val TAG: String = CameraEventObserver::class.java.simpleName
+        private const val TIMEOUT_MS = 3000
+        fun newInstance(
+            context: Context,
+            apiClient: IPanasonicCamera,
+            cardSlotSelector: ICardSlotSelector
+        ): ICameraEventObserver {
+            return (CameraEventObserver(context, apiClient, cardSlotSelector))
+        }
     }
 }

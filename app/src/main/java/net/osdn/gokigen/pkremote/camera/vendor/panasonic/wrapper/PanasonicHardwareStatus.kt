@@ -1,51 +1,14 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper
 
-import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraHardwareStatus;
+import net.osdn.gokigen.pkremote.camera.interfaces.status.ICameraHardwareStatus
 
-import java.util.Map;
-
-public class PanasonicHardwareStatus implements ICameraHardwareStatus
+class PanasonicHardwareStatus : ICameraHardwareStatus
 {
-    @Override
-    public boolean isAvailableHardwareStatus()
-    {
-        return (false);
-    }
-
-    @Override
-    public String getLensMountStatus()
-    {
-        return (null);
-    }
-
-    @Override
-    public String getMediaMountStatus()
-    {
-        return (null);
-    }
-
-    @Override
-    public float getMinimumFocalLength()
-    {
-        return (0);
-    }
-
-    @Override
-    public float getMaximumFocalLength()
-    {
-        return (0);
-    }
-
-    @Override
-    public float getActualFocalLength()
-    {
-        return (0);
-    }
-
-    @Override
-    public Map<String, Object> inquireHardwareInformation()
-    {
-        return (null);
-    }
-
+    override fun isAvailableHardwareStatus(): Boolean { return (false) }
+    override fun getLensMountStatus(): String? { return (null) }
+    override fun getMediaMountStatus(): String? { return (null) }
+    override fun getMinimumFocalLength(): Float { return (0.0f) }
+    override fun getMaximumFocalLength(): Float { return (0.0f) }
+    override fun getActualFocalLength(): Float { return (0.0f) }
+    override fun inquireHardwareInformation(): Map<String, Any>? { return (null) }
 }
