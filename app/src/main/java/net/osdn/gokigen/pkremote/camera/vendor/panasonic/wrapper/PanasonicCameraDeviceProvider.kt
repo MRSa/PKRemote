@@ -165,6 +165,7 @@ class PanasonicCameraDeviceProvider private constructor(
             return (url.substring(0, j))
         }
 
+/*
         private fun toHost(url: String): String {
             val i = url.indexOf("://") // http:// or https://
             if (i == -1) {
@@ -177,5 +178,6 @@ class PanasonicCameraDeviceProvider private constructor(
             }
             return (url.substring(i + 3, j))
         }
+*/
     }
 }
