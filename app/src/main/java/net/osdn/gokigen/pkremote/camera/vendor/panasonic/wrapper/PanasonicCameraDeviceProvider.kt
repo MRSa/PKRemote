@@ -92,7 +92,7 @@ class PanasonicCameraDeviceProvider private constructor(
         return (sessionId)
     }
 
-    fun setCommunicationSessionId(sessionId: String?)
+    override fun setCommunicationSessionId(sessionId: String?)
     {
         this.sessionId = sessionId
     }

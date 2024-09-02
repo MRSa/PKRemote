@@ -15,4 +15,5 @@ interface IPanasonicCamera {
     fun getClientDeviceUuId(): String
 
     fun getCommunicationSessionId() : String?
+    fun setCommunicationSessionId(sessionId: String?)
 }

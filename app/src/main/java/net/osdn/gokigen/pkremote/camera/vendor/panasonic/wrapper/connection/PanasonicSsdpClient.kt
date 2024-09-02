@@ -145,9 +145,15 @@ class PanasonicSsdpClient(private val context: Context, private val callback: IS
                                     reply = SimpleHttpClient.httpGet(registUrl, SSDP_RECEIVE_TIMEOUT)
                                     retryTimeout--
                                 }
-                                if (reply.contains("ok"))
+                                if ((reply.contains("ok"))&&(reply.contains("remote")))
                                 {
-                                    Log.v(TAG, " RETRY REPLY [OK] : $reply")
+                                    val replyList = reply.split(",")
+                                    val sessionId = if (replyList.size > 4) { replyList[4].trim() } else { "" }
+                                    Log.v(TAG, " RETRY REPLY [OK] ($sessionId) : $reply ")
+                                    if (sessionId.isNotEmpty())
+                                    {
+                                        device.setCommunicationSessionId(sessionId)
+                                    }
                                     foundDevice = true
                                     callback.onDeviceFound(device)
                                     // カメラと接続できた場合は breakする
@@ -177,11 +183,13 @@ class PanasonicSsdpClient(private val context: Context, private val callback: IS
             if ((foundDevice)&&(isUseDigest)&&(device != null))
             {
                 // ---- デバイスを登録する
-                val entryUrl = device.getCmdUrl() + "cam.cgi?mode=setsetting&type=device_name&value=GOKIGEN_a01Series"
-                val entryReply = SimpleHttpClient.httpGet(entryUrl, SSDP_RECEIVE_TIMEOUT)
-                Log.v(TAG, " [setsetting] : $entryReply")
-            }
+                val reply0 = entryDeviceToCamera(device)
+                Log.v(TAG, " [setsetting] : $reply0")
 
+                // ---- RAWファイルを転送する設定
+                val reply1 = setRawTransferMode(device)
+                Log.v(TAG, " [rawTransfer] : $reply1")
+            }
         }
         catch (e: Exception)
         {
@@ -204,6 +212,56 @@ class PanasonicSsdpClient(private val context: Context, private val callback: IS
             }
         }
         callback.onFinished()
+    }
+
+    private fun entryDeviceToCamera(device: IPanasonicCamera) : String
+    {
+        try
+        {
+            val entryUrl = "${device.getCmdUrl()}cam.cgi?mode=setsetting&type=device_name&value=GOKIGEN_a01Series"
+            val sessionId = device.getCommunicationSessionId()
+            val entryReply = if (!sessionId.isNullOrEmpty())
+            {
+                val headerMap: MutableMap<String, String> = HashMap()
+                headerMap["X-SESSION_ID"] = sessionId
+                SimpleHttpClient.httpGetWithHeader(entryUrl, headerMap, null, SSDP_RECEIVE_TIMEOUT)
+            }
+            else
+            {
+                SimpleHttpClient.httpGet(entryUrl, SSDP_RECEIVE_TIMEOUT)
+            }
+            return (entryReply)
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
+        return ("")
+    }
+
+    private fun setRawTransferMode(device: IPanasonicCamera) : String
+    {
+        try
+        {
+            val entryUrl = "${device.getCmdUrl()}cam.cgi?mode=setsetting&type=raw_img_send&value=enable"
+            val sessionId = device.getCommunicationSessionId()
+            val entryReply = if (!sessionId.isNullOrEmpty())
+            {
+                val headerMap: MutableMap<String, String> = HashMap()
+                headerMap["X-SESSION_ID"] = sessionId
+                SimpleHttpClient.httpGetWithHeader(entryUrl, headerMap, null, SSDP_RECEIVE_TIMEOUT)
+            }
+            else
+            {
+                SimpleHttpClient.httpGet(entryUrl, SSDP_RECEIVE_TIMEOUT)
+            }
+            return (entryReply)
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
+        return ("")
     }
 
     /**
