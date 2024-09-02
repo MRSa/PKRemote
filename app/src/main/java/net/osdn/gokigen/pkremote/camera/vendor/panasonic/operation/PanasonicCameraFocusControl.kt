@@ -1,89 +1,79 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.operation;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.operation
 
-import android.graphics.PointF;
-import android.util.Log;
-import android.view.MotionEvent;
+import android.util.Log
+import android.view.MotionEvent
+import net.osdn.gokigen.pkremote.camera.interfaces.control.IFocusingControl
+import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IAutoFocusFrameDisplay
+import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IIndicatorControl
+import net.osdn.gokigen.pkremote.camera.vendor.panasonic.operation.takepicture.PanasonicAutoFocusControl
+import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera
 
-import androidx.annotation.NonNull;
-
-import net.osdn.gokigen.pkremote.camera.interfaces.control.IFocusingControl;
-import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IAutoFocusFrameDisplay;
-import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IIndicatorControl;
-import net.osdn.gokigen.pkremote.camera.vendor.panasonic.operation.takepicture.PanasonicAutoFocusControl;
-import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera;
-
-public class PanasonicCameraFocusControl  implements IFocusingControl
+class PanasonicCameraFocusControl(private val frameDisplay: IAutoFocusFrameDisplay, indicator: IIndicatorControl) : IFocusingControl
 {
-    private final String TAG = toString();
-    private final PanasonicAutoFocusControl afControl;
-    private final IAutoFocusFrameDisplay frameDisplay;
+    private val afControl = PanasonicAutoFocusControl(frameDisplay, indicator)
 
-    public PanasonicCameraFocusControl(@NonNull final IAutoFocusFrameDisplay frameDisplayer, @NonNull final IIndicatorControl indicator)
+    fun setCamera(panasonicCamera: IPanasonicCamera)
     {
-        this.frameDisplay = frameDisplayer;
-        afControl = new PanasonicAutoFocusControl(frameDisplayer, indicator);
+        afControl.setCamera(panasonicCamera)
     }
 
-    public void setCamera(@NonNull IPanasonicCamera panasonicCamera)
+    override fun driveAutoFocus(motionEvent: MotionEvent): Boolean
     {
-        afControl.setCamera(panasonicCamera);
-    }
-
-    @Override
-    public boolean driveAutoFocus(final MotionEvent motionEvent)
-    {
-        Log.v(TAG, "driveAutoFocus()");
-        if (motionEvent.getAction() != MotionEvent.ACTION_DOWN)
+        Log.v(TAG, "driveAutoFocus()")
+        if (motionEvent.action != MotionEvent.ACTION_DOWN)
         {
-            return (false);
+            return (false)
         }
         try
         {
-            PointF point = frameDisplay.getPointWithEvent(motionEvent);
+            val point = frameDisplay.getPointWithEvent(motionEvent)
             if (frameDisplay.isContainsPoint(point))
             {
-                afControl.lockAutoFocus(point);
+                afControl.lockAutoFocus(point)
             }
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
-        return (false);
+        return (false)
     }
 
-    @Override
-    public void unlockAutoFocus()
+    override fun unlockAutoFocus()
     {
-        Log.v(TAG, "unlockAutoFocus()");
+        Log.v(TAG, "unlockAutoFocus()")
         try
         {
-            afControl.unlockAutoFocus();
-            frameDisplay.hideFocusFrame();
+            afControl.unlockAutoFocus()
+            frameDisplay.hideFocusFrame()
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
     }
 
-    @Override
-    public void halfPressShutter(boolean isPressed)
+    override fun halfPressShutter(isPressed: Boolean)
     {
-        Log.v(TAG, "halfPressShutter() " + isPressed);
+        Log.v(TAG, "halfPressShutter() $isPressed")
         try
         {
-            afControl.halfPressShutter(isPressed);
+            afControl.halfPressShutter(isPressed)
             if (!isPressed)
             {
                 // フォーカスを外す
-                frameDisplay.hideFocusFrame();
-                afControl.unlockAutoFocus();
+                frameDisplay.hideFocusFrame()
+                afControl.unlockAutoFocus()
             }
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
+    }
+
+    companion object
+    {
+        private val TAG: String = PanasonicCameraFocusControl::class.java.simpleName
     }
 }

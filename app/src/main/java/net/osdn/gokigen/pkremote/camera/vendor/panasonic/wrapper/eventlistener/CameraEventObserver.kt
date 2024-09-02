@@ -45,19 +45,31 @@ class CameraEventObserver private constructor(
                     Log.d(TAG, "start() exec.")
                     while (isEventMonitoring) {
                         try {
+                            val urlToSend = remote.getCmdUrl() + "cam.cgi?mode=getstate"
+                            val sessionId = remote.getCommunicationSessionId()
+                            val reply = if (!sessionId.isNullOrEmpty())
+                            {
+                                val headerMap: MutableMap<String, String> = HashMap()
+                                headerMap["X-SESSION_ID"] = sessionId
+                                SimpleHttpClient.httpGetWithHeader(urlToSend, headerMap, null, TIMEOUT_MS)
+                            }
+                            else
+                            {
+                                SimpleHttpClient.httpGet(urlToSend, TIMEOUT_MS)
+                            }
                             // parse reply message
-                            statusHolder.parse(
-                                SimpleHttpClient.httpGet(
-                                    remote.getCmdUrl() + "cam.cgi?mode=getstate",
-                                    TIMEOUT_MS
-                                )
-                            )
-                        } catch (e: Exception) {
+                            statusHolder.parse(reply)
+                        }
+                        catch (e: Exception)
+                        {
                             e.printStackTrace()
                         }
-                        try {
+                        try
+                        {
                             sleep(1000)
-                        } catch (e: Exception) {
+                        }
+                        catch (e: Exception)
+                        {
                             e.printStackTrace()
                         }
                     }

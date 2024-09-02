@@ -1,45 +1,40 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.operation;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.operation
 
-import android.util.Log;
+import android.util.Log
+import net.osdn.gokigen.pkremote.camera.interfaces.control.ICaptureControl
+import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IAutoFocusFrameDisplay
+import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IIndicatorControl
+import net.osdn.gokigen.pkremote.camera.vendor.panasonic.operation.takepicture.SingleShotControl
+import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera
 
-import androidx.annotation.NonNull;
-
-import net.osdn.gokigen.pkremote.camera.interfaces.control.ICaptureControl;
-import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IAutoFocusFrameDisplay;
-import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IIndicatorControl;
-import net.osdn.gokigen.pkremote.camera.vendor.panasonic.operation.takepicture.SingleShotControl;
-import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera;
-
-public class PanasonicCameraCaptureControl implements ICaptureControl
+class PanasonicCameraCaptureControl(frameDisplayer: IAutoFocusFrameDisplay, indicator: IIndicatorControl) : ICaptureControl
 {
-    private static final String TAG = PanasonicCameraCaptureControl.class.getSimpleName();
-    private final SingleShotControl singleShotControl;
+    private val singleShotControl = SingleShotControl(frameDisplayer, indicator)
 
-    public PanasonicCameraCaptureControl(@NonNull IAutoFocusFrameDisplay frameDisplayer, @NonNull IIndicatorControl indicator)
+    fun setCamera(panasonicCamera: IPanasonicCamera)
     {
-        singleShotControl = new SingleShotControl(frameDisplayer, indicator);
-    }
-
-    public void setCamera(@NonNull IPanasonicCamera panasonicCamera)
-    {
-        singleShotControl.setCamera(panasonicCamera);
+        singleShotControl.setCamera(panasonicCamera)
     }
 
     /**
-     *   撮影する
+     * 撮影する
      *
      */
-    @Override
-    public void doCapture(int kind)
+    override fun doCapture(kind: Int)
     {
-        Log.v(TAG, "doCapture() : " + kind);
+        Log.v(TAG, "doCapture() : $kind")
         try
         {
-            singleShotControl.singleShot();
+            singleShotControl.singleShot()
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
+    }
+
+    companion object
+    {
+        private val TAG: String = PanasonicCameraCaptureControl::class.java.simpleName
     }
 }

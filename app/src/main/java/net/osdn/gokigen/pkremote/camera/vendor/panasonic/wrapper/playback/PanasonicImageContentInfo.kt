@@ -1,106 +1,92 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.playback;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.playback
 
-import android.util.Log;
+import android.util.Log
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent
+import java.util.Date
+import java.util.Locale
 
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
-
-import java.util.Date;
-
-public class PanasonicImageContentInfo implements ICameraContent
+class PanasonicImageContentInfo internal constructor(private val targetUrl: String) : ICameraContent
 {
-    private final String TAG = toString();
-    private String targetUrl;
-    private Date date;
-    private boolean isDateValid = false;
+    private var date = Date()
+    private var isDateValid = false
 
-    PanasonicImageContentInfo(String targetUrl)
+    override fun getCameraId(): String
     {
-        this.targetUrl = targetUrl;
-        this.date = new Date();
+        return ""
     }
 
-    @Override
-    public String getCameraId()
+    override fun getCardId(): String
     {
-        return "";
+        return ""
     }
 
-    @Override
-    public String getCardId()
+    override fun getContentPath(): String
     {
-        return "";
+        return ""
     }
 
-    @Override
-    public String getContentPath()
+    override fun getContentName(): String
     {
-        return "";
+        return (targetUrl.substring(targetUrl.lastIndexOf("/") + 1))
     }
 
-    @Override
-    public String getContentName()
+    override fun getOriginalName(): String
     {
-        return (targetUrl.substring(targetUrl.lastIndexOf("/") + 1));
+        return (contentName)
     }
 
-    @Override
-    public String getOriginalName()
-    {
-        return (getContentName());
-    }
-
-    @Override
-    public boolean isRaw()
+    override fun isRaw(): Boolean
     {
         try
         {
-            String target = getContentName().toLowerCase();
-            return ((target.endsWith("rw2"))||(target.endsWith("raw")));
+            val target = contentName.lowercase(Locale.getDefault())
+            return ((target.endsWith("rw2")) || (target.endsWith("raw")))
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
-        return (false);
+        return (false)
     }
 
-    @Override
-    public boolean isMovie()
+    override fun isMovie(): Boolean
     {
         try
         {
-            String target = getContentName().toLowerCase();
-            return ((target.endsWith("mov")) || (target.endsWith("mp4")));
+            val target = contentName.lowercase(Locale.getDefault())
+            return ((target.endsWith("mov")) || (target.endsWith("mp4")))
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
-        return (false);
+        return (false)
     }
 
-    @Override
-    public boolean isDateValid() {
-        return (isDateValid);
-    }
-
-    @Override
-    public boolean isContentNameValid()
+    override fun isDateValid(): Boolean
     {
-        return (true);
+        return (isDateValid)
     }
 
-    @Override
-    public Date getCapturedDate()
+    override fun isContentNameValid(): Boolean
     {
-        return (date);
+        return (true)
     }
 
-    @Override
-    public void setCapturedDate(Date date)
+    override fun getCapturedDate(): Date
     {
-        Log.v(TAG, "setCapturedDate()");
-        this.date = date;
-        isDateValid = true;
+        return (date)
+    }
+
+    override fun setCapturedDate(date: Date)
+    {
+        Log.v(TAG, "setCapturedDate()")
+        this.date = date
+        isDateValid = true
+    }
+
+    companion object
+    {
+        private val TAG: String = PanasonicImageContentInfo::class.java.simpleName
     }
 }

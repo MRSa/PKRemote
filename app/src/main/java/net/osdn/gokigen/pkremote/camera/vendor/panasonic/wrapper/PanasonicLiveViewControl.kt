@@ -36,7 +36,18 @@ class PanasonicLiveViewControl(private val camera: IPanasonicCamera) : ILiveView
                         return@Runnable
                     }
                     val requestUrl = camera.getCmdUrl() + LIVEVIEW_START_REQUEST
-                    val reply = SimpleHttpClient.httpGet(requestUrl, TIMEOUT_MS)
+                    val sessionId = camera.getCommunicationSessionId()
+
+                    val reply = if (!sessionId.isNullOrEmpty())
+                    {
+                        val headerMap: MutableMap<String, String> = HashMap()
+                        headerMap["X-SESSION_ID"] = sessionId
+                        SimpleHttpClient.httpGetWithHeader(requestUrl, headerMap, null, TIMEOUT_MS)
+                    }
+                    else
+                    {
+                        SimpleHttpClient.httpGet(requestUrl, TIMEOUT_MS)
+                    }
                     if (!reply.contains("<result>ok</result>"))
                     {
                         try
@@ -88,7 +99,18 @@ class PanasonicLiveViewControl(private val camera: IPanasonicCamera) : ILiveView
             val thread = Thread {
                 try
                 {
-                    val reply = SimpleHttpClient.httpGet(camera.getCmdUrl() + LIVEVIEW_STOP_REQUEST, TIMEOUT_MS)
+                    val sessionId = camera.getCommunicationSessionId()
+                    val urlToSend = camera.getCmdUrl() + LIVEVIEW_STOP_REQUEST
+                    val reply = if (!sessionId.isNullOrEmpty())
+                    {
+                        val headerMap: MutableMap<String, String> = HashMap()
+                        headerMap["X-SESSION_ID"] = sessionId
+                        SimpleHttpClient.httpGetWithHeader(urlToSend, headerMap, null, TIMEOUT_MS)
+                    }
+                    else
+                    {
+                        SimpleHttpClient.httpGet(urlToSend, TIMEOUT_MS)
+                    }
                     if (!reply.contains("<result>ok</result>"))
                     {
                         Log.v(TAG, "stopLiveview() reply is fail... $reply")
@@ -220,7 +242,19 @@ class PanasonicLiveViewControl(private val camera: IPanasonicCamera) : ILiveView
                         Log.v(TAG, "LV : RETRY REQUEST")
 
                         exceptionCount = 0
-                        val reply = SimpleHttpClient.httpGet(camera.getCmdUrl() + LIVEVIEW_START_REQUEST, TIMEOUT_MS)
+
+                        val sessionId = camera.getCommunicationSessionId()
+                        val urlToSend = camera.getCmdUrl() + LIVEVIEW_START_REQUEST
+                        val reply = if (!sessionId.isNullOrEmpty())
+                        {
+                            val headerMap: MutableMap<String, String> = HashMap()
+                            headerMap["X-SESSION_ID"] = sessionId
+                            SimpleHttpClient.httpGetWithHeader(urlToSend, headerMap, null, TIMEOUT_MS)
+                        }
+                        else
+                        {
+                            SimpleHttpClient.httpGet(urlToSend, TIMEOUT_MS)
+                        }
                         if (!reply.contains("ok"))
                         {
                             Log.v(TAG, "LV : RETRY COMMAND FAIL...")

@@ -25,9 +25,19 @@ class PanasonicRunMode internal constructor() : ICameraRunMode
         {
             val request = if ((isRecording)) "recmode" else "playmode"
             val requestUrl = panasonicCamera?.getCmdUrl() + "cam.cgi?mode=camcmd&value=" + request
+            val sessionId = panasonicCamera?.getCommunicationSessionId()
 
             // 撮影モード(RecMode)に切り替え
-            val reply = SimpleHttpClient.httpGet(requestUrl, this.timeoutMs)
+            val reply = if (!sessionId.isNullOrEmpty())
+            {
+                val headerMap: MutableMap<String, String> = HashMap()
+                headerMap["X-SESSION_ID"] = sessionId
+                SimpleHttpClient.httpGetWithHeader(requestUrl, headerMap, null, TIMEOUT_MS)
+            }
+            else
+            {
+                SimpleHttpClient.httpGet(requestUrl, TIMEOUT_MS)
+            }
             if (!reply.contains("ok"))
             {
                 Log.v(TAG, "CAMERA REPLIED ERROR : CHANGE RECMODE.")

@@ -16,14 +16,12 @@ class CameraStatusHolder internal constructor(
     ICameraStatusHolder,
     ICardSlotSelectionReceiver {
     private var listener: ICameraChangeListener? = null
-    private var current_sd = "sd1"
+    private var currentSd = "sd1"
     private var isInitialized = false
     private var isDualSlot = false
 
     fun parse(reply: String) {
         try {
-            // Log.v(TAG, " getState : " + reply);
-
             var isEnableDualSlot = false
             if (reply.contains("<sd_memory>set</sd_memory>") && (reply.contains("<sd2_memory>set</sd2_memory>"))) {
                 // カードが2枚刺さっている場合...
@@ -54,9 +52,9 @@ class CameraStatusHolder internal constructor(
             val indexEnd = reply.indexOf("</current_sd>")
             if ((indexStart > 0) && (indexEnd > 0) && (indexStart < indexEnd)) {
                 val currentSlot = reply.substring(indexStart + header.length, indexEnd)
-                if (current_sd != currentSlot) {
-                    current_sd = currentSlot
-                    cardSlotSelector.changedCardSlot(current_sd)
+                if (currentSd != currentSlot) {
+                    currentSd = currentSlot
+                    cardSlotSelector.changedCardSlot(currentSd)
                 }
             }
         } catch (e: Exception) {
@@ -93,49 +91,67 @@ class CameraStatusHolder internal constructor(
     }
 
     override fun getStorageId(): String {
-        return (current_sd)
+        return (currentSd)
     }
 
-    override fun slotSelected(slotId: String) {
-        Log.v(
-            TAG,
-            " slotSelected : $slotId"
-        )
-        if (current_sd != slotId) {
+    override fun slotSelected(slotId: String)
+    {
+        Log.v(TAG, " slotSelected : $slotId")
+        if (currentSd != slotId)
+        {
             // スロットを変更したい！
             requestToChangeSlot(slotId)
         }
     }
 
-
-    private fun requestToChangeSlot(slotId: String) {
-        try {
+    private fun requestToChangeSlot(slotId: String)
+    {
+        try
+        {
             val thread = Thread {
-                try {
+                try
+                {
                     var loop = true
-                    while (loop) {
-                        val reply = SimpleHttpClient.httpGet(
-                            remote.getCmdUrl() + "cam.cgi?mode=setsetting&type=current_sd&value=" + slotId,
-                            TIMEOUT_MS
-                        )
-                        if (reply.indexOf("<result>ok</result>") > 0) {
+                    while (loop)
+                    {
+                        val urlToSend = remote.getCmdUrl() + "cam.cgi?mode=setsetting&type=current_sd&value=" + slotId
+                        val sessionId = remote.getCommunicationSessionId()
+                        val reply = if (!sessionId.isNullOrEmpty())
+                        {
+                            val headerMap: MutableMap<String, String> = HashMap()
+                            headerMap["X-SESSION_ID"] = sessionId
+                            SimpleHttpClient.httpGetWithHeader(urlToSend, headerMap, null, TIMEOUT_MS)
+                        }
+                        else
+                        {
+                            SimpleHttpClient.httpGet(urlToSend, TIMEOUT_MS)
+                        }
+                        if (reply.indexOf("<result>ok</result>") > 0)
+                        {
                             loop = false
                             cardSlotSelector.selectSlot(slotId)
-                        } else {
+                        }
+                        else
+                        {
                             Thread.sleep(1000) // 1秒待つ
                         }
                     }
-                } catch (e: Exception) {
+                }
+                catch (e: Exception)
+                {
                     e.printStackTrace()
                 }
             }
             thread.start()
-        } catch (e: Exception) {
+        }
+        catch (e: Exception)
+        {
             e.printStackTrace()
         }
     }
 
-    companion object {
+    companion object
+    {
         private val TAG: String = CameraStatusHolder::class.java.simpleName
         private const val TIMEOUT_MS = 3000
     }

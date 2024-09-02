@@ -65,7 +65,7 @@ class PanasonicCameraWrapper(
             if (panasonicCamera != null)
             {
                 runMode.setCamera(panasonicCamera, playbackControl, TIMEOUT_MS)
-                playbackControl.setCamera(panasonicCamera, TIMEOUT_MS)
+                playbackControl.setCamera(panasonicCamera!!, TIMEOUT_MS)
                 focusControl?.setCamera(panasonicCamera!!)
                 captureControl?.setCamera(panasonicCamera!!)
                 zoomControl?.setCamera(panasonicCamera!!)
@@ -89,15 +89,36 @@ class PanasonicCameraWrapper(
         try
         {
             // 撮影モード(RecMode)に切り替え
-            var reply = SimpleHttpClient.httpGet(panasonicCamera?.getCmdUrl() + "cam.cgi?mode=camcmd&value=recmode", TIMEOUT_MS)
-            if (!reply.contains("ok"))
+            val sessionId = panasonicCamera?.getCommunicationSessionId()
+            val urlToSend = "${panasonicCamera?.getCmdUrl()}cam.cgi?mode=camcmd&value=recmode"
+            val reply1 = if (!sessionId.isNullOrEmpty())
+            {
+                val headerMap: MutableMap<String, String> = HashMap()
+                headerMap["X-SESSION_ID"] = sessionId
+                SimpleHttpClient.httpGetWithHeader(urlToSend, headerMap, null, TIMEOUT_MS)
+            }
+            else
+            {
+                SimpleHttpClient.httpGet(urlToSend, TIMEOUT_MS)
+            }
+            if (!reply1.contains("ok"))
             {
                 Log.v(TAG, "CAMERA REPLIED ERROR : CHANGE RECMODE.")
             }
 
             //  フォーカスに関しては、１点に切り替える（仮）
-            reply = SimpleHttpClient.httpGet(panasonicCamera?.getCmdUrl() + "cam.cgi?mode=setsetting&type=afmode&value=1area", TIMEOUT_MS)
-            if (!reply.contains("ok"))
+            val urlToSendFocus = "${panasonicCamera?.getCmdUrl()}cam.cgi?mode=setsetting&type=afmode&value=1area"
+            val reply2 = if (!sessionId.isNullOrEmpty())
+            {
+                val headerMap: MutableMap<String, String> = HashMap()
+                headerMap["X-SESSION_ID"] = sessionId
+                SimpleHttpClient.httpGetWithHeader(urlToSendFocus, headerMap, null, TIMEOUT_MS)
+            }
+            else
+            {
+                SimpleHttpClient.httpGet(urlToSendFocus, TIMEOUT_MS)
+            }
+            if (!reply2.contains("ok"))
             {
                 Log.v(TAG, "CAMERA REPLIED ERROR : CHANGE AF MODE 1area.")
             }
@@ -113,11 +134,21 @@ class PanasonicCameraWrapper(
         try
         {
             // 参照モード(PlayMode)に切り替え
-            val reply = SimpleHttpClient.httpGet(panasonicCamera?.getCmdUrl() + "cam.cgi?mode=camcmd&value=playmode", TIMEOUT_MS)
+            val sessionId = panasonicCamera?.getCommunicationSessionId()
+            val urlToSend = "${panasonicCamera?.getCmdUrl()}cam.cgi?mode=camcmd&value=playmode"
+            val reply = if (!sessionId.isNullOrEmpty())
+            {
+                val headerMap: MutableMap<String, String> = HashMap()
+                headerMap["X-SESSION_ID"] = sessionId
+                SimpleHttpClient.httpGetWithHeader(urlToSend, headerMap, null, TIMEOUT_MS)
+            }
+            else
+            {
+                SimpleHttpClient.httpGet(urlToSend, TIMEOUT_MS)
+            }
             if (!reply.contains("ok"))
             {
                 Log.v(TAG, "CAMERA REPLIED ERROR : CHANGE PLAYMODE.  $reply")
-                return
             }
 
             // 一覧取得の準備を行う

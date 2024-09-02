@@ -1,135 +1,122 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.operation;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.operation
 
-import android.util.Log;
+import android.util.Log
+import net.osdn.gokigen.pkremote.camera.interfaces.control.IZoomLensControl
+import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient
+import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera
 
-import androidx.annotation.NonNull;
-
-import net.osdn.gokigen.pkremote.camera.interfaces.control.IZoomLensControl;
-import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
-import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera;
-
-public class PanasonicCameraZoomLensControl implements IZoomLensControl
+class PanasonicCameraZoomLensControl : IZoomLensControl
 {
-    private final String TAG = toString();
-    private IPanasonicCamera camera = null;
-    private boolean isZooming = false;
-    private static final int TIMEOUT_MS = 3000;
+    private lateinit var camera: IPanasonicCamera
+    private var isZooming = false
 
-    public PanasonicCameraZoomLensControl()
+    fun setCamera(panasonicCamera: IPanasonicCamera)
     {
-        Log.v(TAG, "PanasonicCameraZoomLensControl()");
+        camera = panasonicCamera
     }
 
-    public void setCamera(@NonNull IPanasonicCamera panasonicCamera)
+    override fun canZoom(): Boolean
     {
-        camera = panasonicCamera;
+        Log.v(TAG, "canZoom()")
+        return (true)
     }
 
-    @Override
-    public boolean canZoom() {
-        Log.v(TAG, "canZoom()");
-        return (true);
+    override fun updateStatus()
+    {
+        Log.v(TAG, "updateStatus()")
     }
 
-    @Override
-    public void updateStatus()
+    override fun getMaximumFocalLength(): Float
     {
-        Log.v(TAG, "updateStatus()");
+        Log.v(TAG, "getMaximumFocalLength()")
+        return (0.0f)
     }
 
-    @Override
-    public float getMaximumFocalLength()
+    override fun getMinimumFocalLength(): Float
     {
-        Log.v(TAG, "getMaximumFocalLength()");
-        return (0);
+        Log.v(TAG, "getMinimumFocalLength()")
+        return (0.0f)
     }
 
-    @Override
-    public float getMinimumFocalLength()
+    override fun getCurrentFocalLength(): Float
     {
-        Log.v(TAG, "getMinimumFocalLength()");
-        return (0);
+        Log.v(TAG, "getCurrentFocalLength()")
+        return (0.0f)
     }
 
-    @Override
-    public float getCurrentFocalLength()
+    override fun driveZoomLens(targetLength: Float)
     {
-        Log.v(TAG, "getCurrentFocalLength()");
-        return (0);
+        Log.v(TAG, "driveZoomLens() : $targetLength")
     }
 
-    @Override
-    public void driveZoomLens(float targetLength)
+    override fun moveInitialZoomPosition()
     {
-        Log.v(TAG, "driveZoomLens() : " + targetLength);
+        Log.v(TAG, "moveInitialZoomPosition()")
     }
 
-    @Override
-    public void moveInitialZoomPosition()
+    override fun isDrivingZoomLens(): Boolean
     {
-        Log.v(TAG, "moveInitialZoomPosition()");
+        Log.v(TAG, "isDrivingZoomLens()")
+        return (isZooming)
     }
 
-    @Override
-    public boolean isDrivingZoomLens()
+    override fun driveZoomLens(isZoomIn: Boolean)
     {
-        Log.v(TAG, "isDrivingZoomLens()");
-        return (isZooming);
-    }
-
-    /**
-     *
-     *
-     */
-    @Override
-    public void driveZoomLens(boolean isZoomIn)
-    {
-        Log.v(TAG, "driveZoomLens() : " + isZoomIn);
-        if (camera == null)
+        Log.v(TAG, "driveZoomLens() : $isZoomIn")
+        if (!::camera.isInitialized)
         {
-            Log.v(TAG, "IPanasonicCameraApi is null...");
-            return;
+            Log.v(TAG, "IPanasonicCameraApi is not initialized...")
+            return
         }
         try
         {
-            String command;
-            if (isZooming)
-            {
-                command = "cam.cgi?mode=camcmd&value=zoomstop";
+            val command = if (isZooming) {
+                "cam.cgi?mode=camcmd&value=zoomstop"
             }
             else
             {
-                command = (isZoomIn) ? "cam.cgi?mode=camcmd&value=tele-normal" : "cam.cgi?mode=camcmd&value=wide-normal";
+                if ((isZoomIn)) "cam.cgi?mode=camcmd&value=tele-normal" else "cam.cgi?mode=camcmd&value=wide-normal"
             }
-            final String direction = command;
-            Thread thread = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
+            val thread = Thread {
+                try
                 {
-                    try
+                    val sessionId = camera.getCommunicationSessionId()
+                    val urlToSend = "${camera.getCmdUrl()}$command"
+                    val reply = if (!sessionId.isNullOrEmpty())
                     {
-                        String reply = SimpleHttpClient.httpGet(camera.getCmdUrl() + direction, TIMEOUT_MS);
-                        if (reply.contains("ok"))
-                        {
-                            isZooming = !isZooming;
-                        }
-                        else
-                        {
-                            Log.v(TAG, "driveZoomLens() reply is failure.");
-                        }
+                        val headerMap: MutableMap<String, String> = HashMap()
+                        headerMap["X-SESSION_ID"] = sessionId
+                        SimpleHttpClient.httpGetWithHeader(urlToSend, headerMap, null, TIMEOUT_MS)
                     }
-                    catch (Exception e)
+                    else
                     {
-                        e.printStackTrace();
+                        SimpleHttpClient.httpGet(urlToSend, TIMEOUT_MS)
+                    }
+                    if (reply.contains("ok"))
+                    {
+                        isZooming = !isZooming
+                    }
+                    else
+                    {
+                        Log.v(TAG, "driveZoomLens() reply is failure.")
                     }
                 }
-            });
-            thread.start();
+                catch (e: Exception)
+                {
+                    e.printStackTrace()
+                }
+            }
+            thread.start()
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
+    }
+
+    companion object
+    {
+        private const val TIMEOUT_MS = 3000
+        private val TAG: String = PanasonicCameraZoomLensControl::class.java.simpleName
     }
 }

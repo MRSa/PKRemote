@@ -1,390 +1,424 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.playback;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.playback
 
-import android.app.Activity;
-import android.graphics.Bitmap;
-import android.util.Log;
+import android.app.Activity
+import android.util.Log
+import net.osdn.gokigen.pkremote.IInformationReceiver
+import net.osdn.gokigen.pkremote.R
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.IContentInfoCallback
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentCallback
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentListCallback
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback
+import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl
+import net.osdn.gokigen.pkremote.camera.playback.ProgressEvent
+import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient
+import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient.IReceivedMessageCallback
+import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera
+import java.util.ArrayDeque
+import java.util.Queue
 
-import androidx.annotation.NonNull;
-
-import net.osdn.gokigen.pkremote.IInformationReceiver;
-import net.osdn.gokigen.pkremote.R;
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent;
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContentListCallback;
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraFileInfo;
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.IContentInfoCallback;
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentCallback;
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentListCallback;
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadThumbnailImageCallback;
-import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl;
-import net.osdn.gokigen.pkremote.camera.playback.ProgressEvent;
-import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
-import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-
-public class PanasonicPlaybackControl implements IPlaybackControl
+class PanasonicPlaybackControl(private val activity: Activity, private val informationReceiver: IInformationReceiver) : IPlaybackControl
 {
-    private final String TAG = toString();
-    private final Activity activity;
-    private final IInformationReceiver informationReceiver;
-    private static final int COMMAND_POLL_QUEUE_MS = 50;
-    private IPanasonicCamera panasonicCamera = null;
-    private int timeoutMs = 50000;
-    private boolean isStarted = false;
-    private StringBuffer getObjectLists = null;
-    private List<ICameraContent> contentList;
-    private Queue<DownloadScreennailRequest> commandQueue;
+    private lateinit var panasonicCamera: IPanasonicCamera
+    private var timeoutMs = 50000
+    private var isStarted = false
+    private var cameraContentList: StringBuffer? = null
+    private val contentList: MutableList<ICameraContent> = ArrayList()
+    private var commandQueue: Queue<DownloadScreennailRequest> = ArrayDeque()
 
-
-    public PanasonicPlaybackControl(@NonNull Activity activity, @NonNull IInformationReceiver informationReceiver)
+    fun setCamera(panasonicCamera: IPanasonicCamera, timeoutMs: Int)
     {
-        Log.v(TAG, "PanasonicPlaybackControl()");
-        this.activity = activity;
-        this.informationReceiver = informationReceiver;
-        contentList = new ArrayList<>();
+        Log.v(TAG, "setCamera() " + panasonicCamera.getFriendlyName())
+        try
+        {
+            this.panasonicCamera = panasonicCamera
+            this.timeoutMs = timeoutMs
+            commandQueue.clear()
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
     }
 
-    public void setCamera(IPanasonicCamera panasonicCamera, int timeoutMs)
+    private fun getContentList()
     {
-        Log.v(TAG, "setCamera() " + panasonicCamera.getFriendlyName());
-        this.panasonicCamera = panasonicCamera;
-        this.timeoutMs = timeoutMs;
-        this.commandQueue = new ArrayDeque<>();
-        commandQueue.clear();
-    }
-
-    private void getContentList()
-    {
-        if (panasonicCamera == null)
+        if (!::panasonicCamera.isInitialized)
         {
             // URLが特定できていないため、送信できないので先に進める
-            return;
+            return
         }
 
         // PLAYモードに切り替える
-        String requestUrl = this.panasonicCamera.getCmdUrl() + "cam.cgi?mode=camcmd&value=playmode";
-        String reqPlay = SimpleHttpClient.httpGet(requestUrl, this.timeoutMs);
+        val requestUrl = panasonicCamera.getCmdUrl() + "cam.cgi?mode=camcmd&value=playmode"
+        val sessionId = panasonicCamera.getCommunicationSessionId()
+        val reqPlay = if (!sessionId.isNullOrEmpty())
+        {
+            val headerMap: MutableMap<String, String> = HashMap()
+            headerMap["X-SESSION_ID"] = sessionId
+            SimpleHttpClient.httpGetWithHeader(requestUrl, headerMap, null, this.timeoutMs)
+        }
+        else
+        {
+            SimpleHttpClient.httpGet(requestUrl, this.timeoutMs)
+        }
         if (!reqPlay.contains("ok"))
         {
-            Log.v(TAG, "CAMERA REPLIED ERROR : CHANGE PLAYMODE.");
+            Log.v(TAG, "CAMERA REPLIED ERROR : CHANGE PLAYMODE.")
         }
 
         ////////////  ある程度の数に区切って送られてくる... 何度か繰り返す必要があるようだ  ////////////
-        getObjectLists = new StringBuffer();
-        int sequenceNumber = 0;
-        int totalCount = 100000;
-        int returnedCount = 0;
-        while (totalCount > returnedCount)
-        {
-            Log.v(TAG, "  ===== getContentList() " + sequenceNumber + " =====");
-            sequenceNumber++;
-            String url = panasonicCamera.getObjUrl() + "Server0/CDS_control";
-            String postData = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><s:Body>" +
-                    "<u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "\" xmlns:pana=\"urn:schemas-panasonic-com:pana\">" +
-                    "<ObjectID>0</ObjectID><BrowseFlag>BrowseDirectChildren</BrowseFlag><Filter>*</Filter><StartingIndex>" + returnedCount + "</StartingIndex><RequestedCount>3500</RequestedCount><SortCriteria></SortCriteria>" +
-                    "<pana:X_FromCP>LumixLink2.0</pana:X_FromCP></u:Browse></s:Body></s:Envelope>";
+        cameraContentList = StringBuffer()
+        var sequenceNumber = 0
+        var totalCount = 100000
+        var returnedCount = 0
+        while (totalCount > returnedCount) {
+            Log.v(TAG, "  ===== getContentList() $sequenceNumber =====")
+            sequenceNumber++
+            val url = panasonicCamera.getObjUrl() + "Server0/CDS_control"
+            val postData =
+                "<?xml version=\"1.0\" encoding=\"utf-8\" ?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><s:Body>" +
+                        "<u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "\" xmlns:pana=\"urn:schemas-panasonic-com:pana\">" +
+                        "<ObjectID>0</ObjectID><BrowseFlag>BrowseDirectChildren</BrowseFlag><Filter>*</Filter><StartingIndex>" + returnedCount + "</StartingIndex><RequestedCount>3500</RequestedCount><SortCriteria></SortCriteria>" +
+                        "<pana:X_FromCP>LumixLink2.0</pana:X_FromCP></u:Browse></s:Body></s:Envelope>"
 
-            Map<String, String>  header = new HashMap<>();
-            header.clear();
-            header.put("SOAPACTION", "urn:schemas-upnp-org:service:ContentDirectory:" + sequenceNumber + "#Browse");
-            String reply = SimpleHttpClient.httpPostWithHeader(url, postData, header, "text/xml; charset=\"utf-8\"", timeoutMs);
-            if (reply.length() < 10)
+            val header: MutableMap<String, String> = HashMap()
+            header.clear()
+            header["SOAPACTION"] = "urn:schemas-upnp-org:service:ContentDirectory:$sequenceNumber#Browse"
+            if (!sessionId.isNullOrEmpty())
             {
-                Log.v(TAG, postData);
-                Log.v(TAG, "ContentDirectory is FAILURE. [" + sequenceNumber + "]");
-                break;
-            }
-            getObjectLists = getObjectLists.append(reply);
-            String matches = reply.substring(reply.indexOf("<TotalMatches>") + 14, reply.indexOf("</TotalMatches>"));
-            try
-            {
-                totalCount = Integer.parseInt(matches);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-                totalCount = 0;
+                header["X-SESSION_ID"] = sessionId
             }
 
-            String returned = reply.substring(reply.indexOf("<NumberReturned>") + 16, reply.indexOf("</NumberReturned>"));
+            val reply = SimpleHttpClient.httpPostWithHeader(
+                url,
+                postData,
+                header,
+                "text/xml; charset=\"utf-8\"",
+                timeoutMs
+            )
+            if (reply.length < 10)
+            {
+                Log.v(TAG, postData)
+                Log.v(TAG, "ContentDirectory is FAILURE. [$sequenceNumber]")
+                break
+            }
+            cameraContentList = cameraContentList?.append(reply)
+            val matches = reply.substring(
+                reply.indexOf("<TotalMatches>") + 14,
+                reply.indexOf("</TotalMatches>")
+            )
             try
             {
-                returnedCount = returnedCount + Integer.parseInt(returned);
+                totalCount = matches.toInt()
             }
-            catch (Exception e)
+            catch (e: Exception)
             {
-                e.printStackTrace();
+                e.printStackTrace()
+                totalCount = 0
             }
-            Log.v(TAG, "  REPLY DATA : (" + matches + "/" + totalCount + ") [" + returned + "/" + returnedCount + "] " + " " + reply.length() + "bytes");
-            informationReceiver.updateMessage(activity.getString(R.string.get_image_list) + " " + returnedCount + "/" + totalCount + " ", false, false, 0);
+
+            val returned = reply.substring(
+                reply.indexOf("<NumberReturned>") + 16,
+                reply.indexOf("</NumberReturned>")
+            )
+            try
+            {
+                returnedCount += returned.toInt()
+            }
+            catch (e: Exception)
+            {
+                e.printStackTrace()
+            }
+            Log.v(TAG, "  REPLY DATA : ($matches/$totalCount) [$returned/$returnedCount] ${reply.length} bytes"
+            )
+            informationReceiver.updateMessage(
+                activity.getString(R.string.get_image_list) + " " + returnedCount + "/" + totalCount + " ",
+                false,
+                false,
+                0
+            )
         }
     }
 
-    public void preprocessPlaymode()
+    fun preprocessPlaymode()
     {
-        // PLAYBACKモードに切り替わった直後に実行する処理をここに書く。
-        Log.v(TAG, "  preprocessPlaymode() : " + panasonicCamera.getObjUrl());
+        try
+        {
+            // PLAYBACKモードに切り替わった直後に実行する処理をここに書く。
+            Log.v(TAG, "  preprocessPlaymode() : " + panasonicCamera.getObjUrl())
 
-        // 画像情報を取得
-        getContentList();
+            // 画像情報を取得
+            getContentList()
 
-        // スクリーンネイルを１こづつ取得するように変更
-        getScreenNailService();
+            // スクリーンネイルを１こづつ取得するように変更
+            getScreenNailService()
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
     }
 
-    @Override
-    public String getRawFileSuffix()
+    override fun getRawFileSuffix(): String
     {
-        Log.v(TAG, " getRawFileSuffix()");
-        return ("RW2");
+        Log.v(TAG, " getRawFileSuffix()")
+        return ("RW2")
     }
 
-    @Override
-    public void downloadContentList(IDownloadContentListCallback callback)
+    override fun downloadContentList(callback: IDownloadContentListCallback)
     {
-        Log.v(TAG, " downloadContentList()");
-
+        Log.v(TAG, " downloadContentList()")
     }
 
-    @Override
-    public void getContentInfo(String path, String name, IContentInfoCallback callback)
+    override fun getContentInfo(path: String, name: String, callback: IContentInfoCallback)
     {
-        Log.v(TAG, " getContentInfo() : " + path + " / " + name);
+        Log.v(TAG, " getContentInfo() : $path / $name")
+
         //　画像の情報を取得する
-
     }
 
-    @Override
-    public void updateCameraFileInfo(@NonNull ICameraFileInfo info)
+    override fun updateCameraFileInfo(info: ICameraFileInfo)
     {
-        Log.v(TAG, " updateCameraFileInfo() : " + info.getFilename());
+        Log.v(TAG, " updateCameraFileInfo() : " + info.filename)
     }
 
-    @Override
-    public void downloadContentScreennail(String path, IDownloadThumbnailImageCallback callback)
+    override fun downloadContentScreennail(path: String, callback: IDownloadThumbnailImageCallback)
     {
-        commandQueue.add(new DownloadScreennailRequest(path, callback));
+        commandQueue.add(DownloadScreennailRequest(path, callback))
     }
 
-    /**
-     *   スクリーンネイルを取得するロジック
-     *
-     */
-    private void getScreenNailService()
+    private fun getScreenNailService()
     {
-        if (isStarted)
+        try
         {
-            // すでにスタートしている場合は、スレッドを走らせない
-            return;
-        }
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
+            if (isStarted)
+            {
+                // すでにスタートしている場合は、スレッドを走らせない
+                return
+            }
+            val thread = Thread {
                 while (true)
                 {
                     try
                     {
-                        DownloadScreennailRequest request = commandQueue.poll();
+                        val request = commandQueue.poll()
                         if (request != null)
                         {
-                            downloadContentScreennailImpl(request.getPath(), request.getCallback());
+                            downloadContentScreennailImpl(request.getPath(), request.getCallback())
                         }
-                        Thread.sleep(COMMAND_POLL_QUEUE_MS);
+                        Thread.sleep(COMMAND_POLL_QUEUE_MS.toLong())
                     }
-                    catch (Exception e)
+                    catch (e: Exception)
                     {
-                        e.printStackTrace();
+                        e.printStackTrace()
                     }
                 }
             }
-        });
-        try
-        {
-            isStarted = true;
-            thread.start();
+            try
+            {
+                isStarted = true
+                thread.start()
+            }
+            catch (e: Exception)
+            {
+                e.printStackTrace()
+            }
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
-        }
-    }
-
-    private void downloadContentScreennailImpl(String path, IDownloadThumbnailImageCallback callback)
-    {
-        if (path.startsWith("/"))
-        {
-            path = path.substring(1);
-        }
-        String requestUrl =  panasonicCamera.getPictureUrl() + "DL" + path.substring(2, path.lastIndexOf(".")) + ".JPG";
-        Log.v(TAG, " downloadContentScreennail() : " + requestUrl + "  ");
-        try
-        {
-            Bitmap bmp = SimpleHttpClient.httpGetBitmap(requestUrl, null, timeoutMs);
-            HashMap<String, Object> map = new HashMap<>();
-            map.put("Orientation", 0);
-            callback.onCompleted(bmp, map);
-        }
-        catch (Throwable e)
-        {
-            e.printStackTrace();
-            callback.onErrorOccurred(new NullPointerException());
+            e.printStackTrace()
         }
     }
 
-    @Override
-    public void downloadContentThumbnail(String path, IDownloadThumbnailImageCallback callback)
+    private fun downloadContentScreennailImpl(srcPath: String, callback: IDownloadThumbnailImageCallback)
     {
+        var path = srcPath
         if (path.startsWith("/"))
         {
-            path = path.substring(1);
+            path = path.substring(1)
         }
-        String requestUrl =  panasonicCamera.getPictureUrl() + "DT" + path.substring(2, path.lastIndexOf(".")) + ".JPG";
-        Log.v(TAG, " downloadContentThumbnail() : " + path + "  [" +  requestUrl + "]");
+        val requestUrl = panasonicCamera.getPictureUrl() + "DL" + path.substring(2, path.lastIndexOf(".")) + ".JPG"
+        Log.v(TAG, " downloadContentScreennailImpl() : $requestUrl  ")
         try
         {
-            Bitmap bmp = SimpleHttpClient.httpGetBitmap(requestUrl, null, timeoutMs);
-            HashMap<String, Object> map = new HashMap<>();
-            map.put("Orientation", 0);
-            callback.onCompleted(bmp, map);
+            val sessionId = panasonicCamera.getCommunicationSessionId()
+            val bmp = if (!sessionId.isNullOrEmpty())
+            {
+                val headerMap: MutableMap<String, String> = HashMap()
+                headerMap["X-SESSION_ID"] = sessionId
+                SimpleHttpClient.httpGetBitmap(requestUrl, headerMap, timeoutMs)
+            }
+            else
+            {
+                SimpleHttpClient.httpGetBitmap(requestUrl, null, timeoutMs)
+            }
+            val map = HashMap<String, Any>()
+            map["Orientation"] = 0
+            callback.onCompleted(bmp, map)
         }
-        catch (Throwable e)
+        catch (e: Throwable)
         {
-            e.printStackTrace();
-            callback.onErrorOccurred(new NullPointerException());
+            e.printStackTrace()
+            callback.onErrorOccurred(NullPointerException())
         }
     }
 
-    @Override
-    public void downloadContent(String path, boolean isSmallSize, final IDownloadContentCallback callback)
+    override fun downloadContentThumbnail(srcPath: String, callback: IDownloadThumbnailImageCallback)
     {
+        var path = srcPath
         if (path.startsWith("/"))
         {
-            path = path.substring(1);
+            path = path.substring(1)
         }
-        String url =  panasonicCamera.getPictureUrl() + path;
+        val requestUrl = panasonicCamera.getPictureUrl() + "DT" + path.substring(2, path.lastIndexOf(".")) + ".JPG"
+        Log.v(TAG, " downloadContentThumbnail() : $path  [$requestUrl]")
+        try
+        {
+            val sessionId = panasonicCamera.getCommunicationSessionId()
+            val bmp = if (!sessionId.isNullOrEmpty())
+            {
+                val headerMap: MutableMap<String, String> = HashMap()
+                headerMap["X-SESSION_ID"] = sessionId
+                SimpleHttpClient.httpGetBitmap(requestUrl, headerMap, timeoutMs)
+            }
+            else
+            {
+                SimpleHttpClient.httpGetBitmap(requestUrl, null, timeoutMs)
+            }
+            val map = HashMap<String, Any>()
+            map["Orientation"] = 0
+            callback.onCompleted(bmp, map)
+        }
+        catch (e: Throwable)
+        {
+            e.printStackTrace()
+            callback.onErrorOccurred(NullPointerException())
+        }
+    }
+
+    override fun downloadContent(srcPath: String, isSmallSize: Boolean, callback: IDownloadContentCallback)
+    {
+        var path = srcPath
+        if (path.startsWith("/"))
+        {
+            path = path.substring(1)
+        }
+        var url = panasonicCamera.getPictureUrl() + path
         if (isSmallSize)
         {
-            url =  panasonicCamera.getPictureUrl() + "DL" + path.substring(2, path.lastIndexOf(".")) + ".JPG";
+            url = panasonicCamera.getPictureUrl() + "DL" + path.substring(2, path.lastIndexOf(".")) + ".JPG"
         }
-        Log.v(TAG, "downloadContent()  PATH : " + path + " GET URL : " + url + "  [" + isSmallSize + "]");
+        Log.v(TAG, "downloadContent()  PATH : $path GET URL : $url  [$isSmallSize]")
 
-        try
-        {
-            SimpleHttpClient.httpGetBytes(url, null, timeoutMs, new SimpleHttpClient.IReceivedMessageCallback() {
-                @Override
-                public void onCompleted() {
-                    callback.onCompleted();
+        try {
+            var headerMap: MutableMap<String, String>? = HashMap()
+            val sessionId = panasonicCamera.getCommunicationSessionId()
+            if (!sessionId.isNullOrEmpty())
+            {
+                headerMap?.set("X-SESSION_ID", sessionId)
+            }
+            else
+            {
+                headerMap = null
+            }
+            SimpleHttpClient.httpGetBytes(url, headerMap, timeoutMs, object : IReceivedMessageCallback {
+                override fun onCompleted() {
+                    callback.onCompleted()
                 }
 
-                @Override
-                public void onErrorOccurred(Exception e) {
-                    callback.onErrorOccurred(e);
+                override fun onErrorOccurred(e: Exception) {
+                    callback.onErrorOccurred(e)
                 }
 
-                @Override
-                public void onReceive(int readBytes, int length, int size, byte[] data) {
-                    float percent = (length == 0) ? 0.0f : ((float) readBytes / (float) length);
-                    //Log.v(TAG, " onReceive : " + readBytes + " " + length + " " + size);
-                    ProgressEvent event = new ProgressEvent(percent, null);
-                    callback.onProgress(data, size, event);
+                override fun onReceive(readBytes: Int, length: Int, size: Int, data: ByteArray) {
+                    val percent =
+                        if ((length == 0)) 0.0f else (readBytes.toFloat() / length.toFloat())
+                    val event = ProgressEvent(percent, null)
+                    callback.onProgress(data, size, event)
                 }
-            });
+            })
         }
-        catch (Throwable e)
+        catch (e: Throwable)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
     }
 
-    @Override
-    public void getCameraContentList(ICameraContentListCallback callback)
+    override fun getCameraContentList(callback: ICameraContentListCallback)
     {
-        Log.v(TAG, "  getCameraContentList()");
+        Log.v(TAG, "  getCameraContentList()")
 
         // 画像情報を取得
-        getContentList();
+        getContentList()
 
-        contentList.clear();
+        contentList.clear()
         try
         {
-            if (getObjectLists == null)
+            if (cameraContentList == null)
             {
                 //何もしないで終了する
-                return;
+                return
             }
-            String objectString = getObjectLists.toString();
-            String checkUrl = panasonicCamera.getPictureUrl();
-            int maxIndex = objectString.length() - checkUrl.length();
-            int index = 0;
+            val objectString = cameraContentList.toString()
+            val checkUrl = panasonicCamera.getPictureUrl() ?:""
+            val maxIndex = objectString.length - checkUrl.length
+            var index = 0
 
             // データを解析してリストを作る
             while ((index >= 0) && (index < maxIndex))
             {
-                index = objectString.indexOf(checkUrl, index);
+                index = objectString.indexOf(checkUrl, index)
                 if (index > 0)
                 {
-                    int lastIndex = objectString.indexOf("&", index);
-                    String picUrl = objectString.substring(index + checkUrl.length(), lastIndex);
+                    val lastIndex = objectString.indexOf("&", index)
+                    val picUrl = objectString.substring(index + checkUrl.length, lastIndex)
                     if (picUrl.startsWith("DO"))
                     {
                         // DO(オリジナル), DL(スクリーンネイル?), DT(サムネイル?)
-                        //Log.v(TAG, " pic : " + picUrl);
-                        PanasonicImageContentInfo contentInfo = new PanasonicImageContentInfo(picUrl);
-                        contentList.add(contentInfo);
+                        //Log.v(TAG, " pic : " + picUrl)
+                        val contentInfo = PanasonicImageContentInfo(picUrl)
+                        contentList.add(contentInfo)
                     }
-                    index = lastIndex;
+                    index = lastIndex
                 }
             }
-            if (callback != null)
-            {
-                callback.onCompleted(contentList);
-            }
+            callback.onCompleted(contentList)
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
-            if (callback != null)
-            {
-                callback.onErrorOccurred(e);
-            }
+            e.printStackTrace()
+            callback.onErrorOccurred(e)
         }
     }
 
-    @Override
-    public void showPictureStarted() {
-
+    override fun showPictureStarted() {
     }
 
-    @Override
-    public void showPictureFinished() {
-
+    override fun showPictureFinished() {
     }
 
     /**
-     *   スクリーンネイルの取得キューで使用するクラス
+     * スクリーンネイルの取得キューで使用するクラス
      */
-    private class DownloadScreennailRequest
+    private inner class DownloadScreennailRequest(private val path: String, private val callback: IDownloadThumbnailImageCallback)
     {
-        private final String path;
-        private final IDownloadThumbnailImageCallback callback;
-        DownloadScreennailRequest(String path, IDownloadThumbnailImageCallback callback)
+        fun getPath(): String
         {
-            this.path = path;
-            this.callback = callback;
+            return (path)
         }
 
-        String getPath()
+        fun getCallback(): IDownloadThumbnailImageCallback
         {
-            return (path);
+            return (callback)
         }
-        IDownloadThumbnailImageCallback getCallback()
-        {
-            return (callback);
-        }
+    }
+
+    companion object
+    {
+        private const val COMMAND_POLL_QUEUE_MS = 50
+        private val TAG: String = PanasonicPlaybackControl::class.java.simpleName
     }
 }

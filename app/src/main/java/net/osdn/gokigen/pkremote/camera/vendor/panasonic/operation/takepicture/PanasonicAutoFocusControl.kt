@@ -1,164 +1,131 @@
-package net.osdn.gokigen.pkremote.camera.vendor.panasonic.operation.takepicture;
+package net.osdn.gokigen.pkremote.camera.vendor.panasonic.operation.takepicture
 
-import android.graphics.PointF;
-import android.graphics.RectF;
-import android.util.Log;
+import android.graphics.PointF
+import android.graphics.RectF
+import android.util.Log
+import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IAutoFocusFrameDisplay
+import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IAutoFocusFrameDisplay.FocusFrameStatus
+import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IIndicatorControl
+import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient
+import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera
+import kotlin.math.floor
 
-import androidx.annotation.NonNull;
-
-import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IAutoFocusFrameDisplay;
-import net.osdn.gokigen.pkremote.camera.interfaces.liveview.IIndicatorControl;
-import net.osdn.gokigen.pkremote.camera.utils.SimpleHttpClient;
-import net.osdn.gokigen.pkremote.camera.vendor.panasonic.wrapper.IPanasonicCamera;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-/**
- *
- *
- */
-public class PanasonicAutoFocusControl
+class PanasonicAutoFocusControl(private val frameDisplayer: IAutoFocusFrameDisplay, private val indicator: IIndicatorControl)
 {
-    private static final String TAG = PanasonicAutoFocusControl.class.getSimpleName();
-    private static final int TIMEOUT_MS = 3000;
-    private final IIndicatorControl indicator;
-    private final IAutoFocusFrameDisplay frameDisplayer;
-    private IPanasonicCamera camera = null;
+    private lateinit var camera: IPanasonicCamera
 
-    /**
-     *
-     *
-     */
-    public PanasonicAutoFocusControl(@NonNull final IAutoFocusFrameDisplay frameDisplayer, final IIndicatorControl indicator)
+    fun setCamera(panasonicCamera: IPanasonicCamera)
     {
-        this.frameDisplayer = frameDisplayer;
-        this.indicator = indicator;
+        this.camera = panasonicCamera
     }
 
-    /**
-     *
-     *
-     */
-    public void setCamera(@NonNull IPanasonicCamera panasonicCamera)
+    fun lockAutoFocus(point: PointF)
     {
-        this.camera = panasonicCamera;
-    }
-
-    /**
-     *
-     *
-     */
-    public void lockAutoFocus(@NonNull final PointF point)
-    {
-        Log.v(TAG, "lockAutoFocus() : [" + point.x + ", " + point.y + "]");
-        if (camera == null)
+        Log.v(TAG, "lockAutoFocus() : [" + point.x + ", " + point.y + "]")
+        if (!::camera.isInitialized)
         {
-            Log.v(TAG, "ISonyCameraApi is null...");
-            return;
+            Log.v(TAG, "IPanasonicCamera is not initialized...")
+            return
         }
         try
         {
-            Thread thread = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
+            val thread = Thread {
+                val preFocusFrameRect = getPreFocusFrameRect(point)
+                try
                 {
-                    RectF preFocusFrameRect = getPreFocusFrameRect(point);
+                    showFocusFrame(preFocusFrameRect, FocusFrameStatus.Running, 0.0)
+                    val posX = floor(point.x * 1000.0).toInt()
+                    val posY = floor(point.y * 1000.0).toInt()
+                    Log.v(TAG, "AF ($posX, $posY)")
+
+                    val sessionId = camera.getCommunicationSessionId()
+                    val urlToSend = "${camera.getCmdUrl()}cam.cgi?mode=camctrl&type=touch&value=$posX/$posY&value2=on"
+                    val reply = if (!sessionId.isNullOrEmpty())
+                    {
+                        val headerMap: MutableMap<String, String> = HashMap()
+                        headerMap["X-SESSION_ID"] = sessionId
+                        SimpleHttpClient.httpGetWithHeader(urlToSend, headerMap, null, TIMEOUT_MS)
+                    }
+                    else
+                    {
+                        SimpleHttpClient.httpGet(urlToSend, TIMEOUT_MS)
+                    }
+                    if (!reply.contains("ok"))
+                    {
+                        Log.v(TAG, "setTouchAFPosition() reply is null.")
+                    }
+                    showFocusFrame(preFocusFrameRect, FocusFrameStatus.Errored, 1.0)
+                }
+                catch (e: Exception)
+                {
+                    e.printStackTrace()
                     try
                     {
-                        showFocusFrame(preFocusFrameRect, IAutoFocusFrameDisplay.FocusFrameStatus.Running, 0.0);
-
-                        int posX = (int) (Math.floor(point.x * 1000.0));
-                        int posY = (int) (Math.floor(point.y * 1000.0));
-                        Log.v(TAG, "AF (" + posX + ", " + posY + ")");
-                        String reply = SimpleHttpClient.httpGet(camera.getCmdUrl() + "cam.cgi?mode=camctrl&type=touch&value=" + posX + "/" + posY + "&value2=on", TIMEOUT_MS);
-
-                        if (!reply.contains("ok"))
-                        {
-                            Log.v(TAG, "setTouchAFPosition() reply is null.");
-                        }
-/*
-                        if (findTouchAFPositionResult(resultsObj))
-                        {
-                            // AF FOCUSED
-                            Log.v(TAG, "lockAutoFocus() : FOCUSED");
-                            showFocusFrame(preFocusFrameRect, IAutoFocusFrameDisplay.FocusFrameStatus.Focused, 0.0);
-                        }
-                        else
-                        {
-                            // AF ERROR
-                            Log.v(TAG, "lockAutoFocus() : ERROR");
-                            showFocusFrame(preFocusFrameRect, IAutoFocusFrameDisplay.FocusFrameStatus.Failed, 1.0);
-                        }
-*/
-                        showFocusFrame(preFocusFrameRect, IAutoFocusFrameDisplay.FocusFrameStatus.Errored, 1.0);
+                        showFocusFrame(preFocusFrameRect, FocusFrameStatus.Errored, 1.0)
                     }
-                    catch (Exception e)
+                    catch (ee: Exception)
                     {
-                        e.printStackTrace();
-                        try
-                        {
-                            showFocusFrame(preFocusFrameRect, IAutoFocusFrameDisplay.FocusFrameStatus.Errored, 1.0);
-                        }
-                        catch (Exception ee)
-                        {
-                            ee.printStackTrace();
-                        }
+                        ee.printStackTrace()
                     }
                 }
-            });
-            thread.start();
+            }
+            thread.start()
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
     }
 
     /**
-     *   シャッター半押し処理
-     *
+     * シャッター半押し処理
      */
-    public void halfPressShutter(final boolean isPressed)
+    fun halfPressShutter(isPressed: Boolean)
     {
-        Log.v(TAG, "halfPressShutter() : " + isPressed);
-        if (camera == null)
+        Log.v(TAG, "halfPressShutter() : $isPressed")
+        if (!::camera.isInitialized)
         {
-            Log.v(TAG, "IPanasonicCamera is null...");
-            return;
+            Log.v(TAG, "IPanasonicCamera is not initialized...")
+            return
         }
         try
         {
-            Thread thread = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
+            val thread = Thread {
+                try
                 {
-                    try
+                    val status = if ((isPressed)) "on" else "off"
+                    val sessionId = camera.getCommunicationSessionId()
+                    val urlToSend = "${camera.getCmdUrl()}cam.cgi?mode=camctrl&type=touch&value=500/500&value2=$status"
+                    val reply = if (!sessionId.isNullOrEmpty())
                     {
-                        String status = (isPressed) ? "on" : "off";
-                        String reply = SimpleHttpClient.httpGet(camera.getCmdUrl() + "cam.cgi?mode=camctrl&type=touch&value=500/500&value2=" + status, TIMEOUT_MS);
-                        if (!reply.contains("ok"))
-                        {
-                            Log.v(TAG, "CENTER FOCUS (" + status + ") FAIL...");
-                        }
-                        else
-                        {
-                            indicator.onAfLockUpdate(isPressed);
-                        }
+                        val headerMap: MutableMap<String, String> = HashMap()
+                        headerMap["X-SESSION_ID"] = sessionId
+                        SimpleHttpClient.httpGetWithHeader(urlToSend, headerMap, null, TIMEOUT_MS)
                     }
-                    catch (Exception e)
+                    else
                     {
-                        e.printStackTrace();
+                        SimpleHttpClient.httpGet(urlToSend, TIMEOUT_MS)
+                    }
+
+                    if (!reply.contains("ok"))
+                    {
+                        Log.v(TAG, "CENTER FOCUS ($status) FAIL...")
+                    }
+                    else
+                    {
+                        indicator.onAfLockUpdate(isPressed)
                     }
                 }
-            });
-            thread.start();
+                catch (e: Exception)
+                {
+                    e.printStackTrace()
+                }
+            }
+            thread.start()
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
     }
 
@@ -166,110 +133,119 @@ public class PanasonicAutoFocusControl
      *
      *
      */
-    public void unlockAutoFocus()
-    {
-        Log.v(TAG, "unlockAutoFocus()");
-        if (camera == null)
+    fun unlockAutoFocus() {
+        Log.v(TAG, "unlockAutoFocus()")
+        if (!::camera.isInitialized)
         {
-            Log.v(TAG, "IPanasonicCamera is null...");
-            return;
+            Log.v(TAG, "IPanasonicCamera is not initialized...")
+            return
         }
         try
         {
-            Thread thread = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
+            val thread = Thread {
+                try
                 {
-                    try
+                    val sessionId = camera.getCommunicationSessionId()
+                    val urlToSend = "${camera.getCmdUrl()}cam.cgi?mode=camctrl&type=touch&value=500/500&value2=off"
+                    val reply = if (!sessionId.isNullOrEmpty())
                     {
-                        String reply = SimpleHttpClient.httpGet(camera.getCmdUrl() + "cam.cgi?mode=camctrl&type=touch&value=500/500&value2=off", TIMEOUT_MS);
-                        if (!reply.contains("ok"))
-                        {
-                            Log.v(TAG, "CENTER FOCUS (UNLOCK) FAIL...");
-                        }
-                        hideFocusFrame();
+                        val headerMap: MutableMap<String, String> = HashMap()
+                        headerMap["X-SESSION_ID"] = sessionId
+                        SimpleHttpClient.httpGetWithHeader(urlToSend, headerMap, null, TIMEOUT_MS)
                     }
-                    catch (Exception e)
+                    else
                     {
-                        e.printStackTrace();
+                        SimpleHttpClient.httpGet(urlToSend, TIMEOUT_MS)
                     }
+                    if (!reply.contains("ok"))
+                    {
+                        Log.v(TAG, "CENTER FOCUS (UNLOCK) FAIL...")
+                    }
+                    hideFocusFrame()
                 }
-            });
-            thread.start();
+                catch (e: Exception)
+                {
+                    e.printStackTrace()
+                }
+            }
+            thread.start()
         }
-        catch (Exception e)
+        catch (e: Exception)
         {
-            e.printStackTrace();
+            e.printStackTrace()
         }
     }
 
-    /**
-     *
-     *
-     */
-    private void showFocusFrame(RectF rect, IAutoFocusFrameDisplay.FocusFrameStatus status, double duration)
+    private fun showFocusFrame(rect: RectF, status: FocusFrameStatus, duration: Double)
     {
-        frameDisplayer.showFocusFrame(rect, status, duration);
-        indicator.onAfLockUpdate(IAutoFocusFrameDisplay.FocusFrameStatus.Focused == status);
+        try
+        {
+            frameDisplayer.showFocusFrame(rect, status, duration)
+            indicator.onAfLockUpdate(FocusFrameStatus.Focused == status)
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
     }
 
-    /**
-     *
-     *
-     */
-    private void hideFocusFrame()
+    private fun hideFocusFrame()
     {
-        frameDisplayer.hideFocusFrame();
-        indicator.onAfLockUpdate(false);
+        try
+        {
+            frameDisplayer.hideFocusFrame()
+            indicator.onAfLockUpdate(false)
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
     }
 
-    /**
-     *
-     *
-     */
-    private RectF getPreFocusFrameRect(@NonNull PointF point)
+    private fun getPreFocusFrameRect(point: PointF): RectF
     {
-        float imageWidth =  frameDisplayer.getContentSizeWidth();
-        float imageHeight =  frameDisplayer.getContentSizeHeight();
+        val imageWidth = frameDisplayer.contentSizeWidth
+        val imageHeight = frameDisplayer.contentSizeHeight
 
         // Display a provisional focus frame at the touched point.
-        float focusWidth = 0.125f;  // 0.125 is rough estimate.
-        float focusHeight = 0.125f;
-        if (imageWidth > imageHeight)
-        {
-            focusHeight *= (imageWidth / imageHeight);
+        val focusWidth = 0.125f // 0.125 is rough estimate.
+        var focusHeight = 0.125f
+        focusHeight *= if (imageWidth > imageHeight) {
+            imageWidth / imageHeight
+        } else {
+            imageHeight / imageWidth
         }
-        else
-        {
-            focusHeight *= (imageHeight / imageWidth);
-        }
-        return (new RectF(point.x - focusWidth / 2.0f, point.y - focusHeight / 2.0f,
-                point.x + focusWidth / 2.0f, point.y + focusHeight / 2.0f));
+        return (RectF(
+            point.x - focusWidth / 2.0f, point.y - focusHeight / 2.0f,
+            point.x + focusWidth / 2.0f, point.y + focusHeight / 2.0f
+        ))
     }
 
-    /**
-     *
-     *
-     */
-    private static boolean findTouchAFPositionResult(JSONObject replyJson)
+    companion object
     {
-        boolean afResult = false;
-        try
+        private val TAG: String = PanasonicAutoFocusControl::class.java.simpleName
+        private const val TIMEOUT_MS = 3000
+/*
+        private fun findTouchAFPositionResult(replyJson: JSONObject): Boolean
         {
-            int indexOfTouchAFPositionResult = 1;
-            JSONArray resultsObj = replyJson.getJSONArray("result");
-            if (!resultsObj.isNull(indexOfTouchAFPositionResult))
+            var afResult = false
+            try
             {
-                JSONObject touchAFPositionResultObj = resultsObj.getJSONObject(indexOfTouchAFPositionResult);
-                afResult = touchAFPositionResultObj.getBoolean("AFResult");
-                Log.v(TAG, "AF Result : " + afResult);
+                val indexOfTouchAFPositionResult = 1
+                val resultsObj = replyJson.getJSONArray("result")
+                if (!resultsObj.isNull(indexOfTouchAFPositionResult))
+                {
+                    val touchAFPositionResultObj = resultsObj.getJSONObject(indexOfTouchAFPositionResult)
+                    afResult = touchAFPositionResultObj.getBoolean("AFResult")
+                    Log.v(TAG, "AF Result : $afResult")
+                }
             }
+            catch (e: Exception)
+            {
+                e.printStackTrace()
+            }
+            return (afResult)
         }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return (afResult);
+*/
     }
 }
