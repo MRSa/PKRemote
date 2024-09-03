@@ -33,7 +33,7 @@ A01DLは、(機種によっては少し制約がありますが)いろんなカ�
 * Olympus製カメラ (OM-D, PEN, TG-6 等)
 * [OLYMPUS AIR A01](https://jp.omsystem.com/cms/product/opc/a01/index.html)
 * SONY製カメラ（レンズスタイルのDSC-QX1シリーズは除く、ILCE-QX1は使用可能です。）
-* Canon製カメラ (iNSPiC RECは除く)
+* Canon製カメラ ([iNSPiC REC](https://faq.canon.jp/app/answers/detail/a_id/101025/)は除く)
 * Fujifilm製カメラ
 * Panasonic製カメラ
 * Nikon製カメラ (Wireless Mobile Utility対応機、SnapBridge対応機は、Wifi直接接続をサポートした機種のみ使用可能です)
