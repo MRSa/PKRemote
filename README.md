@@ -4,7 +4,7 @@ This document is written in Japanese.
 
 --------------------------------
 
-## A01DL : PKRemote Android用Wifiカメラ撮影画像ダウンローダー**
+## A01DL : PKRemote Android用Wifiカメラ撮影画像ダウンローダー
 
 ### 概要
 
