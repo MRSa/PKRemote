@@ -6,7 +6,6 @@ import android.view.MotionEvent;
 
 /**
  *   フォーカスフレームの表示クラス
- *
  */
 public interface IAutoFocusFrameDisplay
 {

@@ -22,6 +22,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.preference.PreferenceManager
 import com.google.android.material.navigation.NavigationBarView
 import net.osdn.gokigen.pkremote.camera.CameraInterfaceProvider
@@ -106,6 +109,15 @@ class MainActivity : AppCompatActivity(),
 
         try
         {
+            setupWindowInset(findViewById(R.id.container))
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
+
+        try
+        {
             mImageConnectButton = findViewById(R.id.button_wifi_connect)
             mReloadButton = findViewById(R.id.button_reload)
             mCardSlotSelection = findViewById(R.id.card_slot_selection)
@@ -181,12 +193,31 @@ class MainActivity : AppCompatActivity(),
         return (result)
     }
 
-/*
-    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
+    private fun setupWindowInset(view: View)
+    {
+        try
+        {
+            // Display cutout insets
+            //   https://developer.android.com/develop/ui/views/layout/edge-to-edge
+            ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+                val bars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                            or WindowInsetsCompat.Type.displayCutout()
+                )
+                v.updatePadding(
+                    left = bars.left,
+                    top = bars.top,
+                    right = bars.right,
+                    bottom = bars.bottom,
+                )
+                WindowInsetsCompat.CONSUMED
+            }
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
     }
-*/
-
 
     /**
      * パーミッション設定が終わった後...
