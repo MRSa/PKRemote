@@ -72,7 +72,7 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
         try
         {
             isDownloading = true
-            var contentFileName = fileInfo.contentName.toUpperCase(Locale.US)
+            var contentFileName = fileInfo.contentName.uppercase(Locale.US)
             if (replaceJpegSuffix != null)
             {
                 contentFileName = contentFileName.replace(JPEG_SUFFIX, replaceJpegSuffix)
@@ -80,61 +80,61 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
             }
             else
             {
-                targetFileName = fileInfo.originalName.toUpperCase(Locale.US)
+                targetFileName = fileInfo.originalName.uppercase(Locale.US)
             }
             Log.v(TAG, "startDownload() $targetFileName")
             when {
-                contentFileName.toUpperCase(Locale.US).contains(RAW_SUFFIX_1) -> {
+                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_1) -> {
                     mimeType = "image/x-adobe-dng"
                     isSmallSize = false
                 }
-                contentFileName.toUpperCase(Locale.US).contains(RAW_SUFFIX_2) -> {
+                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_2) -> {
                     mimeType = "image/x-olympus-orf"
                     isSmallSize = false
                 }
-                contentFileName.toUpperCase(Locale.US).contains(RAW_SUFFIX_3) -> {
+                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_3) -> {
                     mimeType = "image/x-pentax-pef"
                     isSmallSize = false
                 }
-                contentFileName.toUpperCase(Locale.US).contains(RAW_SUFFIX_4) -> {
+                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_4) -> {
                     mimeType = "image/x-panasonic-rw2"
                     isSmallSize = false
                 }
-                contentFileName.toUpperCase(Locale.US).contains(RAW_SUFFIX_A) -> {
+                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_A) -> {
                     // Panasonic
                     mimeType = "image/x-panasonic-raw"
                     isSmallSize = false
                 }
-                contentFileName.toUpperCase(Locale.US).contains(RAW_SUFFIX_5) -> {
+                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_5) -> {
                     mimeType = "image/x-sony-arw"
                     isSmallSize = false
                 }
-                contentFileName.toUpperCase(Locale.US).contains(RAW_SUFFIX_6) -> {
+                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_6) -> {
                     mimeType = "image/x-canon-crw"
                     isSmallSize = false
                 }
-                contentFileName.toUpperCase(Locale.US).contains(RAW_SUFFIX_7) -> {
+                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_7) -> {
                     mimeType = "image/x-canon-cr2"
                     isSmallSize = false
                 }
-                contentFileName.toUpperCase(Locale.US).contains(RAW_SUFFIX_8) -> {
+                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_8) -> {
                     mimeType = "image/x-canon-cr3"
                     isSmallSize = false
                 }
-                contentFileName.toUpperCase(Locale.US).contains(RAW_SUFFIX_9) -> {
+                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_9) -> {
                     mimeType = "image/x-nikon-nef"
                     isSmallSize = false
                 }
-                contentFileName.toUpperCase(Locale.US).contains(RAW_SUFFIX_0) -> {
+                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_0) -> {
                     mimeType = "image/x-fuji-raf"
                     isSmallSize = false
                 }
-                contentFileName.toUpperCase(Locale.US).contains(MOVIE_SUFFIX) -> {
+                contentFileName.uppercase(Locale.US).contains(MOVIE_SUFFIX) -> {
                     mimeType = "video/mp4"
                     isSmallSize = false
                     isVideo = true
                 }
-                contentFileName.toUpperCase(Locale.US).contains(MOVIE_SUFFIX_MP4) -> {
+                contentFileName.uppercase(Locale.US).contains(MOVIE_SUFFIX_MP4) -> {
                     mimeType = "video/mp4"
                     isSmallSize = false
                     isVideo = true

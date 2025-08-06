@@ -183,6 +183,10 @@ class MainActivity : AppCompatActivity(),
                     // この場合は、権限付与の判断を除外 (SDK: 34以上はエラーになる...)
 
                 }
+                else if ((param == Manifest.permission.NEARBY_WIFI_DEVICES)&&(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU))
+                {
+                    // この場合は、権限付与の判断を除外 (SDK: 33より下はエラーになる...)
+                }
                 else
                 {
                     Log.v(TAG, " Permission: $param : ${Build.VERSION.SDK_INT}")
@@ -538,6 +542,7 @@ class MainActivity : AppCompatActivity(),
             Manifest.permission.ACCESS_MEDIA_LOCATION,
             Manifest.permission.ACCESS_NETWORK_STATE,
             Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.NEARBY_WIFI_DEVICES,
             //Manifest.permission.CHANGE_WIFI_MULTICAST_STATE,
         )
     }
