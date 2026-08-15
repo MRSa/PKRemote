@@ -51,7 +51,7 @@ public class LogCatFragment extends ListFragment
     {
         inflater.inflate(R.menu.debug_view, menu);
 /*
-        String title = getString(R.string.app_name) + " " + getString(R.string.pref_degug_info);
+        String title = getString(R.string.app_name) + " " + getString(R.string.pref_debug_info);
         try {
             AppCompatActivity activity = (AppCompatActivity) getActivity();
             ActionBar bar = activity.getSupportActionBar();

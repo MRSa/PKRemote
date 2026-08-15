@@ -1,74 +1,96 @@
-@file:Suppress("DEPRECATION")
-
 package net.osdn.gokigen.pkremote.playback
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.ContentValues
 import android.content.Intent
-import android.database.DatabaseUtils
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
+import java.io.File
+import java.io.OutputStream
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import net.osdn.gokigen.pkremote.R
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.ICameraContent
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IDownloadContentCallback
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IPlaybackControl
 import net.osdn.gokigen.pkremote.camera.interfaces.playback.IProgressEvent
 import net.osdn.gokigen.pkremote.preference.IPreferencePropertyAccessor
-import java.io.File
-import java.io.OutputStream
-import java.text.SimpleDateFormat
-import java.util.*
-import android.app.ProgressDialog as ProgressDialogOld
 
-class MyContentDownloader(private val activity : Activity, private val playbackControl : IPlaybackControl, private val receiver : IContentDownloadNotify?) : IDownloadContentCallback
-{
-    private lateinit var downloadDialog : ProgressDialogOld //= ProgressDialog(activity)
-    private val dumpLog = false
+class MyContentDownloader(
+    private val activity: Activity,
+    private val playbackControl: IPlaybackControl,
+    private val receiver: IContentDownloadNotify?
+) : IDownloadContentCallback {
+
+    private var downloadDialog: AlertDialog? = null
+    private var progressBar: ProgressBar? = null
+    private var textProgressPercent: TextView? = null
+
+    @Volatile
     private var outputStream: OutputStream? = null
+
+    @Volatile
     private var targetFileName = ""
-    private var filepath = ""
+
+    @Volatile
     private var mimeType = "image/jpeg"
+
+    @Volatile
     private var isDownloading = false
-    private var imageUri : Uri? = null
+
+    @Volatile
+    private var imageUri: Uri? = null
 
     private fun getExternalOutputDirectory(): File
     {
-        val directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).path + "/" + activity.getString(R.string.app_name2) + "/"
+        val directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).path +
+                File.separator + activity.getString(R.string.app_name2) + File.separator
         val target = File(directoryPath)
         try
         {
-            target.mkdirs()
+            if (!target.exists())
+            {
+                target.mkdirs()
+            }
         }
         catch (e: Exception)
         {
-            e.printStackTrace()
+            Log.e(TAG, "Failed to create directory: $directoryPath", e)
         }
         Log.v(TAG, "  ----- RECORD Directory PATH : $directoryPath -----")
-        return (target)
+        return target
     }
 
-    /**
-     * ダウンロードの開始
-     *
-     */
-    fun startDownload(fileInfo: ICameraContent?, appendTitle: String, replaceJpegSuffix: String?, requestSmallSize: Boolean)
-    {
+    // --- ダウンロードの開始
+    fun startDownload(
+        fileInfo: ICameraContent?,
+        appendTitle: String,
+        replaceJpegSuffix: String?,
+        requestSmallSize: Boolean
+    ) {
         if (fileInfo == null)
         {
-            Log.v(TAG, "startDownload() ICameraFileInfo is NULL...")
+            Log.v(TAG, "startDownload() ICameraContent is NULL...")
             return
         }
 
-        // Download the image.
-        var isSmallSize = requestSmallSize
-        var isVideo = false
+        if (isDownloading)
+        {
+            Log.w(TAG, "Download is already in progress. : ${fileInfo.contentName}")
+            return
+        }
+
         try
         {
             isDownloading = true
@@ -83,58 +105,26 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
                 targetFileName = fileInfo.originalName.uppercase(Locale.US)
             }
             Log.v(TAG, "startDownload() $targetFileName")
+
+            var isSmallSize = requestSmallSize
+            var isVideo = false
+
+            // MIME Type と拡張子の判定
             when {
-                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_1) -> {
-                    mimeType = "image/x-adobe-dng"
+                contentFileName.endsWith(RAW_SUFFIX_1) -> { mimeType = "image/x-adobe-dng"; isSmallSize = false }
+                contentFileName.endsWith(RAW_SUFFIX_2) -> { mimeType = "image/x-olympus-orf"; isSmallSize = false }
+                contentFileName.endsWith(RAW_SUFFIX_3) -> { mimeType = "image/x-pentax-pef"; isSmallSize = false }
+                contentFileName.endsWith(RAW_SUFFIX_4) || contentFileName.endsWith(RAW_SUFFIX_A) -> {
+                    mimeType = if (contentFileName.endsWith(RAW_SUFFIX_A)) "image/x-panasonic-raw" else "image/x-panasonic-rw2"
                     isSmallSize = false
                 }
-                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_2) -> {
-                    mimeType = "image/x-olympus-orf"
-                    isSmallSize = false
-                }
-                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_3) -> {
-                    mimeType = "image/x-pentax-pef"
-                    isSmallSize = false
-                }
-                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_4) -> {
-                    mimeType = "image/x-panasonic-rw2"
-                    isSmallSize = false
-                }
-                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_A) -> {
-                    // Panasonic
-                    mimeType = "image/x-panasonic-raw"
-                    isSmallSize = false
-                }
-                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_5) -> {
-                    mimeType = "image/x-sony-arw"
-                    isSmallSize = false
-                }
-                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_6) -> {
-                    mimeType = "image/x-canon-crw"
-                    isSmallSize = false
-                }
-                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_7) -> {
-                    mimeType = "image/x-canon-cr2"
-                    isSmallSize = false
-                }
-                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_8) -> {
-                    mimeType = "image/x-canon-cr3"
-                    isSmallSize = false
-                }
-                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_9) -> {
-                    mimeType = "image/x-nikon-nef"
-                    isSmallSize = false
-                }
-                contentFileName.uppercase(Locale.US).contains(RAW_SUFFIX_0) -> {
-                    mimeType = "image/x-fuji-raf"
-                    isSmallSize = false
-                }
-                contentFileName.uppercase(Locale.US).contains(MOVIE_SUFFIX) -> {
-                    mimeType = "video/mp4"
-                    isSmallSize = false
-                    isVideo = true
-                }
-                contentFileName.uppercase(Locale.US).contains(MOVIE_SUFFIX_MP4) -> {
+                contentFileName.endsWith(RAW_SUFFIX_5) -> { mimeType = "image/x-sony-arw"; isSmallSize = false }
+                contentFileName.endsWith(RAW_SUFFIX_6) -> { mimeType = "image/x-canon-crw"; isSmallSize = false }
+                contentFileName.endsWith(RAW_SUFFIX_7) -> { mimeType = "image/x-canon-cr2"; isSmallSize = false }
+                contentFileName.endsWith(RAW_SUFFIX_8) -> { mimeType = "image/x-canon-cr3"; isSmallSize = false }
+                contentFileName.endsWith(RAW_SUFFIX_9) -> { mimeType = "image/x-nikon-nef"; isSmallSize = false }
+                contentFileName.endsWith(RAW_SUFFIX_0) -> { mimeType = "image/x-fuji-raf"; isSmallSize = false }
+                contentFileName.endsWith(MOVIE_SUFFIX) || contentFileName.endsWith(MOVIE_SUFFIX_MP4) -> {
                     mimeType = "video/mp4"
                     isSmallSize = false
                     isVideo = true
@@ -144,101 +134,94 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
                 }
             }
 
-            ////// ダイアログの表示
+            // ProgressBar を使用したダイアログの表示
             activity.runOnUiThread {
-                if (!::downloadDialog.isInitialized)
-                {
-                    downloadDialog = ProgressDialogOld(activity)
-                }
-                downloadDialog.setTitle(activity.getString(R.string.dialog_download_file_title) + appendTitle)
-                downloadDialog.setMessage(activity.getString(R.string.dialog_download_message) + " " + targetFileName)
-                downloadDialog.setProgressStyle(ProgressDialogOld.STYLE_HORIZONTAL)
-                downloadDialog.setCancelable(false)
-                downloadDialog.show()
+                val dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_download_progress, null)
+                progressBar = dialogView.findViewById(R.id.progressBar)
+                textProgressPercent = dialogView.findViewById(R.id.textProgressPercent)
+
+                progressBar?.progress = 0
+                textProgressPercent?.text = "0%"
+
+                val title = activity.getString(R.string.dialog_download_file_title) + appendTitle
+                val message = activity.getString(R.string.dialog_download_message) + " " + targetFileName
+
+                downloadDialog = AlertDialog.Builder(activity)
+                    .setTitle(title)
+                    .setMessage(message)
+                    .setView(dialogView)
+                    .setCancelable(false)
+                    .create()
+
+                downloadDialog?.show()
             }
+
             val resolver = activity.contentResolver
-            val directoryPath = Environment.DIRECTORY_DCIM + File.separator + activity.getString(R.string.app_name2)
-            val calendar = Calendar.getInstance()
-            val extendName = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(calendar.time)
-            val periodPosition = targetFileName.indexOf(".")
-            val extension = targetFileName.substring(periodPosition)
-            val baseFileName = targetFileName.substring(0, periodPosition)
-            val outputFileName = baseFileName + "_" + extendName + extension
+            val relativePath = Environment.DIRECTORY_DCIM + File.separator + activity.getString(R.string.app_name2)
+            val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Calendar.getInstance().time)
 
+            // 拡張子の分離
+            val baseName = targetFileName.substringBeforeLast('.', targetFileName)
+            val ext = if (targetFileName.contains('.')) "." + targetFileName.substringAfterLast('.') else ""
+            val outputFileName = "${baseName}_${timeStamp}${ext}"
 
-            val values = ContentValues()
-            values.put(MediaStore.Images.Media.TITLE, outputFileName)
-            values.put(MediaStore.Images.Media.DISPLAY_NAME, outputFileName)
-            values.put(MediaStore.Images.Media.MIME_TYPE, mimeType)
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.TITLE, outputFileName)
+                put(MediaStore.MediaColumns.DISPLAY_NAME, outputFileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+            }
+
             val extStorageUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                values.put(MediaStore.Images.Media.RELATIVE_PATH, directoryPath)
-                values.put(MediaStore.Images.Media.IS_PENDING, true)
-                if (isVideo)
-                {
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
+                values.put(MediaStore.MediaColumns.IS_PENDING, 1)
+                if (isVideo) {
                     MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-                }
-                else
-                {
+                } else {
                     MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
                 }
             } else {
-                values.put(MediaStore.Images.Media.DATA, getExternalOutputDirectory().absolutePath + File.separator + outputFileName)
-                if (isVideo)
-                {
+                val fullPath = File(getExternalOutputDirectory(), outputFileName).absolutePath
+                values.put(MediaStore.MediaColumns.DATA, fullPath)
+                if (isVideo) {
                     MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-                }
-                else
-                {
+                } else {
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 }
             }
-            imageUri = resolver.insert(extStorageUri, values)
-            if (imageUri != null)
-            {
-                ////////////////////////////////////////////////////////////////
-                if (dumpLog)
-                {
-                    if (imageUri != null)
-                    {
-                        val cursor = resolver.query(imageUri!!, null, null, null, null)
-                        DatabaseUtils.dumpCursor(cursor)
-                        cursor?.close()
-                    }
-                }
-                ////////////////////////////////////////////////////////////////
 
+            imageUri = resolver.insert(extStorageUri, values)
+            val uri = imageUri
+
+            if (uri != null)
+            {
                 try
                 {
-                    outputStream = resolver.openOutputStream(imageUri!!)
+                    outputStream = resolver.openOutputStream(uri)
                     val path = fileInfo.contentPath + "/" + contentFileName
                     Log.v(TAG, "downloadContent : $path (small: $isSmallSize)")
                     playbackControl.downloadContent(path, isSmallSize, this)
                 }
                 catch (e: Exception)
                 {
-                    e.printStackTrace()
-                    val message = e.message
+                    Log.e(TAG, "Failed to open output stream or start download", e)
+                    cleanupFailedDownload()
                     activity.runOnUiThread {
-                        downloadDialog.dismiss()
-                        isDownloading = false
-                        presentMessage(activity.getString(R.string.download_control_save_failed), message)
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                        {
-                            values.put(MediaStore.Images.Media.IS_PENDING, false)
-                            if (imageUri != null)
-                            {
-                                resolver.update(imageUri!!, values, null, null)
-                            }
-                        }
+                        dismissDialogInternal()
+                        presentMessage(activity.getString(R.string.download_control_save_failed), e.message)
                     }
                 }
-
+            }
+            else
+            {
+                Log.e(TAG, "Failed to create MediaStore entry.")
+                cleanupFailedDownload()
+                dismiss()
             }
         }
         catch (t: Throwable)
         {
-            t.printStackTrace()
+            Log.e(TAG, "Error in startDownload", t)
+            cleanupFailedDownload()
             dismiss()
         }
     }
@@ -246,14 +229,27 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
     private fun dismiss()
     {
         activity.runOnUiThread {
-            try
-            {
-                downloadDialog.dismiss()
+            dismissDialogInternal()
+        }
+    }
+
+    private fun dismissDialogInternal()
+    {
+        try
+        {
+            if (downloadDialog?.isShowing == true) {
+                downloadDialog?.dismiss()
             }
-            catch (e: Exception)
-            {
-                e.printStackTrace()
-            }
+        }
+        catch (e: Exception)
+        {
+            Log.e(TAG, "Error dismissing dialog", e)
+        }
+        finally
+        {
+            downloadDialog = null
+            progressBar = null
+            textProgressPercent = null
             isDownloading = false
         }
     }
@@ -263,15 +259,21 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
         try
         {
             val percent = (progressEvent.progress * 100.0f).toInt()
-            downloadDialog.progress = percent
-            if ((outputStream != null)&&(bytes != null)&&(length > 0))
+
+            // UI スレッドで ProgressBar の進捗・テキストを更新
+            activity.runOnUiThread {
+                progressBar?.progress = percent
+                textProgressPercent?.text = activity.getString(R.string.download_progress_percent, percent)
+            }
+
+            if (outputStream != null && bytes != null && length > 0)
             {
                 outputStream?.write(bytes, 0, length)
             }
         }
         catch (e: Exception)
         {
-            e.printStackTrace()
+            Log.e(TAG, "Error during onProgress write", e)
         }
     }
 
@@ -281,88 +283,100 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
         {
             outputStream?.flush()
             outputStream?.close()
+            outputStream = null
 
-            if (imageUri != null)
+            val uri = imageUri
+            if (uri != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
             {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                {
-                    val values = ContentValues()
-                    val resolver = activity.contentResolver
-                    values.put(MediaStore.Images.Media.MIME_TYPE, mimeType)
-                    values.put(MediaStore.Images.Media.DATA, filepath)
-                    values.put(MediaStore.Images.Media.IS_PENDING, false)
-                    resolver.update(imageUri!!, values, null, null)
+                val values = ContentValues().apply {
+                    put(MediaStore.MediaColumns.IS_PENDING, 0)
                 }
+                activity.contentResolver.update(uri, values, null, null)
             }
-            try
-            {
 
-                if (imageUri != null)
-                {
-                    activity.runOnUiThread {
-                        val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
-                        if (preferences.getBoolean(IPreferencePropertyAccessor.SHARE_AFTER_SAVE, false))
-                        {
-                            shareContent(imageUri, mimeType)
-                        }
-                        try
-                        {
-                            receiver?.downloadedImage(targetFileName, imageUri)
-                        }
-                        catch (e: Exception)
-                        {
-                            e.printStackTrace()
-                        }
+            if (uri != null)
+            {
+                activity.runOnUiThread {
+                    val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
+                    if (preferences.getBoolean(IPreferencePropertyAccessor.SHARE_AFTER_SAVE, false))
+                    {
+                        shareContent(uri, mimeType)
+                    }
+                    try
+                    {
+                        receiver?.downloadedImage(targetFileName, uri)
+                    }
+                    catch (e: Exception)
+                    {
+                        Log.e(TAG, "Receiver callback failed", e)
                     }
                 }
             }
-            catch (e: Exception)
-            {
-                e.printStackTrace()
-            }
+
             activity.runOnUiThread {
-                downloadDialog.dismiss()
-                isDownloading = false
+                dismissDialogInternal()
                 val view = activity.findViewById<View>(R.id.fragment1)
-                Snackbar.make(view, activity.getString(R.string.download_control_save_success) + " " + targetFileName, Snackbar.LENGTH_SHORT).show()
-                System.gc()
+                if (view != null)
+                {
+                    Snackbar.make(
+                        view,
+                        activity.getString(R.string.download_control_save_success) + " " + targetFileName,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
         catch (e: Exception)
         {
-            val message = e.message
+            Log.e(TAG, "Error onCompleted", e)
+            cleanupFailedDownload()
             activity.runOnUiThread {
-                downloadDialog.dismiss()
-                isDownloading = false
-                presentMessage(activity.getString(R.string.download_control_save_failed), message)
+                dismissDialogInternal()
+                presentMessage(activity.getString(R.string.download_control_save_failed), e.message)
             }
         }
-        System.gc()
     }
 
     override fun onErrorOccurred(e: Exception)
     {
-        isDownloading = false
+        Log.e(TAG, "onErrorOccurred", e)
         val message = e.message
+
+        cleanupFailedDownload()
+
+        activity.runOnUiThread {
+            dismissDialogInternal()
+            presentMessage(activity.getString(R.string.download_control_download_failed), message)
+        }
+    }
+
+    private fun cleanupFailedDownload()
+    {
         try
         {
-            e.printStackTrace()
-            if (outputStream != null)
-            {
-                outputStream?.flush()
-                outputStream?.close()
-            }
+            outputStream?.flush()
+            outputStream?.close()
         }
         catch (ex: Exception)
         {
-            ex.printStackTrace()
+            Log.e(TAG, "Failed to close output stream on cleanup", ex)
         }
-        activity.runOnUiThread {
-            downloadDialog.dismiss()
-            isDownloading = false
-            presentMessage(activity.getString(R.string.download_control_download_failed), message)
+        finally
+        {
+            outputStream = null
         }
-        System.gc()
+
+        imageUri?.let { uri ->
+            try
+            {
+                activity.contentResolver.delete(uri, null, null)
+            }
+            catch (ex: Exception)
+            {
+                Log.e(TAG, "Failed to delete pending/incomplete file: $uri", ex)
+            }
+            imageUri = null
+        }
     }
 
     fun isDownloading(): Boolean
@@ -370,54 +384,50 @@ class MyContentDownloader(private val activity : Activity, private val playbackC
         return isDownloading
     }
 
-    /**
-     * 共有の呼び出し
-     *
-     * @param fileUri  ファイルUri
-     */
     private fun shareContent(fileUri: Uri?, contentType: String)
     {
-        val intent = Intent()
-        intent.action = Intent.ACTION_SEND
+        if (fileUri == null) return
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            type = contentType
+            putExtra(Intent.EXTRA_STREAM, fileUri)
+        }
         try
         {
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            intent.type = contentType // "video/mp4"  or "image/jpeg"  or "image/x-adobe-dng"
-            intent.putExtra(Intent.EXTRA_STREAM, fileUri)
             activity.startActivityForResult(intent, 0)
         }
         catch (e: Exception)
         {
-            e.printStackTrace()
+            Log.e(TAG, "Failed to start share activity", e)
         }
     }
 
     private fun presentMessage(title: String, message: String?)
     {
         activity.runOnUiThread {
-            val builder = AlertDialog.Builder(activity)
-            builder.setTitle(title).setMessage(message)
-            builder.show()
+            AlertDialog.Builder(activity)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
         }
     }
 
-    companion object
-    {
-        private val TAG = this.toString()
-        private const val RAW_SUFFIX_1 = ".DNG" // RAW: Ricoh / Pentax
-        private const val RAW_SUFFIX_2 = ".ORF" // RAW: Olympus
-        private const val RAW_SUFFIX_3 = ".PEF" // RAW: Pentax
-        private const val RAW_SUFFIX_4 = ".RW2" // RAW: Panasonic
-        private const val RAW_SUFFIX_5 = ".ARW" // RAW: Sony
-        private const val RAW_SUFFIX_6 = ".CRW" // RAW: Canon
-        private const val RAW_SUFFIX_7 = ".CR2" // RAW: Canon
-        private const val RAW_SUFFIX_8 = ".CR3" // RAW: Canon
-        private const val RAW_SUFFIX_9 = ".NEF" // RAW: Nikon
-        private const val RAW_SUFFIX_0 = ".RAF" // RAW: Fuji
-        private const val RAW_SUFFIX_A = ".RAW" // RAW: Panasonic
+    companion object {
+        private const val TAG = "MyContentDownloader"
+        private const val RAW_SUFFIX_1 = ".DNG"
+        private const val RAW_SUFFIX_2 = ".ORF"
+        private const val RAW_SUFFIX_3 = ".PEF"
+        private const val RAW_SUFFIX_4 = ".RW2"
+        private const val RAW_SUFFIX_5 = ".ARW"
+        private const val RAW_SUFFIX_6 = ".CRW"
+        private const val RAW_SUFFIX_7 = ".CR2"
+        private const val RAW_SUFFIX_8 = ".CR3"
+        private const val RAW_SUFFIX_9 = ".NEF"
+        private const val RAW_SUFFIX_0 = ".RAF"
+        private const val RAW_SUFFIX_A = ".RAW"
         private const val MOVIE_SUFFIX = ".MOV"
         private const val MOVIE_SUFFIX_MP4 = ".MP4"
         private const val JPEG_SUFFIX = ".JPG"
     }
-
 }
