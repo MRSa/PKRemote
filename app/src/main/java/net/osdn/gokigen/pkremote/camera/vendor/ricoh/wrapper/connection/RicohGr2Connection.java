@@ -136,7 +136,13 @@ public class RicohGr2Connection implements ICameraConnection
     public void stopWatchWifiStatus(Context context)
     {
         Log.v(TAG, "stopWatchWifiStatus()");
-        context.unregisterReceiver(connectionReceiver);
+        try {
+            context.unregisterReceiver(connectionReceiver);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         disconnect(false);
     }
 

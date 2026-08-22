@@ -30,6 +30,8 @@
     <string name="dialog_message_power_off">カメラの電源を切り、アプリケーションを終了します。</string>
     <string name="dialog_message_exit_application">アプリケーションを終了します。</string>
 
+    <string name="download_progress_percent">%1$d%%</string>
+
     <string name="camera_disconnected">カメラ切断</string>
     <string name="only_opc_feature">この機能はOlympus Air専用です。</string>
 
@@ -66,7 +68,7 @@
     <string name="pref_instruction_manual">A01DL操作説明</string>
     <string name="pref_privacy_policy">プライバシーポリシー</string>
 
-    <string name="pref_degug_info">デバッグ情報</string>
+    <string name="pref_debug_info">デバッグ情報</string>
     <string name="pref_summary_debug_info">LogCat情報を表示します。</string>
 
     <string name="dialog_title_connect_failed_ricoh">接続失敗(RICOH)</string>

@@ -30,6 +30,8 @@
     <string name="dialog_message_power_off">Power Off</string>
     <string name="dialog_message_exit_application">Exit Application</string>
 
+    <string name="download_progress_percent">%1$d%%</string>
+
     <string name="camera_disconnected">Disconnected</string>
     <string name="only_opc_feature">This feature is only available for a OPC Camera.</string>
 
@@ -66,7 +68,7 @@
     <string name="pref_instruction_manual">Instructions</string>
     <string name="pref_privacy_policy">Privacy Policy</string>
 
-    <string name="pref_degug_info">Debug Information</string>
+    <string name="pref_debug_info">Debug Information</string>
     <string name="pref_summary_debug_info">LogCat Information</string>
 
     <string name="dialog_title_connect_failed_ricoh">Connect failed (RICOH)</string>
